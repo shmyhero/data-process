@@ -10,7 +10,7 @@ class PathMgr(object):
     @staticmethod
     def get_project_path():
         path_dir = os.path.dirname(os.path.abspath(__file__))
-        return path_dir[:path_dir.rindex('/')]
+        return path_dir[:path_dir.rindex(os.path.sep)]
 
     @staticmethod
     def get_config_path():
