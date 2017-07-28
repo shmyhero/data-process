@@ -9,7 +9,8 @@ class Skew(object):
     def __init__(self):
         pass
 
-    def plot_lines(self, symbol):
+    @staticmethod
+    def plot_skew_with_price(symbol):
         df = OptionSkewDAO().select_by_symbol(symbol)
         fig, ax1 = plt.subplots()
         x = df['tradeTime']
@@ -25,5 +26,6 @@ class Skew(object):
         plt.show()
 
 
+
 if __name__ == '__main__':
-    Skew().plot_lines('SPY')
+    Skew.plot_skew_with_price('IWB')
