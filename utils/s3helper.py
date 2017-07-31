@@ -14,8 +14,8 @@ class S3(object):
         self.bucket = s3.Bucket(name = bucket_name)
 
     def list_objects(self):
-        for object in self.bucket.objects.all():
-            yield object.key
+        for obj in self.bucket.objects.all():
+            yield obj.key
 
     def upload_file(self, file_path, key):
         """

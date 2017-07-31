@@ -57,6 +57,8 @@ class BaseDAO(object):
             cursor.execute(query)
             if conn:
                 conn.commit()
+        except mysql.connector.IntegrityError:
+            pass
         except Exception as e:
             error_message = "Query:{}, error message: {}, Stack Trace: {}".format(query, str(e), traceback.format_exc())
             self.logger.exception(error_message)

@@ -7,13 +7,22 @@ class OptionSkewDAO(BaseDAO):
     def __init__(self):
         BaseDAO.__init__(self)
 
-    def select_all(self):
+    def get_all_skew_daily(self):
         columns = ['symbol', 'tradeTime', 'price', 'skew']
         query_template = """select {} from option_enough_liquidity_skew_view"""
         query = query_template.format(', '.join(columns))
         rows = self.select(query)
         df = pd.DataFrame(rows)
         df.columns = columns
+        return df
+
+    def get_all_skew_weekly(self):
+        columns = ['symbol', 'skew', 'balance_date']
+        query_template = """select {} from option_skew_weekly_view"""
+        query = query_template.format(', '.join(columns))
+        rows = self.select(query)
+        df = pd.DataFrame(rows)
+        df.columns = columns
         return df
 
     def select_by_symbol(self, symbol):
@@ -25,27 +34,32 @@ class OptionSkewDAO(BaseDAO):
         df.columns = columns
         return df
 
-    def get_sorted_symbol_by_skew(self, date):
-        query_template = """select symbol from option_enough_liquidity_skew_view where tradeTime = str_to_date('{}', '%Y-%m-%d') order by skew"""
-        query = query_template.format(date)
-        rows = self.select(query)
-        ordered_symbols = map(lambda x: x[0], rows)
-        return ordered_symbols
 
-    def export_data_to_csv(self, path):
-        self.select_all().to_csv(path)
+    def get_sorted_weekly_skew(self):
+        df = self.get_all_skew_weekly()
+        for name, group in df.groupby(df['balance_date']):
+            group = group.sort_values('skew')
+            symbol_list = group['symbol'].tolist()
+            record = [name.strftime('%Y-%m-%d')]
+            record.extend(symbol_list)
+            yield record
+
+
+    def export_data_to_csv(self, file_path):
+        records = list(self.get_sorted_weekly_skew())
+        lines = map(lambda x: ','.join(x), records)
+        f = open(file_path, 'w')
+        for line in lines:
+            f.write(line)
+            f.write('\r\n')
+        f.close()
+
+
 
 
 if __name__ == '__main__':
     #print OptionSkew().select_all()
     #print OptionSkew().select_by_symbol('SPY')
     OptionSkewDAO().export_data_to_csv('/Users/tradehero/skew.csv')
-    #sorted_symbols = OptionSkewDAO().get_sorted_symbol_by_skew('2017-07-24')
-    #df_skew = pd.DataFrame(sorted_symbols)
-    #df_skew.columns = ['symbol']
-    #print df_skew
-    #from dataaccess.equitydao import EquityDAO
-    #df_price = EquityDAO().get_price_change_percentage('2017-07-24', '2017-07-26')
-    #print df_price
-    #newpd = pd.merge(df_skew, df_price, on='symbol')
-    #print newpd
+    #print list(OptionSkewDAO().get_sorted_weekly_skew())
+

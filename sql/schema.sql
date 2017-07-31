@@ -70,6 +70,7 @@ create table vix (
     unique index vix_index (symbol, dailyDate1dAgo)
 );
 
+--option ratio view, provide the ratio from stike_price / underling_price
 drop view if exists option_ratio_view;
 create view option_ratio_view  as (
     select o.underlingSymbol, o.symbol, o.tradeTime, o.optionType, o.volatility, o.expirationDate, o.daysToExpiration, e.lastPrice as price, o.strikePrice / e.lastPrice as ratio
@@ -79,6 +80,7 @@ create view option_ratio_view  as (
     and o.tradeTime = e.tradeTime
 )
 
+--option volatility view, filter the orv ratio, ATM call from 0.95 to 1.05, OTM put from 0.8 to 0.95, average the volatility for the grouped option symbols
 drop view if exists option_vol_view;
 create view option_vol_view as (
 select orv.underlingSymbol as symbol, orv.tradeTime, orv.optionType, orv.expirationDate, orv.daysToExpiration, orv.price, Avg(orv.volatility) as vol
@@ -88,6 +90,7 @@ where (orv.ratio >= 0.95 and orv.ratio <= 1.05 and orv.optionType = 'Call')
 group by orv.underlingSymbol, orv.tradeTime, orv.optionType, orv.expirationDate, orv.daysToExpiration, orv.price
 )
 
+--calculate the skew by put_volatility - call_volatility
 drop view if exists option_skew_view;
 create view option_skew_view as (
 select ovv.symbol, ovv.tradeTime, ovv.expirationDate, ovv.daysToExpiration, ovv.price, max(ovv.vol) - min(ovv.vol) as skew
@@ -95,6 +98,8 @@ from option_vol_view as ovv
 group by ovv.symbol, ovv.expirationDate, ovv.tradeTime, ovv.daysToExpiration, ovv.price
 )
 
+
+--filter the enough liquidity skew by days to expiration from 10 days to 60 days
 drop view if exists option_enough_liquidity_skew_view;
 create view option_enough_liquidity_skew_view as (
 select osv.symbol, osv.tradeTime, osv.price, AVG(osv.skew) as skew
@@ -102,4 +107,11 @@ from option_skew_view as osv
 where osv.daysToExpiration >= 10
   and osv.daysToExpiration <= 60
 group by osv.symbol, osv.tradeTime
+)
+
+-- from Wednesday close to next wednesday close.
+drop view if exists option_skew_weekly_view;
+create view option_skew_weekly_view as (
+select symbol, AVG(skew) as skew, FROM_DAYS(TO_DAYS(tradetime) -MOD(TO_DAYS(tradetime) -4, 7)) as balance_date
+from  option_enough_liquidity_skew_view group by symbol, FROM_DAYS(TO_DAYS(tradetime) -MOD(TO_DAYS(tradetime) -4, 7))
 )
