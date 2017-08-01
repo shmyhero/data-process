@@ -1,4 +1,4 @@
-import urllib
+import urllib2
 
 
 class HttpHelper:
@@ -8,7 +8,7 @@ class HttpHelper:
 
     @staticmethod
     def http_get(url):
-        f = urllib.urlopen(url)
+        f = urllib2.urlopen(url)
         s = f.read()
         return s
 
