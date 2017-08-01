@@ -1,4 +1,5 @@
 import time
+import datetime
 from utils.httphelper import HttpHelper
 
 
@@ -41,7 +42,10 @@ class WebScraper(object):
         :param expiration_date: the expiration-date format is yyyy-MM-dd
         :return:
         """
-        url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidDate,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
+        if datetime.datetime.now().weekday() > 1 and datetime.datetime.now().weekday() < 6:
+            url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidDate,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
+        else: #bidDate can not get on weekend...
+            url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
         url = url_template.format(symbol, expiration_date)
         return WebScraper.http_get_with_retry(url)
 

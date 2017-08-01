@@ -1,4 +1,6 @@
 import traceback
+
+from dataexporter import DataExporter
 from utils.logger import Logger
 from common.pathmgr import PathMgr
 from common.notification import notify
@@ -15,6 +17,7 @@ def process():
     if daily_ingestor.validate():
         raw_file_mgr.backup()
         RawToDB().push_to_db()
+        DataExporter().export_skew()
     else:
         raise Exception('raw data validation failed...')
 

@@ -22,7 +22,7 @@ class OptionSkewDAO(BaseDAO):
         query = query_template.format(', '.join(columns))
         rows = self.select(query)
         df = pd.DataFrame(rows)
-        df.columns = columns
+        df.columns = columns
         return df
 
     def select_by_symbol(self, symbol):
@@ -34,7 +34,6 @@ class OptionSkewDAO(BaseDAO):
         df.columns = columns
         return df
 
-
     def get_sorted_weekly_skew(self):
         df = self.get_all_skew_weekly()
         for name, group in df.groupby(df['balance_date']):
@@ -44,7 +43,6 @@ class OptionSkewDAO(BaseDAO):
             record.extend(symbol_list)
             yield record
 
-
     def export_data_to_csv(self, file_path):
         records = list(self.get_sorted_weekly_skew())
         lines = map(lambda x: ','.join(x), records)
@@ -53,8 +51,6 @@ class OptionSkewDAO(BaseDAO):
             f.write(line)
             f.write('\r\n')
         f.close()
-
-
 
 
 if __name__ == '__main__':

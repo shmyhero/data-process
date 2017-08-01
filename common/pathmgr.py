@@ -35,3 +35,13 @@ class PathMgr(object):
         else:
             data_path = os.path.join(project_path, "data")
         return data_path
+
+    @staticmethod
+    def get_historical_etf_path(symbol=None):
+        historical_path = PathMgr.get_data_path('historical')
+        if symbol:
+            etf_path = os.path.join(historical_path, 'ETFS', symbol + '.csv')
+        else:
+            etf_path = os.path.join(historical_path, 'ETFS', symbol + '.csv')
+        return etf_path
+

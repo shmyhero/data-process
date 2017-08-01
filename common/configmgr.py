@@ -36,3 +36,7 @@ class ConfigMgr(dict):
     @staticmethod
     def get_mail_config():
         return ConfigMgr.get_config()['mail']
+
+    @staticmethod
+    def get_output_config():
+        return ConfigMgr.get_config()['output']
