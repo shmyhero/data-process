@@ -4,7 +4,29 @@ from baseentity import BaseEntity
 
 class VIX(BaseEntity):
 
-    #NAME_RULES = 'FGHJKMNQUVXZ'
+    VIX_MONTH_NAMES = 'FGHJKMNQUVXZ'
+
+    #NAME_RULES =
+    @staticmethod
+    def date_to_symbol(date_str):
+        #date_str = date.strftime('%Y-%m-%d')
+        ymd = date_str.split('-')
+        month = int(float (ymd[1]))
+        return 'VI{}{}'.format(VIX.VIX_MONTH_NAMES[month-1], ymd[0][2:])
+
+    @staticmethod
+    def get_following_symbols(from_date_str, count=3):
+        ymd = from_date_str.split('-')
+        month = int(float(ymd[1]))
+        year = int(float(ymd[0][2:]))
+        for i in range(count):
+            m = month + i
+            y = year
+            if m > 12:
+                delta = m - m/12
+                m = m - delta*12
+                y = y + delta
+            yield 'VI%s%02d'%(VIX.VIX_MONTH_NAMES[m-1], y)
 
     def __init__(self, symbol = None, lastPrice = None, priceChange = None, openPrice = None, highPrice = None, lowPrice = None,
                  previousPrice = None, volume = None, tradeTime = None, dailyLastPrice = None, dailyPriceChange = None, dailyOpenPrice = None,
@@ -42,4 +64,6 @@ class VIX(BaseEntity):
         return vix
 
 
-
+if __name__ == '__main__':
+    print VIX.date_to_symbol('2017-09-05')
+    print list(VIX.get_following_symbols('2005-09-05'))
