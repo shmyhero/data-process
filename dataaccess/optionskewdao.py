@@ -1,5 +1,6 @@
 import pandas as pd
 from dataaccess.basedao import BaseDAO
+from common.etfs import ETFS
 
 
 class OptionSkewDAO(BaseDAO):
@@ -39,14 +40,17 @@ class OptionSkewDAO(BaseDAO):
         for name, group in df.groupby(df['balance_date']):
             group = group.sort_values('skew')
             symbol_list = group['symbol'].tolist()
-            record = [name.strftime('%Y-%m-%d')]
-            record.extend(symbol_list)
+            symbols = '_'.join(symbol_list)
+            record = [name.strftime('%Y-%m-%d'), symbols]
             yield record
 
     def export_data_to_csv(self, file_path):
         records = list(self.get_sorted_weekly_skew())
         lines = map(lambda x: ','.join(x), records)
+        schema = 'date,symbols'
         f = open(file_path, 'w')
+        f.write(schema)
+        f.write('\r\n')
         for line in lines:
             f.write(line)
             f.write('\r\n')
