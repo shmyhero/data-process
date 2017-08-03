@@ -2,6 +2,22 @@ create database if not exists tradehero;
 
 use tradehero;
 
+--yahoo equity include ajd close.
+drop table if exists yahoo_equity;
+create table yahoo_equity (
+    id int not null auto_increment primary key,
+    symbol varchar (32) not null,
+    tradeDate date not null,
+    openPrice float null,
+    highPrice float null,
+	lowPrice float null,
+	closePrice float null,
+	adjClosePrice float null,
+	volume float null,
+	unique index equity_index (symbol, tradeDate)
+);
+
+
 drop table if exists equity;
 create table equity (
     id int not null auto_increment primary key,

@@ -4,12 +4,14 @@ from utils.logger import Logger
 from common.pathmgr import PathMgr
 from common.notification import notify
 from ingestion.dailyingestor import DailyIngestor
+from ingestion.yahooscraper import YahooScraper
 from dataaccess.rawfilemgr import RawFileMgr
 from dataaccess.raw2db import RawToDB
 from dataaccess.dataexporter import DataExporter
+from dataaccess.yahooequitydao import YahooEquityDAO
 
 
-def process():
+def process_for_option_vix():
     raw_file_mgr = RawFileMgr()
     raw_file_mgr.clean_obsoleted_data()
     daily_ingestor = DailyIngestor()
@@ -24,10 +26,16 @@ def process():
         raise Exception('raw data validation failed...')
 
 
+def process_for_yahoo_data():
+    YahooScraper.ingest_all_historical_etf()
+    YahooEquityDAO().save_all()
+
+
 def main():
     logger = Logger(__name__, PathMgr.get_log_path())
     try:
-        process()
+        process_for_option_vix()
+        process_for_yahoo_data()
         return True
     except Exception as e:
         logger.exception('Trace: ' + traceback.format_exc())

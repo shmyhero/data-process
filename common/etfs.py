@@ -19,7 +19,7 @@ class ETFS(object):
        'Healthcare'            :['XLV','XBI','IBB'],
        'Industrial'            :['XLI','IYT','VIS','IYJ'],
        'Materials'             :['XLB','XHB','XME','IGE','MOO','LIT'],
-       'Technology'            :['XLK','SMH','HACK','FDN'],
+       'Technology'            :['XLK','SMH','HACK','FDN', 'QQQ'],
        'Telecom'               :['IYZ','IXP','VOX'],
        'Utilities'             :['IDU','XLU','VPU'],
        'Oil | Gas'             :['UNG','BNO','OIL'],

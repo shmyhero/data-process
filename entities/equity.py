@@ -12,7 +12,7 @@ class Equity(BaseEntity):
         self.openPrice = openPrice
         self.highPrice = highPrice
         self.lowPrice = lowPrice
-        self.lowPrice = lastPrice
+        self.lastPrice = lastPrice
         self.priceChange = priceChange
         self.volume = volume
 

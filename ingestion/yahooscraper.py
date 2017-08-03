@@ -6,6 +6,7 @@ import time
 from utils.iohelper import write_to_file
 from common.etfs import ETFS
 from common.pathmgr import PathMgr
+from utils.logger import Logger
 
 
 class YahooScraper(object):
@@ -52,9 +53,10 @@ class YahooScraper(object):
         return ""
 
     @staticmethod
-    def ingest_all_historical_etf(date_from, date_to):
+    def ingest_all_historical_etf(date_from = '1993-01-29', date_to = datetime.date.today().strftime("%Y-%m-%d")):
+        logger = Logger(__name__, PathMgr.get_log_path())
         for symbol in ETFS.get_all_symbols():
-            print 'ingest for %s...'%symbol
+            logger.info('ingest for %s...' % symbol)
             path = PathMgr.get_historical_etf_path(symbol)
             content = YahooScraper.download_quote(symbol, date_from, date_to)
             write_to_file(path, content)
@@ -64,6 +66,6 @@ class YahooScraper(object):
 if __name__ == '__main__':
     #print get_crumble_and_cookie('SPY')
     #print download_quote('SPY', '2002-01-01', '2002-02-01')
-    YahooScraper.ingest_all_historical_etf('1993-01-29', '2017-08-01')
+    YahooScraper.ingest_all_historical_etf()
 
 
