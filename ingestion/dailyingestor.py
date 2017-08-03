@@ -11,7 +11,7 @@ from ingestion.webscraper import WebScraper
 
 class DailyIngestor(object):
 
-    def __init__(self, raw_data_path = PathMgr.get_data_path()):
+    def __init__(self, raw_data_path = PathMgr.get_data_path('raw')):
         self.date = datetime.date.today()
         self.raw_data_path = raw_data_path
         self.daily_path = os.path.join(self.raw_data_path, str(self.date))

@@ -36,7 +36,7 @@ class YahooEquityDAO(BaseDAO):
 
         for index, row in df.iterrows():
             query = BaseDAO.mysql_format(query_template, symbol, row['Date'], row['Open'], row['High'], row['Low'], row['Close'], row['Adj Close'], row['Volume'], row['Adj Close'])
-            print query
+            #print query
             self.execute_query(query, cursor)
         conn.commit()
         conn.close()
