@@ -53,7 +53,6 @@ class TradeAccount(object):
         self.cash += received_cash
 
 
-
 if __name__ == '__main__':
     from pathmgr import PathMgr
     import pandas as pd

@@ -19,8 +19,8 @@ class RawFileMgr(object):
 
     @staticmethod
     def zip_raw_data(folder_name = str(datetime.date.today()), logger = Logger(None, None, True)):
-        folder_path = PathMgr.get_data_path(folder_name)
-        file_path = os.path.join(PathMgr.get_data_path(), folder_name + '.zip')
+        folder_path = PathMgr.get_raw_data_path(folder_name)
+        file_path = os.path.join(PathMgr.get_raw_data_path(), folder_name + '.zip')
         logger.info('zip file form {} to {}...'.format(folder_path, file_path))
         Shell.zip(folder_path, file_path)
         return file_path
@@ -43,7 +43,7 @@ class RawFileMgr(object):
         self.logger.info('remove raw files {} days agao ...'.format(hold_days))
         date = datetime.datetime.now() - datetime.timedelta(hold_days)
         start_date = date.date().strftime('%Y-%m-%d')
-        data_path = PathMgr.get_data_path()
+        data_path = PathMgr.get_raw_data_path()
         sub_dir_names = get_sub_dir_names(data_path)
         for dir_name in sub_dir_names:
             if dir_name < start_date:

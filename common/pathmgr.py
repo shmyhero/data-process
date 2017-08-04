@@ -37,6 +37,15 @@ class PathMgr(object):
         return data_path
 
     @staticmethod
+    def get_raw_data_path(sub_path = None):
+        raw_path = PathMgr.get_data_path('raw')
+        if sub_path:
+            data_path = os.path.join(raw_path, sub_path)
+        else:
+            return raw_path
+        return data_path
+
+    @staticmethod
     def get_historical_etf_path(symbol=None):
         historical_path = PathMgr.get_data_path('historical')
         if symbol:

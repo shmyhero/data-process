@@ -62,7 +62,7 @@ class RawDataParser(object):
 
 if __name__ == '__main__':
     #parser = RawDataParser(PathMgr.get_data_path(str(datetime.date.today())));
-    parser = RawDataParser(PathMgr.get_data_path('2017-07-25'));
+    parser = RawDataParser(PathMgr.get_raw_data_path('2017-07-25'));
     #parser.load_equity_data_by_symbol('UNG')
     #parser.load_option_data_by_symbol('UNG')
     #vix_list = list(parser.load_vix_data_by_symbol())
