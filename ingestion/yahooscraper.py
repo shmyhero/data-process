@@ -11,6 +11,9 @@ from utils.logger import Logger
 
 class YahooScraper(object):
 
+    crumble_cookie = None
+
+
     @staticmethod
     def get_crumble_and_cookie(symbol):
         crumble_link = 'https://finance.yahoo.com/quote/{0}/history?p={0}'
@@ -28,6 +31,13 @@ class YahooScraper(object):
         return crumble_str, cookie_str
 
     @staticmethod
+    def get_crumble_and_cookie_with_cache(symbol):
+        if YahooScraper.crumble_cookie is None:
+            YahooScraper.crumble_cookie = YahooScraper.get_crumble_and_cookie(symbol)
+        return YahooScraper.crumble_cookie
+
+
+    @staticmethod
     def download_quote(symbol, date_from, date_to):
         quote_link = 'https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history&crumb={}'
         time_stamp_from = calendar.timegm(datetime.datetime.strptime(date_from, "%Y-%m-%d").timetuple())
@@ -35,7 +45,7 @@ class YahooScraper(object):
 
         attempts = 0
         while attempts < 5:
-            crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie(symbol)
+            crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache(symbol)
             link = quote_link.format(symbol, time_stamp_from, time_stamp_to, crumble_str)
             #print link
             #print crumble_str, cookie_str
