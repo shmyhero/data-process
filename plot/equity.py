@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from dataaccess.optionskewdao import OptionSkewDAO
 from dataaccess.equitydao import EquityDAO
 
+
 class Equity(object):
 
     def __init__(self):
@@ -21,8 +22,6 @@ class Equity(object):
             y = sub_df['lastPrice']
             ax.plot(x, y)
         plt.show()
-
-
 
 if __name__ == '__main__':
     Equity.plot_equity_lines(['SPY'])
