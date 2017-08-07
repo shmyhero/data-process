@@ -25,7 +25,5 @@ class Skew(object):
         ax1.legend(lines[:2], labels[:2])
         plt.show()
 
-
-
 if __name__ == '__main__':
     Skew.plot_skew_with_price('IWB')

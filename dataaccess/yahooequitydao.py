@@ -9,6 +9,21 @@ class YahooEquityDAO(BaseDAO):
     def __init__(self):
         BaseDAO.__init__(self)
 
+    def get_equity_price_by_date(self, symbol, date_str, price_field = 'closePrice'):
+        """
+        :param symbol:
+        :param date_str: the format is 'YYYY-mm-dd'
+        :param price_field:
+        :return:
+        """
+        query_template = """select {} from yahoo_equity where symbol = '{}' and tradeDate <= str_to_date('{}', '%Y-%m-%d') order by tradeDate desc limit 1"""
+        query = query_template.format(price_field, symbol, date_str)
+        rows = self.select(query)
+        if rows is None or len(rows) < 1:
+            return None
+        else:
+            return rows[0][0]
+
     def insert(self, symbol, df):
         query_template = """insert into yahoo_equity (symbol,tradeDate,openPrice,highPrice,lowPrice,closePrice,adjClosePrice,volume) values ('{}','{}',{},{},{},{},{},{})"""
         conn = BaseDAO.get_connection()
@@ -50,4 +65,5 @@ class YahooEquityDAO(BaseDAO):
 
 
 if __name__ == '__main__':
-    YahooEquityDAO().save_all()
+    #YahooEquityDAO().save_all()
+    print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
