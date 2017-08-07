@@ -26,7 +26,8 @@ class ETFS(object):
        'Precious Metals'       :['GLD','SLV','IAU'],
        'Bonds'                 :['BND','AGG','JNK','LQD'],
        'T-Bond'                :['TLT','IEF','IEI','SHY','BIL'],
-       'Precious Metals Miners':['SIL','GDX','GDXJ']
+       'Precious Metals Miners':['SIL','GDX','GDXJ'],
+       'Volatility'            :['VXX', 'VXZ', 'UVXY', 'XIV', 'ZIV']
         }
 
     @staticmethod
