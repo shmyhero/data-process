@@ -1,8 +1,12 @@
 import calendar
 import json
+import datetime
 import pandas as pd
+import matplotlib.pyplot as plt
 from utils.stringhelper import string_fetch
 from utils.httphelper import HttpHelper
+from dataaccess.basedao import BaseDAO
+from dataaccess.yahooequitydao import YahooEquityDAO
 
 
 class Credit(object):
@@ -43,7 +47,7 @@ class Credit(object):
 
     def to_dict(self):
         return {
-            'date': self.date_str,
+            'date': datetime.datetime.strptime(self.date_str, '%Y-%m-%d'),
             'margin_debt': self.margin_debt,
         }
 
@@ -75,8 +79,36 @@ def ingest_credit():
     return all_credits
 
 
+def get_spy_price_list(date_str_list):
+    price_list = []
+    dao = YahooEquityDAO()
+    conn = BaseDAO.get_connection()
+    cursor = conn.cursor()
+    for date_str in date_str_list:
+        price_list.append(dao.get_equity_price_by_date('SPY', date_str, cursor = cursor))
+    conn.close
+    return price_list
+
+
+def plot_lines(credits_df, spy_prices):
+    print credits_df
+    print type(spy_prices)
+    print spy_prices
+    dates = credits_df['date'].get_values()
+    debt = credits_df['margin_debt']
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    ax1.plot(dates, debt, 'r-', label='credit margin debt')
+    ax2.plot(dates, spy_prices, 'b-', label='SPY')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=4, borderaxespad=0.)
+    plt.show()
+
 
 if __name__ == '__main__':
     credits = ingest_credit()
-    df = pd.DataFrame.from_records([s.to_dict() for s in credits])
-    print df
+    credits = filter(lambda x: x.date_str > '1993-01-01', credits)
+    credits.sort(key=lambda x: x.date_str)
+    credits_df = pd.DataFrame.from_records([s.to_dict() for s in credits])
+    date_str_list = map(lambda x: x.date_str, credits)
+    spy_prices = get_spy_price_list(date_str_list)
+    plot_lines(credits_df, spy_prices)
