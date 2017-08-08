@@ -18,7 +18,7 @@ class YahooScraper(object):
     def get_crumble_and_cookie(symbol):
         crumble_link = 'https://finance.yahoo.com/quote/{0}/history?p={0}'
         crumble_regex = r'CrumbStore":{"crumb":"(.*?)"}'
-        cookie_regex = r'Set-Cookie: (.*?); '
+        cookie_regex = r'set-cookie: (.*?); '
         link = crumble_link.format(symbol)
         response = urllib2.urlopen(link)
         #print response.info()

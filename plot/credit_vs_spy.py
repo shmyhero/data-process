@@ -9,6 +9,8 @@ from dataaccess.basedao import BaseDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
 
 
+CREDIT_URL = 'http://www.nyxdata.com/nysedata/asp/factbook/viewer_edition.asp?mode=tables&key=50&category=8'
+
 class Credit(object):
 
     def __init__(self, year, month, values):
@@ -69,7 +71,7 @@ def parse_table(sub_content):
 
 
 def ingest_credit():
-    content = HttpHelper.http_get('http://www.nyxdata.com/nysedata/asp/factbook/viewer_edition.asp?mode=tables&key=50&category=8')
+    content = HttpHelper.http_get(CREDIT_URL)
     content = string_fetch(content, ' View All Years', '')
     sub_contents = content.split('Securities market credit')[1:]
     all_credits = []
@@ -100,7 +102,7 @@ def plot_lines(credits_df, spy_prices):
     ax2 = ax1.twinx()
     ax1.plot(dates, debt, 'r-', label='credit margin debt')
     ax2.plot(dates, spy_prices, 'b-', label='SPY')
-    plt.legend(bbox_to_anchor=(1.05, 1), loc=4, borderaxespad=0.)
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=8, borderaxespad=0.)
     plt.show()
 
 

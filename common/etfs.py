@@ -27,7 +27,7 @@ class ETFS(object):
        'Bonds'                 :['BND','AGG','JNK','LQD'],
        'T-Bond'                :['TLT','IEF','IEI','SHY','BIL'],
        'Precious Metals Miners':['SIL','GDX','GDXJ'],
-       'Volatility'            :['VXX', 'VXZ', 'UVXY'] #, 'XIV', 'ZIV'] # no options for XIV and ZIV
+       'Volatility'            :['VXX', 'VXZ', 'UVXY','SVXY'] #, 'XIV', 'ZIV'] # no options for XIV and ZIV
         }
 
     @staticmethod
