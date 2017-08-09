@@ -39,7 +39,8 @@ class ETFS(object):
     @staticmethod
     def get_all_symbols():
         option_symbols = ETFS.get_option_symbols()
-        return option_symbols.extend(ETFS.non_option_symbols)
+        option_symbols.extend(ETFS.non_option_symbols)
+        return option_symbols
 
 
 
