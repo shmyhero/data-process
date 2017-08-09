@@ -56,7 +56,7 @@ class H5DataOptionParser(object):
             print 'Missing data for {} ...'.format(symbol)
 
     def load_all(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in ETFS.get_option_symbols():
             self.parse_option_data_by_symbol(symbol)
 
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     vix_parser = H5DataVixParser('/Users/tradehero/python-projects/stock-data/Barchart_VIXFutures_Data/ETF_VIXFutures_data_07-16-17.h5')
     vix_parser.parse_vix_data()
-    print len(ETFS.get_all_symbols())
+    print len(ETFS.get_option_symbols())
     #print vix_parser.vix_records
 
 

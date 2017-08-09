@@ -50,7 +50,7 @@ class RawDataParser(object):
         #return equity
 
     def load_all(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in ETFS.get_option_symbols():
             equity = self.load_equity_data_by_symbol(symbol)
             self.equity_records.append(equity)
             option_list = list(self.load_option_data_by_symbol(symbol, equity.tradeTime))

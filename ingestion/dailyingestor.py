@@ -55,19 +55,19 @@ class DailyIngestor(object):
             self.gen_option_data(symbol, expiration)
 
     def get_missing_equity_data(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in ETFS.get_option_symbols():
             file_path = os.path.join(self.equity_dir, '{}.json'.format(symbol))
             if not os.path.exists(file_path):
                 yield symbol
 
     def get_missing_expiration_data(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in ETFS.get_option_symbols():
             file_path = os.path.join(self.expiration_date_dir, '{}.json'.format(symbol))
             if not os.path.exists(file_path):
                 yield symbol
 
     def get_missing_option_data(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in ETFS.get_option_symbols():
             expiration_file_path = os.path.join(self.expiration_date_dir, '{}.json'.format(symbol))
             with open(expiration_file_path) as fs:
                 json_data = json.load(fs)
@@ -117,7 +117,7 @@ class DailyIngestor(object):
         return True
 
     def gen_all(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in ETFS.get_option_symbols():
             self.logger.info('generate data for %s ...'%symbol)
             self.gen_all_for_symbol(symbol)
         self.logger.info('generate VIX data...')
