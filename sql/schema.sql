@@ -131,3 +131,21 @@ create view option_skew_weekly_view as (
 select symbol, AVG(skew) as skew, FROM_DAYS(TO_DAYS(tradetime) -MOD(TO_DAYS(tradetime) -4, 7)) as balance_date
 from  option_enough_liquidity_skew_view group by symbol, FROM_DAYS(TO_DAYS(tradetime) -MOD(TO_DAYS(tradetime) -4, 7))
 )
+
+
+--for yahoo last-date-view
+drop view if exists yahoo_equity_last_date_for_month_view;
+create view yahoo_equity_last_date_for_month_view as (
+select symbol, max(tradeDate) as lastDate, min(tradeDate) as firstDate,  max(highPrice) as highPrice, min(lowPrice) as lowPrice, openPrice
+from yahoo_equity
+group by year(tradeDate), month(tradeDate), symbol
+);
+
+-- for yahoo monthly data, warning: do not use order by in sql, it will makes query slow.
+drop view if exists yahoo_equity_monthly_view;
+create view yahoo_equity_monthly_view as (
+select lv.symbol, lv.firstDate, lv.lastDate, lv.openPrice, lv.highPrice, lv.lowPrice, e.closeprice, e.adjClosePrice,  year(lastDate) as tradeyear, month(lastDate) as trademonth
+from yahoo_equity as e,
+yahoo_equity_last_date_for_month_view as lv
+where e.tradeDate = lv.lastDate
+);
