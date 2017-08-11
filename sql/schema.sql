@@ -92,7 +92,7 @@ create table nyse_credit (
     id int not null auto_increment primary key,
     lastDate varchar (32) not null,
     margin_debt float not null,
-    cash_account int null,
+    cash_accounts int null,
     credit_balance float null,
     the_year int not null,
     the_month int not null,

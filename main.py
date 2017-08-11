@@ -5,10 +5,12 @@ from common.pathmgr import PathMgr
 from common.notification import notify
 from ingestion.dailyingestor import DailyIngestor
 from ingestion.yahooscraper import YahooScraper
+from ingestion.nyseingestor import NYSEIngestor
 from dataaccess.rawfilemgr import RawFileMgr
 from dataaccess.raw2db import RawToDB
 from dataaccess.dataexporter import DataExporter
 from dataaccess.yahooequitydao import YahooEquityDAO
+from dataaccess.nysecreditdao import NYSECreditDAO
 
 
 def process_for_option_vix():
@@ -30,11 +32,16 @@ def process_for_yahoo_data():
     YahooScraper.ingest_all_historical_etf()
     YahooEquityDAO().save_all()
 
+def process_for_nysecredit():
+    credits = NYSEIngestor.ingest_credit()
+    NYSECreditDAO().save(credits)
+
 
 def main():
     logger = Logger(__name__, PathMgr.get_log_path())
     try:
         process_for_option_vix()
+        process_for_nysecredit()
         process_for_yahoo_data()
         return True
     except Exception as e:

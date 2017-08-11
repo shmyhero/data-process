@@ -5,10 +5,10 @@ import json
 
 class Credit(object):
 
-    def __init__(self, year, month, values):
+    def __init__(self, year, month_str, values):
         self.year = year
-        self.month = month
-        self.date_str = Credit.get_last_date(year, month)
+        self.month = Credit.get_month_dic()[month_str][0]
+        self.date_str = Credit.get_last_date(year, month_str)
 
         self.margin_debt = int(values[0].replace(',', ''))
         self.cash_accounts = None #free_credit_cash_accounts
@@ -18,24 +18,27 @@ class Credit(object):
         if len(values) > 2:
             self.credit_balance = int(values[2].replace(',', ''))
 
+    @staticmethod
+    def get_month_dic():
+        dic = {'January': [1, 31],
+               'February': [2, 28],
+               'March': [3, 31],
+               'April': [4, 30],
+               'May': [5, 31],
+               'June': [6, 30],
+               'July': [7, 31],
+               'August': [8, 31],
+               'September': [9, 30],
+               'October': [10, 31],
+               'November': [11, 30],
+               'December': [12, 31],
+               }
+        return dic
 
-    #TODO: change mapping to 'Januarary' : [1, 31]
     @staticmethod
     def get_last_date(year, month):
-        dic = {'January': '-01-31',
-               'February': '-02-28',
-               'March': '-03-31',
-               'April': '-04-30',
-               'May': '-05-31',
-               'June': '-06-30',
-               'July': '-07-31',
-               'August': '-08-31',
-               'September': '-09-30',
-               'October': '-10-31',
-               'November': '-11-30',
-               'December': '-12-31',
-        }
-        date_str = '%s%s' % (year, dic[month])
+        dic = Credit.get_month_dic()
+        date_str = '%s-%02d-%s' % (year, dic[month][0], dic[month][1])
         if calendar.isleap(int(year)) and month == 'February':
             date_str = date_str.replace('28', '29')
         return date_str

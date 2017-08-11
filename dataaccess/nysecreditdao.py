@@ -7,14 +7,14 @@ class NYSECreditDAO(BaseDAO):
         BaseDAO.__init__(self)
 
     def save(self, credits):
-        query_template = """insert into nyse_credit (lastDate,year,month,margin_debt,cash_accounts,credit_balance) values 
-                                   (str_to_date('{}', '%Y-%m-%d'),{},{},{},{},{})"""
-        #on duplicate key update adjClosePrice = {}"""
+        query_template = """insert into nyse_credit (lastDate,the_year,the_month,margin_debt,cash_accounts,credit_balance) values
+                         (str_to_date('{}', '%Y-%m-%d'),{},{},{},{},{})
+                         on duplicate key update margin_debt = {}, cash_accounts = {}, credit_balance = {}"""
         conn = BaseDAO.get_connection()
         cursor = conn.cursor()
 
         for credit in credits:
-            query = BaseDAO.mysql_format(query_template, credit.date_str, credit.year, credit.month, credit.margin_debt, credit.cash_accounts, credit.credit_balance)
+            query = BaseDAO.mysql_format(query_template, credit.date_str, credit.year, credit.month, credit.margin_debt, credit.cash_accounts, credit.credit_balance, credit.margin_debt, credit.cash_accounts, credit.credit_balance)
             # print query
             self.execute_query(query, cursor)
         conn.commit()
