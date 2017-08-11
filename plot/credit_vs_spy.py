@@ -14,7 +14,8 @@ CREDIT_URL = 'http://www.nyxdata.com/nysedata/asp/factbook/viewer_edition.asp?mo
 class Credit(object):
 
     def __init__(self, year, month, values):
-
+        self.year = year
+        self.month = month
         self.date_str = self.get_last_date(year, month)
         #print year, month
         #print values

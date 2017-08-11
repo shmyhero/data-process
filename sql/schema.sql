@@ -86,6 +86,21 @@ create table vix (
     unique index vix_index (symbol, dailyDate1dAgo)
 );
 
+
+drop table if exists nyse_credit;
+create table nyse_credit (
+    id int not null auto_increment primary key,
+    lastDate varchar (32) not null,
+    margin_debt float not null,
+    cash_account int null,
+    credit_balance float null,
+    the_year int not null,
+    the_month int not null,
+    unique index nyse_index(lastDate)
+);
+
+
+
 --option ratio view, provide the ratio from stike_price / underling_price
 drop view if exists option_ratio_view;
 create view option_ratio_view  as (
@@ -144,8 +159,9 @@ group by year(tradeDate), month(tradeDate), symbol
 -- for yahoo monthly data, warning: do not use order by in sql, it will makes query slow.
 drop view if exists yahoo_equity_monthly_view;
 create view yahoo_equity_monthly_view as (
-select lv.symbol, lv.firstDate, lv.lastDate, lv.openPrice, lv.highPrice, lv.lowPrice, e.closeprice, e.adjClosePrice,  year(lastDate) as tradeyear, month(lastDate) as trademonth
+select lv.symbol, lv.firstDate, lv.lastDate, lv.openPrice, lv.highPrice, lv.lowPrice, e.closePrice, e.adjClosePrice,  year(lastDate) as tradeyear, month(lastDate) as trademonth
 from yahoo_equity as e,
 yahoo_equity_last_date_for_month_view as lv
 where e.tradeDate = lv.lastDate
+and e.symbol = lv.symbol
 );

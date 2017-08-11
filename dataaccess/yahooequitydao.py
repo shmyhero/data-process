@@ -14,7 +14,7 @@ class YahooEquityDAO(BaseDAO):
         :param symbol:
         :param date_str: the format is 'YYYY-mm-dd'
         :param price_field:
-        :return:
+        :return: price
         """
         query_template = """select {} from yahoo_equity where symbol = '{}' and tradeDate <= str_to_date('{}', '%Y-%m-%d') order by tradeDate desc limit 1"""
         query = query_template.format(price_field, symbol, date_str)
@@ -23,6 +23,20 @@ class YahooEquityDAO(BaseDAO):
             return None
         else:
             return rows[0][0]
+
+    def get_equity_monthly_by_symbol(self, symbol, columns):
+        """
+        :param symbol: eg: SPY
+        :return: rows
+        """
+        columns_sql = ', '.join(columns)
+        query_template = """select {} from yahoo_equity_monthly_view where symbol = '{}'"""
+        query = query_template.format(columns_sql, symbol)
+        rows = self.select(query)
+        df = pd.DataFrame(rows)
+        df.columns = columns
+        return df
+
 
     def insert(self, symbol, df):
         query_template = """insert into yahoo_equity (symbol,tradeDate,openPrice,highPrice,lowPrice,closePrice,adjClosePrice,volume) values ('{}','{}',{},{},{},{},{},{})"""
@@ -66,4 +80,5 @@ class YahooEquityDAO(BaseDAO):
 
 if __name__ == '__main__':
     #YahooEquityDAO().save_all()
-    print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
+    #print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
+    print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])

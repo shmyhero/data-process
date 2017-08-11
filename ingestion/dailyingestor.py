@@ -6,7 +6,7 @@ from utils.iohelper import write_to_file
 from utils.logger import Logger
 from common.etfs import ETFS
 from common.pathmgr import PathMgr
-from ingestion.webscraper import WebScraper
+from ingestion.barchartscraper import BarchartScraper
 
 
 class DailyIngestor(object):
@@ -28,24 +28,24 @@ class DailyIngestor(object):
 
     def gen_expiration_dates(self, symbol):
         file_path = os.path.join(self.expiration_date_dir, '{}.json'.format(symbol))
-        content = WebScraper.get_expiration_dates(symbol)
+        content = BarchartScraper.get_expiration_dates(symbol)
         write_to_file(file_path, content)
         data = json.loads(content)
         return data['meta']['expirations']
 
     def gen_equity_data(self, symbol):
         file_path = os.path.join(self.equity_dir, '{}.json'.format(symbol))
-        content = WebScraper.get_equity_data(symbol)
+        content = BarchartScraper.get_equity_data(symbol)
         write_to_file(file_path, content)
 
     def gen_option_data(self, symbol, expiration_date):
         file_path = os.path.join(self.option_data_dir, '{}{}.json'.format(symbol, expiration_date))
-        content = WebScraper.get_option_data(symbol, expiration_date)
+        content = BarchartScraper.get_option_data(symbol, expiration_date)
         write_to_file(file_path, content)
 
     def gen_vix_data(self):
         file_path = os.path.join(self.vix_data_dir, 'vix.json')
-        content = WebScraper.get_vix_data()
+        content = BarchartScraper.get_vix_data()
         write_to_file(file_path, content)
 
     def gen_all_for_symbol(self, symbol):
