@@ -1,5 +1,7 @@
+import pandas as pd
 from entities.nysecredit import Credit
 from dataaccess.basedao import BaseDAO
+
 
 class NYSECreditDAO(BaseDAO):
 
@@ -20,7 +22,17 @@ class NYSECreditDAO(BaseDAO):
         conn.commit()
         conn.close()
 
+    def get_all_margin_debt(self, start_date_str='1993-01-01'):
+        query_template = """select {} from nyse_credit where lastDate >= str_to_date('{}', '%Y-%m-%d') order by lastDate"""
+        columns = ['lastDate', 'margin_debt']
+        query = BaseDAO.mysql_format(query_template, ', '.join(columns), start_date_str)
+        rows = self.select(query)
+        df = pd.DataFrame(rows)
+        df.columns = columns
+        return df
+
 
 if __name__ == '__main__':
     #print BaseDAO.python_value_to_sql_value(0.0)
-    pass
+    #pass
+    print NYSECreditDAO().get_all_margin_debt()
