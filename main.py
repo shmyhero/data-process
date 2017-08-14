@@ -32,17 +32,22 @@ def process_for_yahoo_data():
     YahooScraper.ingest_all_historical_etf()
     YahooEquityDAO().save_all()
 
-def process_for_nysecredit():
+
+def process_for_nysecredit(logger):
+    logger.info('Ingesting credit data...')
     credits = NYSEIngestor.ingest_credit()
+    logger.info('Ingesting credit data completed, start to push data into database.')
     NYSECreditDAO().save(credits)
+    logger.info('push credit data into database completed.')
 
 
 def main():
     logger = Logger(__name__, PathMgr.get_log_path())
     try:
         process_for_option_vix()
-        process_for_nysecredit()
+        process_for_nysecredit(logger)
         process_for_yahoo_data()
+        logger.info('Daily ingestion completed.')
         return True
     except Exception as e:
         logger.exception('Trace: ' + traceback.format_exc())

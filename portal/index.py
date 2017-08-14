@@ -1,15 +1,27 @@
 import web
+import datetime
+import matplotlib.pyplot as plt
+from dataaccess.nysecreditdao import NYSECreditDAO
+from dataaccess.yahooequitydao import YahooEquityDAO
+import cStringIO
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-urls = ("/.*", "credit")
+#urls = ("/.*", "credit")
+urls = ("/", "Index",
+        "/credit", "Credit")
 app = web.application(urls, globals())
 
-class hello:
-    def GET(self):
-        #return 'Hello, world!'
-        import cStringIO
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
 
+class Index:
+
+    def GET(self):
+        return """<a href=\"credit\">credit</a>"""
+
+
+class PlotPoint:
+
+    def GET(self):
         fig = Figure(figsize=[4, 4])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.scatter([1, 2], [3, 4])
@@ -21,16 +33,10 @@ class hello:
         data = buf.getvalue()
         return data
 
-class credit:
-    def GET(self):
 
-        import datetime
-        import matplotlib.pyplot as plt
-        from dataaccess.nysecreditdao import NYSECreditDAO
-        from dataaccess.yahooequitydao import YahooEquityDAO
-        import cStringIO
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
+class Credit:
+
+    def GET(self):
         credits_df = NYSECreditDAO().get_all_margin_debt()
         spy_df = YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['lastdate', 'adjcloseprice'])
         dates = map(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d'), credits_df['lastDate'])
@@ -41,6 +47,8 @@ class credit:
         ax2 = ax1.twinx()
         ax1.plot(dates, debt, 'r-', label='credit margin debt')
         ax2.plot(dates, spy_prices, 'b-', label='SPY')
+        ax1.legend(loc='upper left')
+        ax2.legend(loc='upper center')
         canvas = FigureCanvasAgg(fig)
 
         # write image data to a string buffer and get the PNG image bytes
