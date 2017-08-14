@@ -28,6 +28,12 @@ class VIXDAO(BaseDAO):
         rows = self.select(query)
         return map(lambda x: x[0].strftime('%Y-%m-%d'), rows)
 
+    def get_all_vix(self, columns):
+        query_template = """select {} from vix order by dailyDate1dAgo"""
+        select_columns = ', '.join(columns)
+        query = query_template.format(select_columns)
+        rows = self.select(query)
+        return rows
 
     def get_vix_by(self, symbol, date_str, columns):
         select_columns = ', '.join(columns)
@@ -56,6 +62,9 @@ class VIXDAO(BaseDAO):
         df = pd.DataFrame(records)
         df.columns = ['date', 'f1', 'f2']
         return df
+
+
+
 
 
 

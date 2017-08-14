@@ -1,6 +1,6 @@
 import web
 import datetime
-import matplotlib.pyplot as plt
+import platform
 from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
 import cStringIO
@@ -8,15 +8,18 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 #urls = ("/.*", "credit")
-urls = ("/", "Index",
-        "/credit", "Credit")
-app = web.application(urls, globals())
+#urls = ("/", "Index",
+#        "/credit", "Credit")
 
+
+render = web.template.render('portal/templates')
+#app = web.application(urls, globals())
 
 class Index:
 
     def GET(self):
-        return """<a href=\"credit\">credit</a>"""
+        #return """<a href=\"credit\">credit</a>"""
+        return render.index()
 
 
 class PlotPoint:
@@ -60,4 +63,8 @@ class Credit:
 
 
 if __name__ == "__main__":
-    app.run()
+    pass
+    # if the code run on linux server...
+    #if platform.system() == 'Linux':
+    #    web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)
+    #app.run()
