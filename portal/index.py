@@ -1,19 +1,16 @@
 import web
 import datetime
-import platform
+import cStringIO
+from abc import abstractmethod
+from dataaccess.vixdao import VIXDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
-import cStringIO
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-#urls = ("/.*", "credit")
-#urls = ("/", "Index",
-#        "/credit", "Credit")
-
 
 render = web.template.render('portal/templates')
-#app = web.application(urls, globals())
+
 
 class Index:
 
@@ -21,9 +18,12 @@ class Index:
         #return """<a href=\"credit\">credit</a>"""
         return render.index()
 
-class Test:
+
+class VixAll:
+
     def GET(self):
-        return render.test()
+        return render.vix()
+
 
 class PlotPoint:
 
@@ -64,10 +64,91 @@ class Credit:
         return data
 
 
+class VIXBase(object):
+
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def get_symbol(self):
+        return None
+
+    @abstractmethod
+    def get_label(self):
+        return None
+
+    def get_plot_data(self):
+        symbol = self.get_symbol()
+        df = VIXDAO().get_vix_price_by_symbol(symbol)
+        dates = df['date']
+        price = df['price']
+        fig = Figure(figsize=[12, 8])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, price, label=self.get_label())
+        ax.legend(loc='upper left')
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
+class VIXIndex(VIXBase):
+
+    def __init__(self):
+        VIXBase.__init__(self)
+
+    def get_symbol(self):
+        return 'VIY00'
+
+    def get_label(self):
+        return 'VIX Index'
+
+    def GET(self):
+        return self.get_plot_data()
+
+
+class VIXF1(VIXBase):
+
+    def __init__(self):
+        VIXBase.__init__(self)
+
+    def get_symbol(self):
+        from entities.vix import VIX
+        symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
+        return list(symbols)[1]
+
+    def get_label(self):
+        return 'VIX First Month'
+
+    def GET(self):
+        return self.get_plot_data()
+
+
+class VIXF2(VIXBase):
+
+    def __init__(self):
+        VIXBase.__init__(self)
+
+    def get_symbol(self):
+        from entities.vix import VIX
+        symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
+        return list(symbols)[2]
+
+    def get_label(self):
+        return 'VIX Second Month'
+
+    def GET(self):
+        return self.get_plot_data()
+
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
-            '/test', 'Test')
+            '/vix', 'VixAll',
+            '/vixindex', 'VIXIndex',
+            '/vixf1', 'VIXF1',
+            '/vixf2', 'VIXF2')
 
     app = web.application(urls, globals())
     app.run()
