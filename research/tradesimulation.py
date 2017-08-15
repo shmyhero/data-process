@@ -73,7 +73,6 @@ class TradeAccount(object):
             raise AssertionError('the trade date should be in dates ranges.')
 
 
-
 class TradeSimulation(object):
 
     daily_data_cache = {}

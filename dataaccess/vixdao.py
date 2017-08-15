@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
@@ -26,14 +27,8 @@ class VIXDAO(BaseDAO):
     def get_all_vix_date(self):
         query = """select distinct dailyDate1dAgo from vix order by dailyDate1dAgo"""
         rows = self.select(query)
+        return map(lambda x: x[0], rows)
         return map(lambda x: x[0].strftime('%Y-%m-%d'), rows)
-
-    def get_all_vix(self, columns):
-        query_template = """select {} from vix order by dailyDate1dAgo"""
-        select_columns = ', '.join(columns)
-        query = query_template.format(select_columns)
-        rows = self.select(query)
-        return rows
 
     def get_vix_by(self, symbol, date_str, columns):
         select_columns = ', '.join(columns)
@@ -57,17 +52,53 @@ class VIXDAO(BaseDAO):
 
     # notice: the performance can be improved if get all vix the data from database once.
     def gen_all_vix(self):
-        dates = self.get_all_vix_date()
+        dates = map(lambda x: x.strftime('%Y-%m-%d'), self.get_all_vix_date())
         records = map(self.get_following_vix_by_date, dates)
         df = pd.DataFrame(records)
         df.columns = ['date', 'f1', 'f2']
         return df
 
+    # not used...
+    def get_all_vix(self, columns):
+        query_template = """select {} from vix order by dailyDate1dAgo,symbol"""
+        select_columns = ', '.join(columns)
+        query = query_template.format(select_columns)
+        rows = self.select(query)
+        return rows
 
+    # not used...
+    def get_grouped_all_vix(self):
+        columns = ['dailyDate1dAgo', 'symbol', 'dailyLastPrice']
+        rows = self.get_all_vix(columns)
+        grouped_vix = {}
+        records = None
+        date = None
+        for row in rows:
+            if row[0] != date:
+                if records is not None:
+                    grouped_vix[date] = records
+                date = row[0]
+                records = []
+            records.append(row)
+        grouped_vix[date] = records
+        return grouped_vix
 
+    def get_vix_price_by_symbol(self, symbol):
+        query_template = """select dailyDate1dAgo, dailyLastPrice from vix where symbol = '{}' order by dailyDate1dAgo"""
+        query = BaseDAO.mysql_format(query_template, symbol)
+        rows = self.select(query)
+        df = pd.DataFrame(rows)
+        df.columns = ['date', 'price']
+        return df
+
+    def get3vix(self, date_str = datetime.datetime.now().strftime('%Y-%m-%d')):
+        symbols = list(VIX.get_following_symbols(date_str))
+        symbols[0] = 'VIY00'
+        return map(lambda x: self.get_vix_price_by_symbol(x), symbols)
 
 
 
 if __name__ == '__main__':
-    print VIXDAO().gen_all_vix()
+    #print list(VIXDAO().get_current_and_follwing_vix())
+    print VIXDAO().get3vix()
 

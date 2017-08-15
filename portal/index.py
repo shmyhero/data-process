@@ -21,6 +21,9 @@ class Index:
         #return """<a href=\"credit\">credit</a>"""
         return render.index()
 
+class Test:
+    def GET(self):
+        return render.test()
 
 class PlotPoint:
 
@@ -61,8 +64,15 @@ class Credit:
         return data
 
 
+def run_web_app():
+    urls = ('/', 'Index',
+            '/credit', 'Credit',
+            '/test', 'Test')
 
-if __name__ == "__main__":
+    app = web.application(urls, globals())
+    app.run()
+
+if __name__ == '__main__':
     pass
     # if the code run on linux server...
     #if platform.system() == 'Linux':

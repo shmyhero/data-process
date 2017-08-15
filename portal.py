@@ -1,10 +1,4 @@
-import web
-from portal.index import Index, Credit
-
-urls = ("/", "Index",
-        "/credit", "Credit")
-
-app = web.application(urls, globals())
+from portal.index import run_web_app
 
 if __name__ == '__main__':
-    app.run()
+    run_web_app()
