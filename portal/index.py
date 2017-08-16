@@ -142,13 +142,38 @@ class VIXF2(VIXBase):
         return self.get_plot_data()
 
 
+class VIX3in1(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        dfs = VIXDAO().get3vix()
+        dates = dfs[0]['date']
+        price_index = dfs[0]['price']
+        price_f1 = dfs[1]['price']
+        price_f2 = dfs[2]['price']
+        fig = Figure(figsize=[12, 8])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, price_index, label='vix index')
+        ax.plot(dates, price_f1, label='vix f1')
+        ax.plot(dates, price_f2, label='vix f2')
+        ax.legend(loc='upper left')
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
             '/vix', 'VixAll',
             '/vixindex', 'VIXIndex',
             '/vixf1', 'VIXF1',
-            '/vixf2', 'VIXF2')
+            '/vixf2', 'VIXF2',
+            '/vix3in1', 'VIX3in1')
 
     app = web.application(urls, globals())
     app.run()
