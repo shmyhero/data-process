@@ -30,7 +30,7 @@ class ETFS(object):
        'Volatility'            :['VXX', 'VXZ', 'UVXY','SVXY'] #, 'XIV', 'ZIV'] # no options for XIV and ZIV
         }
 
-    non_option_symbols = ['XIV', 'ZIV']
+    non_option_symbols = ['XIV', 'ZIV', 'EFA', 'EWJ', 'HYG']
 
     @staticmethod
     def get_option_symbols():

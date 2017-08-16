@@ -1,9 +1,7 @@
-import os
 import ConfigParser
-import platform
 from pathmgr import PathMgr
 
-
+
 class ConfigMgr(dict):
     conf_dict = None
 
@@ -16,14 +14,14 @@ class ConfigMgr(dict):
     @staticmethod
     def get_config():
         if ConfigMgr.conf_dict is None:
-            dict = {}
+            dic = {}
             conf = ConfigMgr.read_config()
             for section in conf.sections():
                 section_dic = {}
                 for option in conf.options(section):
                     section_dic[option] = conf.get(section, option)
-                dict[section] = section_dic
-            ConfigMgr.conf_dict = dict
+                dic[section] = section_dic
+            ConfigMgr.conf_dict = dic
         return ConfigMgr.conf_dict
 
     @staticmethod
