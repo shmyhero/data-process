@@ -21,6 +21,7 @@ def plot_vix_3in1():
     ax.plot(dates, price_index, label='index')
     ax.plot(dates, price_f1, label='f1')
     ax.plot(dates, price_f2, label='f2')
+    plt.grid()
     plt.legend(bbox_to_anchor=(1.05, 1), loc=8, borderaxespad=0.)
     plt.show()
 
