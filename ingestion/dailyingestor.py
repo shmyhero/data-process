@@ -109,8 +109,8 @@ class DailyIngestor(object):
             self.logger.info('Option data is ok...')
         self.logger.info('Validate vix data...')
         count = self.get_vix_data_count()
-        if count != 10:
-            self.logger.error('The records count for vix is: %s, expect to 10.')
+        if count < 9:
+            self.logger.error('The records count for vix is: %s, expect to more than 9.')
             return False
         else:
             self.logger.info('Vix data is ok...')
@@ -127,12 +127,12 @@ class DailyIngestor(object):
 
 
 if __name__ == '__main__':
-    daily_ingestor = DailyIngestor('/Users/tradehero/python-projects/data-process/data')
+    daily_ingestor = DailyIngestor('/Users/tradehero/python-projects/data-process/data/raw/')
     #daily_ingestor.gen_all()
-    #daily_ingestor.gen_vix_data()
+    daily_ingestor.gen_vix_data()
     #print ETFS.get_all_symbols()
     #daily_ingestor.gen_equity_data('XOP')
-    daily_ingestor.validate()
+    #daily_ingestor.validate()
 
 
 
