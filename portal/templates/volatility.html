@@ -1,0 +1,24 @@
+$def with (symbol)
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{font-size:50px}
+    </style>
+    <script lang="javascript">
+        function go() {
+            symbol = document.getElementById("input_symbol").value
+            url = "http://" + window.location.host + "/volatility/" + symbol;
+            window.location.href= url
+        }
+    </script>
+</head>
+
+    Symbol: <input type="text" id="input_symbol" name="symbol" size="5" style = "height:50px; font-size:37px" value="$symbol"/>
+    <button value = "go"  style = "height:50px; width:100px; font-size:37px" onclick="go()"> GO </button>
+
+
+</body>
+</html>

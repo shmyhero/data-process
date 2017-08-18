@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 from dataaccess.basedao import BaseDAO
 
@@ -30,6 +31,16 @@ class EquityDAO(BaseDAO):
         df.columns = columns
         return df
 
+    def get_date_price_list(self, symbol, days_to_now = 30):
+        start_date = datetime.datetime.now() - datetime.timedelta(days_to_now)
+        query_template = """select tradeTime, lastPrice from equity where symbol = '{}' and tradeTime >= str_to_date('{}', '%Y-%m-%d')"""
+        query = query_template.format(symbol, start_date.strftime('%Y-%m-%d'))
+        rows = self.select(query)
+        df = pd.DataFrame(rows)
+        df.columns = ['date', 'price']
+        return df
+
+
     def get_price_change_percentage(self, from_date, to_date):
 
         query_template = """select t1.symbol, (t2.end_price - t1.start_price)/t1.start_price as percentage from 
@@ -44,7 +55,8 @@ class EquityDAO(BaseDAO):
 
 
 if __name__ == '__main__':
-    df = EquityDAO().get_price_change_percentage('2017-07-24', '2017-07-26')
-    print df
+    #df = EquityDAO().get_price_change_percentage('2017-07-24', '2017-07-26')
+    #print df
     #df_left =
     #print df[df.symbol.any(['IXC', 'IXP', 'UNG', 'IDU', 'GLD'])]
+    print EquityDAO().get_date_price_list('SPY')

@@ -27,19 +27,24 @@ class Volatility(object):
 
 def spy_option():
     from dataaccess.yahooequitydao import YahooEquityDAO
-    records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str= '2016-08-15')
-    price_list = map(lambda x: x[1], records)
+    #records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str= '2016-08-15')
+    #price_list = map(lambda x: x[1], records)
+    from dataaccess.equitydao import EquityDAO
+    df = EquityDAO().select_by_symbols(['SPY'])
+    #print df
+    price_list = df['lastPrice'].tolist()
+    #print price_list
     underlying_price = price_list[-1]
     print 'underlying_price=%s'%underlying_price
     strike_price = 245
     interest_rate = 0.0167
-    left_days = 27
+    left_days = 26
     sigma = Volatility.get_history_volatility(price_list)
     print 'sigma=%s'%sigma
-    #sigma = 0.0051
+    sigma = 0.0051
     bs_price = Volatility.get_black_scholes_option_price(underlying_price, strike_price, left_days/365.0, interest_rate, sigma, 'c')
     print 'bs_price=%s'%bs_price
-    current_price = 3.67
+    current_price = 1.98
     iv = vollib.black_scholes.implied_volatility.implied_volatility(current_price, underlying_price, strike_price, left_days/365.0, interest_rate, 'c')
     print iv
 

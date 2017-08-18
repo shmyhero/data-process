@@ -2,6 +2,7 @@ import web
 import datetime
 import cStringIO
 from abc import abstractmethod
+from dataaccess.equitydao import EquityDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
@@ -168,6 +169,28 @@ class VIX3in1(object):
         return data
 
 
+class Volatility(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self, symbol):
+        return render.volatility(symbol)
+
+
+class IMP(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self, symbol):
+        df_equity = EquityDAO().get_date_price_list(symbol)
+        price_list = df_equity['price'].to_list()
+
+
+
+
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
@@ -175,7 +198,8 @@ def run_web_app():
             '/vixindex', 'VIXIndex',
             '/vixf1', 'VIXF1',
             '/vixf2', 'VIXF2',
-            '/vix3in1', 'VIX3in1')
+            '/vix3in1', 'VIX3in1',
+            '/volatility/(.*)', 'Volatility')
 
     app = web.application(urls, globals())
     app.run()
