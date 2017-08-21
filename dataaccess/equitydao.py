@@ -25,7 +25,7 @@ class EquityDAO(BaseDAO):
         symbols_sql = ', '.join(map(lambda x: '\'%s\''%x, symbols))
         query_template = """select {} from equity where symbol in ({})"""
         query = query_template.format(fields, symbols_sql)
-        print query
+        #print query
         rows = self.select(query)
         df = pd.DataFrame(rows)
         df.columns = columns

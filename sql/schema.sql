@@ -104,12 +104,12 @@ create table nyse_credit (
 --option ratio view, provide the ratio from stike_price / underling_price
 drop view if exists option_ratio_view;
 create view option_ratio_view  as (
-    select o.underlingSymbol, o.symbol, o.tradeTime, o.optionType, o.volatility, o.expirationDate, o.daysToExpiration, e.lastPrice as price, o.strikePrice / e.lastPrice as ratio
+    select o.underlingSymbol, o.symbol, o.tradeTime, o.optionType, o.volatility, o.expirationDate, o.daysToExpiration, o.lastPrice as option_price, o.delta, o.gamma, o.rho, o.theta, o.vega, e.lastPrice as price, o.strikePrice / e.lastPrice as ratio
     from option_data as o,
          equity as e
     where o.underlingSymbol = e.symbol
     and o.tradeTime = e.tradeTime
-)
+);
 
 --option volatility view, filter the orv ratio, ATM call from 0.95 to 1.05, OTM put from 0.8 to 0.95, average the volatility for the grouped option symbols
 drop view if exists option_vol_view;
