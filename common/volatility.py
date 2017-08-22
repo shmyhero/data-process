@@ -41,35 +41,66 @@ class Volatility(object):
 
     @staticmethod
     def get_delta(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
-        delta = vollib.black_scholes.greeks.numerical.delta(flag, underlying_price, strike_price, left_days, risk_free_interest_rate, sigma)
+        delta = vollib.black_scholes.greeks.numerical.delta(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
         return delta
 
+    @staticmethod
+    def get_gamma(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
+        gamma = vollib.black_scholes.greeks.numerical.gamma(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
+        return gamma
+
+    @staticmethod
+    def get_gamma(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
+        gamma = vollib.black_scholes.greeks.numerical.gamma(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
+        return gamma
+
+    @staticmethod
+    def get_vega(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
+        vega = vollib.black_scholes.greeks.numerical.vega(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
+        return vega
+
+    @staticmethod
+    def get_theta(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
+        theta = vollib.black_scholes.greeks.numerical.theta(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
+        return theta
+
+    @staticmethod
+    def get_rho(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
+        rho = vollib.black_scholes.greeks.numerical.rho(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
+        return rho
 
 
 def spy_option():
     from dataaccess.yahooequitydao import YahooEquityDAO
-    records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str= '2017-01-20')
+    records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str= '2017-07-21')
     price_list = map(lambda x: x[1], records)
     #from dataaccess.equitydao import EquityDAO
     #df = EquityDAO().select_by_symbols(['SPY'])
     #print df
     #price_list = df['lastPrice'].tolist()
     #print price_list
-    underlying_price = price_list[-2]
+    underlying_price = price_list[-1]
     print 'underlying_price=%s'%underlying_price
     strike_price = 245
-    interest_rate = 0.0167
-    left_days = 26
+    interest_rate = 0.03
+    left_days = 22
     sigma = Volatility.get_year_history_volatility(price_list)
     print 'sigma=%s'%sigma
-    sigma = 0.74
     bs_price = Volatility.get_black_scholes_option_price(underlying_price, strike_price, left_days/365.0, interest_rate, sigma, 'c')
     print 'bs_price=%s'%bs_price
-    current_price = 1.98
+    current_price = 1.53
     iv = Volatility.get_implied_volatility(current_price, underlying_price, strike_price, left_days, interest_rate, 'c')
-    print iv
+    print 'implied volatility:%s'%iv
     delta = Volatility.get_delta(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
     print 'delta=%s' % delta
+    gamma = Volatility.get_gamma(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    print 'gamma=%s' % gamma
+    vega = Volatility.get_vega(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    print 'vega=%s' % vega
+    theta = Volatility.get_theta(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    print 'theta=%s' % theta
+    rho = Volatility.get_rho(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    print 'rho=%s' % rho
 
 """
 def spy_historical_volatility():
