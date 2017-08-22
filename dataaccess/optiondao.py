@@ -1,3 +1,4 @@
+import datetime
 from dataaccess.basedao import BaseDAO
 
 
@@ -20,4 +21,35 @@ class OptionDAO(BaseDAO):
                 count = 0
         conn.commit()
         conn.close()
+
+    def get_following_expirationDate(self, symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
+        query_template = """select distinct(expirationDate) from  option_data 
+                            where underlingSymbol = '{}' and expirationDate >= str_to_date('{}', '%Y-%m-%d')
+                            order by expirationDate"""
+        query = query_template.format(symbol, from_date_str)
+        rows = self.select(query)
+        for row in rows:
+            d = row[0]
+            if d.weekday() == 4 and 14 < d.day < 22:
+                return d
+
+    #TODO:test it.
+    def find_symbol(self, symbol, expration_date, current_equity_price):
+        query_template = """select distinct(strikeprice) from  option_data where underlingSymbol = '{}'  and  expirationDate =  str_to_date('{}', '%Y-%m-%d') and optionType = 'Call' """
+        query = query_template.format(symbol, expration_date.strftime('%Y-%m-%d'))
+        rows = self.select(query)
+        min = 99999999
+        strik_price = None
+        for row in rows:
+            delta = abs(row[0] - current_equity_price)
+            if delta < min:
+                min = delta
+                strik_price = row[0]
+        #'SPY170915C00245000'
+        return '%s%sC%08d' % (symbol, expration_date.strftime('%y%m%d'), strik_price * 1000)
+
+
+if __name__ == '__main__':
+    print OptionDAO().get_following_expirationDate('SPY')
+
 

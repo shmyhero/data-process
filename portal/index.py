@@ -2,6 +2,7 @@ import web
 import datetime
 import cStringIO
 from abc import abstractmethod
+from common.optioncalculater import OptionCalculater
 from dataaccess.equitydao import EquityDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
@@ -184,8 +185,10 @@ class IMP(object):
         pass
 
     def GET(self, symbol):
-        df_equity = EquityDAO().get_date_price_list(symbol)
-        price_list = df_equity['price'].to_list()
+        #df_equity = EquityDAO().get_date_price_list(symbol)
+        #price_list = df_equity['price'].to_list()
+        #OptionCalculater().get_year_history_volatility(price_list)
+        pass
 
 
 
