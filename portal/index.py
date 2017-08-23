@@ -7,6 +7,7 @@ from dataaccess.equitydao import EquityDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
+from dataaccess.optiondao import OptionDAO
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
@@ -179,18 +180,58 @@ class Volatility(object):
         return render.volatility(symbol)
 
 
-class IMP(object):
+class Vol3in1(object):
 
     def __init__(self):
         pass
 
+    def init_data(self, symbol):
+        # df_equity = EquityDAO().get_date_price_list(symbol)
+        # price_list = df_equity['price'].to_list()
+        # OptionCalculater().get_year_history_volatility(price_list)
+
+        # get the equity records from 100 date ago.
+        from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
+        equity_records = YahooEquityDAO().get_all_equity_price_by_symbol(symbol, from_date_str)
+        current_quity_price = equity_records[-1][1]
+        option_iv_records = OptionDAO().get_corresponding_implied_volatilities(symbol, current_quity_price)
+        first_tradetime = option_iv_records[0][0]
+        circle = 30
+        equity_start_date = first_tradetime - datetime.timedelta(circle)
+        trade_day_circle = len(filter(lambda x: x[0] >= equity_start_date and x[0] < first_tradetime, equity_records))
+        hv_records = OptionCalculater.get_year_history_volatility_list(filter(lambda x: x[0] >= equity_start_date, equity_records), trade_day_circle)
+        self.equity_records = filter(lambda x: x[0] >= first_tradetime, equity_records)
+        self.hv_records = hv_records
+        self.iv_records = option_iv_records
+
+    def get_plot_data(self, symbol):
+        self.init_data(symbol)
+        dates = map(lambda x: x[0], self.equity_records)
+        euiqty_prices = map(lambda x: x[1], self.equity_records)
+        hv = map(lambda x: x[1] * 100.0, self.hv_records)
+        iv = map(lambda x: x[1], self.iv_records)
+        fig = Figure(figsize=[12, 6])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, hv, label='historical volatility')
+        ax.plot(dates, iv, label='implied volatility')
+        ax.legend(loc='upper left')
+        ax.grid()
+
+        fig2 = Figure(figsize=[12, 6])
+        ax2 = fig2.add_axes([.1, .1, .8, .8])
+        ax2.plot(dates, euiqty_prices, label='price')
+        ax2.legend(loc='upper left')
+        ax2.grid()
+
+        #conver to canvas
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
     def GET(self, symbol):
-        #df_equity = EquityDAO().get_date_price_list(symbol)
-        #price_list = df_equity['price'].to_list()
-        #OptionCalculater().get_year_history_volatility(price_list)
-        pass
-
-
+        return self.get_plot_data(symbol)
 
 
 
@@ -202,7 +243,8 @@ def run_web_app():
             '/vixf1', 'VIXF1',
             '/vixf2', 'VIXF2',
             '/vix3in1', 'VIX3in1',
-            '/volatility/(.*)', 'Volatility')
+            '/volatility/(.*)', 'Volatility',
+            '/vol3in1/(.*)', 'Vol3in1')
 
     app = web.application(urls, globals())
     app.run()

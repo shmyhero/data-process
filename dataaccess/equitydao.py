@@ -40,9 +40,7 @@ class EquityDAO(BaseDAO):
         df.columns = ['date', 'price']
         return df
 
-
     def get_price_change_percentage(self, from_date, to_date):
-
         query_template = """select t1.symbol, (t2.end_price - t1.start_price)/t1.start_price as percentage from 
                         (select symbol, lastPrice as start_price from equity where tradeTime = str_to_date('2017-07-24', '%Y-%m-%d')) as t1,
                         (select symbol, lastPrice as end_price from equity where tradeTime = str_to_date('2017-07-26', '%Y-%m-%d')) as t2
