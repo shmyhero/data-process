@@ -180,7 +180,10 @@ class Volatility(object):
         return render.volatility(symbol)
 
 
-class Vol3in1(object):
+class VolBase(object):
+
+    CACHE_DATE = None
+    CACHE_DIC = None
 
     def __init__(self):
         pass
@@ -204,10 +207,23 @@ class Vol3in1(object):
         self.hv_records = hv_records
         self.iv_records = option_iv_records
 
-    def get_plot_data(self, symbol):
-        self.init_data(symbol)
+    def init_with_cache(self, symbol):
+        symbol = symbol.upper()
+        if datetime.date.today() != VolBase.CACHE_DATE:
+            VolBase.CACHE_DIC = {}
+            VolBase.CACHE_DATE = datetime.date.today()
+        if VolBase.CACHE_DIC.has_key(symbol):
+            (self.equity_records, self.hv_records, self.iv_records) = VolBase.CACHE_DIC[symbol]
+        else:
+            self.init_data(symbol)
+            VolBase.CACHE_DIC[symbol] = (self.equity_records, self.hv_records, self.iv_records)
+
+
+class VolHvsI(VolBase):
+
+    def GET(self, symbol):
+        self.init_with_cache(symbol)
         dates = map(lambda x: x[0], self.equity_records)
-        euiqty_prices = map(lambda x: x[1], self.equity_records)
         hv = map(lambda x: x[1] * 100.0, self.hv_records)
         iv = map(lambda x: x[1], self.iv_records)
         fig = Figure(figsize=[12, 6])
@@ -216,12 +232,25 @@ class Vol3in1(object):
         ax.plot(dates, iv, label='implied volatility')
         ax.legend(loc='upper left')
         ax.grid()
+        # conver to canvas
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
 
-        fig2 = Figure(figsize=[12, 6])
-        ax2 = fig2.add_axes([.1, .1, .8, .8])
-        ax2.plot(dates, euiqty_prices, label='price')
-        ax2.legend(loc='upper left')
-        ax2.grid()
+
+class VolEquity(VolBase):
+
+    def GET(self, symbol):
+        self.init_with_cache(symbol)
+        dates = map(lambda x: x[0], self.equity_records)
+        equity_prices = map(lambda x: x[1], self.equity_records)
+        fig = Figure(figsize=[12, 6])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, equity_prices, label='price')
+        ax.legend(loc='upper left')
+        ax.grid()
 
         #conver to canvas
         canvas = FigureCanvasAgg(fig)
@@ -230,8 +259,7 @@ class Vol3in1(object):
         data = buf.getvalue()
         return data
 
-    def GET(self, symbol):
-        return self.get_plot_data(symbol)
+
 
 
 
@@ -244,7 +272,8 @@ def run_web_app():
             '/vixf2', 'VIXF2',
             '/vix3in1', 'VIX3in1',
             '/volatility/(.*)', 'Volatility',
-            '/vol3in1/(.*)', 'Vol3in1')
+            '/volhvsi/(.*)', 'VolHvsI',
+            '/volequity/(.*)', 'VolEquity')
 
     app = web.application(urls, globals())
     app.run()

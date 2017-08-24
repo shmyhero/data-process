@@ -15,6 +15,7 @@ class BarchartScraper(object):
         except Exception:
             if times > 0:
                 time.sleep(1)
+                url = url.replace('bidDate,', '') #sometime the bidDate field is unavailable..
                 return BarchartScraper.http_get_with_retry(url, times - 1)
             else:
                 raise Exception('Failed to get data from %s'%url, )
@@ -42,10 +43,10 @@ class BarchartScraper(object):
         :param expiration_date: the expiration-date format is yyyy-MM-dd
         :return:
         """
-        if datetime.datetime.now().weekday() > 1 and datetime.datetime.now().weekday() < 5:
-            url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidDate,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
-        else: #bidDate can not get on weekend...
-            url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
+        #if datetime.datetime.now().weekday() > 1 and datetime.datetime.now().weekday() < 5:
+        url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidDate,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
+        #else: #bidDate can not get on weekend...
+        #url_template = 'https://core-api.barchart.com/v1/options/chain?fields=symbol,expirationDate,date,daysToExpiration,optionType,strikePrice,askPrice,bidPrice,openPrice,highPrice,lowPrice,lastPrice,priceChange,volatility,theoretical,delta,gamma,rho,theta,vega,openInterest,volume&symbol={}&groupBy=&gt(volatility,0)=&meta=&raw=&expirationDate={}'
         url = url_template.format(symbol, expiration_date)
         return BarchartScraper.http_get_with_retry(url)
 

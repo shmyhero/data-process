@@ -104,7 +104,7 @@ create table nyse_credit (
 --option ratio view, provide the ratio from stike_price / underling_price
 drop view if exists option_ratio_view;
 create view option_ratio_view  as (
-    select o.underlingSymbol, o.symbol, o.tradeTime, o.optionType, o.volatility, o.expirationDate, o.daysToExpiration, o.lastPrice as option_price, o.delta, o.gamma, o.rho, o.theta, o.vega, e.lastPrice as price, o.strikePrice / e.lastPrice as ratio
+    select o.underlingSymbol, o.symbol, o.tradeTime, o.optionType, o.volatility, o.expirationDate, o.daysToExpiration, o.lastPrice as option_price, o.delta, o.gamma, o.rho, o.theta, o.vega, o.strikePrice, e.lastPrice as price, o.strikePrice / e.lastPrice as ratio
     from option_data as o,
          equity as e
     where o.underlingSymbol = e.symbol
