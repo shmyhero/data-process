@@ -91,28 +91,39 @@ class YahooScraper(object):
             time.sleep(1)
 
     @staticmethod
-    def ingest_option(symbol):
+    def get_option_expirations(symbol):
         url = "https://finance.yahoo.com/quote/{}/options?p={}".format(symbol, symbol)
         content = YahooScraper.ingest_with_retry(symbol, url)
-        #return string_fetch(content, 'root.App.main = ', '(this));')
+        content = string_fetch(content, 'select class=\"Fz(s)\"', '</div>')
+        items = content.split('><option')
+        values = map(lambda x: string_fetch(x, 'value=\"', '\"'),  items[1:])
+        return values
+
+    @staticmethod
+    def ingest_option(symbol, date_value):
+        url = "https://finance.yahoo.com/quote/{}/options?p={}&date={}".format(symbol, symbol, date_value)
+        content = YahooScraper.ingest_with_retry(symbol, url)
         return content
+
 
     @staticmethod
     def ingest_all_etf_options():
         logger = Logger(__name__, PathMgr.get_log_path())
         for symbol in ETFS.get_option_symbols():
             logger.info('ingest option data for %s...' % symbol)
-            path = PathMgr.get_yahoo_option_path(symbol)
-            content = YahooScraper.ingest_option(symbol)
-            write_to_file(path, content)
-            time.sleep(1)
+            date_values = YahooScraper.get_option_expirations(symbol)
+            for date_value in date_values:
+                path = PathMgr.get_yahoo_option_path(symbol, date_value)
+                content = YahooScraper.ingest_option(symbol, date_value)
+                write_to_file(path, content)
+                time.sleep(1)
 
 
 
 if __name__ == '__main__':
     #print get_crumble_and_cookie('SPY')
     #print download_quote('SPY', '2002-01-01', '2002-02-01')
-    #YahooScraper.ingest_all_historical_etf()
+    #YahooScraper.get_option_expirations('SPY')
     print YahooScraper.ingest_all_etf_options()
 
 
