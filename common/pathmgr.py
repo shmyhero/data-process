@@ -1,4 +1,5 @@
 import os.path
+import datetime
 from utils.iohelper import ensure_dir_exists
 
 
@@ -51,6 +52,21 @@ class PathMgr(object):
         if symbol:
             etf_path = os.path.join(historical_path, 'ETFS', symbol + '.csv')
         else:
-            etf_path = os.path.join(historical_path, 'ETFS', symbol + '.csv')
+            etf_path = os.path.join(historical_path, 'ETFS')
         return etf_path
+
+    @staticmethod
+    def get_yahoo_option_dir(sub_path = str(datetime.date.today())):
+        yahoo_option_dir = PathMgr.get_data_path('yahoo_option')
+        ensure_dir_exists(yahoo_option_dir)
+        if sub_path:
+            option_path = os.path.join(yahoo_option_dir, sub_path)
+        else:
+            option_path = os.path.join(yahoo_option_dir)
+        ensure_dir_exists(option_path)
+        return option_path
+
+    @staticmethod
+    def get_yahoo_option_path(symbol):
+        return os.path.join(PathMgr.get_yahoo_option_dir(), symbol + '.html')
 

@@ -7,7 +7,7 @@ import vollib.black_scholes_merton.implied_volatility
 import vollib.black_scholes.greeks.numerical
 
 
-class Volatility(object):
+class OptionCalculater(object):
 
     @staticmethod
     def get_history_volatility(price_list):
@@ -21,13 +21,21 @@ class Volatility(object):
     @staticmethod
     def get_history_volatility2(price_list):
         dailyVolatility = np.std(np.diff(np.log(price_list)))
-        #print dailyVolatility
         return dailyVolatility
-
 
     @staticmethod
     def get_year_history_volatility(price_list):
-        return math.sqrt(252) * Volatility.get_history_volatility(price_list)
+        return math.sqrt(252) * OptionCalculater.get_history_volatility2(price_list)
+
+    @staticmethod
+    def get_year_history_volatility_list(date_price_records, circle = 30):
+        length = len(date_price_records)
+        results = []
+        for i in range(length-circle):
+            price_list = map(lambda x: x[1], date_price_records[i:i+circle])
+            vol = OptionCalculater.get_year_history_volatility(price_list)
+            results.append([date_price_records[i+circle][0], vol])
+        return results
 
     @staticmethod
     def get_black_scholes_option_price(underlying_price, strike_price, days_to_experiation, risk_free_interest_rate, sigma, flag='c'):
@@ -82,24 +90,24 @@ def spy_option():
     underlying_price = price_list[-1]
     print 'underlying_price=%s'%underlying_price
     strike_price = 245
-    interest_rate = 0.03
-    left_days = 22
-    sigma = Volatility.get_year_history_volatility(price_list)
+    interest_rate = 0.005
+    left_days = 24
+    sigma = OptionCalculater.get_year_history_volatility(price_list)
     print 'sigma=%s'%sigma
-    bs_price = Volatility.get_black_scholes_option_price(underlying_price, strike_price, left_days/365.0, interest_rate, sigma, 'c')
+    bs_price = OptionCalculater.get_black_scholes_option_price(underlying_price, strike_price, left_days / 365.0, interest_rate, sigma, 'c')
     print 'bs_price=%s'%bs_price
     current_price = 1.53
-    iv = Volatility.get_implied_volatility(current_price, underlying_price, strike_price, left_days, interest_rate, 'c')
+    iv = OptionCalculater.get_implied_volatility(current_price, underlying_price, strike_price, left_days, interest_rate, 'c')
     print 'implied volatility:%s'%iv
-    delta = Volatility.get_delta(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    delta = OptionCalculater.get_delta(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
     print 'delta=%s' % delta
-    gamma = Volatility.get_gamma(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    gamma = OptionCalculater.get_gamma(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
     print 'gamma=%s' % gamma
-    vega = Volatility.get_vega(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    vega = OptionCalculater.get_vega(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
     print 'vega=%s' % vega
-    theta = Volatility.get_theta(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    theta = OptionCalculater.get_theta(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
     print 'theta=%s' % theta
-    rho = Volatility.get_rho(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
+    rho = OptionCalculater.get_rho(underlying_price, strike_price, left_days, interest_rate, sigma, 'c')
     print 'rho=%s' % rho
 
 """
@@ -124,6 +132,16 @@ def etf50_vol():
     print iv
 """
 
+
+def _test_vol():
+    import datetime
+    from dataaccess.yahooequitydao import YahooEquityDAO
+    from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
+    equity_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str)
+    results = OptionCalculater.get_year_history_volatility_list(equity_records)
+    print results
+
 if __name__ == '__main__':
     spy_option()
+    #_test_vol()
 

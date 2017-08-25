@@ -41,7 +41,7 @@ class OptionDAO(BaseDAO):
         rows = self.select(query)
         #print rows
         start_date = max(datetime.date.today() - datetime.timedelta(days_to_now), rows[0][1])
-        filtered_rows = filter(lambda x: x[1] == start_date, rows)
+        filtered_rows = filter(lambda x: x[1] <= start_date, rows)
         #print filtered_rows
         min = sys.maxint
         strik_price = None

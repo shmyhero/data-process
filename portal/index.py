@@ -260,9 +260,6 @@ class VolEquity(VolBase):
         return data
 
 
-
-
-
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',

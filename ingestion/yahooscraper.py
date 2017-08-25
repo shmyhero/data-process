@@ -4,6 +4,7 @@ import calendar
 import datetime
 import time
 from utils.iohelper import write_to_file
+from utils.stringhelper import string_fetch
 from common.etfs import ETFS
 from common.pathmgr import PathMgr
 from utils.logger import Logger
@@ -63,6 +64,23 @@ class YahooScraper(object):
         return ""
 
     @staticmethod
+    def ingest_with_retry(symbol, url):
+        attempts = 0
+        while attempts < 5:
+            crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache(symbol)
+            r = urllib2.Request(url, headers={'Cookie': cookie_str})
+            try:
+                response = urllib2.urlopen(r)
+                text = response.read()
+                # print "{} downloaded".format(symbol)
+                return text
+            except urllib2.URLError:
+                print "{} failed at attempt # {}".format(url, attempts)
+                attempts += 1
+                time.sleep(2 * attempts)
+        return ""
+
+    @staticmethod
     def ingest_all_historical_etf(date_from = '1993-01-29', date_to = datetime.date.today().strftime("%Y-%m-%d")):
         logger = Logger(__name__, PathMgr.get_log_path())
         for symbol in ETFS.get_all_symbols():
@@ -72,10 +90,29 @@ class YahooScraper(object):
             write_to_file(path, content)
             time.sleep(1)
 
+    @staticmethod
+    def ingest_option(symbol):
+        url = "https://finance.yahoo.com/quote/{}/options?p={}".format(symbol, symbol)
+        content = YahooScraper.ingest_with_retry(symbol, url)
+        #return string_fetch(content, 'root.App.main = ', '(this));')
+        return content
+
+    @staticmethod
+    def ingest_all_etf_options():
+        logger = Logger(__name__, PathMgr.get_log_path())
+        for symbol in ETFS.get_option_symbols():
+            logger.info('ingest option data for %s...' % symbol)
+            path = PathMgr.get_yahoo_option_path(symbol)
+            content = YahooScraper.ingest_option(symbol)
+            write_to_file(path, content)
+            time.sleep(1)
+
+
 
 if __name__ == '__main__':
     #print get_crumble_and_cookie('SPY')
     #print download_quote('SPY', '2002-01-01', '2002-02-01')
-    YahooScraper.ingest_all_historical_etf()
+    #YahooScraper.ingest_all_historical_etf()
+    print YahooScraper.ingest_all_etf_options()
 
 
