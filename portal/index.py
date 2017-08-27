@@ -206,6 +206,9 @@ class VolBase(object):
         self.equity_records = filter(lambda x: x[0] >= first_tradetime, equity_records)
         self.hv_records = hv_records
         self.iv_records = option_iv_records
+        if symbol.upper() == 'SPY':
+            df = VIXDAO().get_vix_price_by_symbol('VIY00')
+            self.iv_records = df.values.tolist()
 
     def init_with_cache(self, symbol):
         symbol = symbol.upper()
