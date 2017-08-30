@@ -8,10 +8,10 @@ from research.tradesimulation import TradeAccount, TradeNode, TradeSimulation
 
 class CAA(object):
 
-    def __init__(self):
-        self.symbols = ['SPY', 'QQQ','EFA', 'EEM', 'EWJ', 'HYG', 'IEF', 'BIL']
-        self.lower_bounds = [[0.00],[0.00],[0.00],[0.00],[0.00],[0.00],[0.00],[0.00]]
-        self.upper_bounds = [[0.25],[0.25],[0.25],[0.25],[0.25],[0.25],[1.00],[1.00]]
+    def __init__(self, symbols, lower_bounds, upper_bounds):
+        self.symbols = symbols
+        self.lower_bounds = lower_bounds
+        self.upper_bounds = upper_bounds
         self.historical_prices = list(self.get_historical_prices())
 
     def get_historical_prices(self):
@@ -23,7 +23,7 @@ class CAA(object):
     def get_prices_lists(self, days_ago):
         return map(lambda x: x[-days_ago-252:-days_ago], self.historical_prices)
 
-    def getWeights(cla, tv):
+    def getWeights(self, cla, tv):
         mu, sigma, weights = cla.efFrontier(1000)  # get effective fronter
         tv = tv / pow(252, 0.5)  # set target volatility, transfer to annual
         diff = 1000.0
@@ -65,7 +65,7 @@ class CAA(object):
         #print covar
         cla = CLA(mean, covar, self.lower_bounds, self.upper_bounds)
         cla.solve()
-        weights = pd.Series(self.getWeights(cla, tv).flatten(), index=self.symbols)
+        weights = pd.Series(map(lambda x: round(x*100, 2), self.getWeights(cla, tv).flatten()), index=self.symbols)
         return weights
 
 
@@ -74,6 +74,7 @@ class CAA(object):
 #mu,sigma,weights=cla.efFrontier(1000)
 
 if __name__ == '__main__':
-    #print CAA().get_covar(8)
-    #print CAA().get_mean_by_prices_list(8)
-    print CAA().rebalance(8, 0.8)
+    caa = CAA(['SPY', 'QQQ','BIL'], [[0.00],[0.00],[0.00]], [[1],[1],[1]])
+    #print caa.get_covar(1)
+    #print caa.get_mean_by_prices_list(1)
+    print caa.rebalance(1, 0.2)

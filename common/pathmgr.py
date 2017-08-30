@@ -67,6 +67,8 @@ class PathMgr(object):
         return option_path
 
     @staticmethod
-    def get_yahoo_option_path(symbol):
-        return os.path.join(PathMgr.get_yahoo_option_dir(), symbol + '.html')
+    def get_yahoo_option_path(symbol, date_value):
+        symbol_path = os.path.join(PathMgr.get_yahoo_option_dir(), symbol)
+        ensure_dir_exists(symbol_path)
+        return os.path.join(symbol_path, date_value + '.html')
 
