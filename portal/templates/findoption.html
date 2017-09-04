@@ -1,0 +1,28 @@
+$def with (symbols, selected_symbol,expiration_dates)
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{font-size:50px}
+    </style>
+    <script lang="javascript">
+        function go() {
+
+        }
+    </script>
+</head>
+    $selected_symbol
+    Symbol: $symbols
+    Expiration Date:<select>
+                      <option value ="volvo">Volvo</option>
+                      <option value ="saab">Saab</option>
+                      <option value="opel">Opel</option>
+                      <option value="audi">Audi</option>
+                    </select>
+    <button value = "go"  style = "height:50px; width:100px; font-size:37px" onclick="go()"> GO </button>
+
+    $expiration_dates
+</body>
+</html>

@@ -97,7 +97,6 @@ class VIXDAO(BaseDAO):
         return map(lambda x: self.get_vix_price_by_symbol(x), symbols)
 
 
-
 if __name__ == '__main__':
     #print list(VIXDAO().get_current_and_follwing_vix())
     print VIXDAO().get3vix()

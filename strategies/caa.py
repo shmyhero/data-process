@@ -40,7 +40,6 @@ class CAA(object):
         #print prices_lists
         #print np.diff(np.log(prices_lists))
         return np.cov(np.diff(np.log(prices_lists)))
-        return None
 
     def get_mean_by_prices_list(self, days_ago):
         result = []

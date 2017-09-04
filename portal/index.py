@@ -2,7 +2,10 @@ import web
 import datetime
 import cStringIO
 from abc import abstractmethod
+from utils.querystringparser import parse_query_string
+from common.etfs import ETFS
 from common.optioncalculater import OptionCalculater
+from entities.vix import VIX
 from dataaccess.equitydao import EquityDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
@@ -118,7 +121,6 @@ class VIXF1(VIXBase):
         VIXBase.__init__(self)
 
     def get_symbol(self):
-        from entities.vix import VIX
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
         return list(symbols)[1]
 
@@ -135,7 +137,6 @@ class VIXF2(VIXBase):
         VIXBase.__init__(self)
 
     def get_symbol(self):
-        from entities.vix import VIX
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
         return list(symbols)[2]
 
@@ -169,6 +170,61 @@ class VIX3in1(object):
         canvas.print_png(buf)
         data = buf.getvalue()
         return data
+
+
+class SPYVIXHedge(object):
+
+    def __init__(self):
+        vixdao = VIXDAO()
+        symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
+        symbol1 = list(symbols)[1]
+        self.df1 = vixdao.get_vix_price_by_symbol(symbol1)
+        self.dfi = vixdao.get_vix_price_by_symbol('VIY00')
+        self.df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
+        self.ratio_list = self.get_ratio()
+
+    def get_ratio(self):
+        first_tradetime = self.df_delta.iloc[0].name
+        equity_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', first_tradetime.strftime('%Y-%m-%d'))
+        circle = 20
+        hv_spy = OptionCalculater.get_year_history_volatility_list(equity_records, circle)
+        hv_vix = OptionCalculater.get_year_history_volatility_list(self.df1.values.tolist(), circle)
+        if hv_spy[0][0] == equity_records[20][0] == hv_vix[0][0]:
+           return map(lambda v1, p1, v2, p2: [v1[0], v1[1] * p1[1]/(v2[1]*p2[1])], hv_spy, equity_records[20:], hv_vix, self.df1.values.tolist()[20:])
+        else:
+            raise Exception('start date unequal...')
+
+    #def get_vix_delta(self):
+        #df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
+        #return type(df_delta.iloc[0].name)
+        #return self.df1.values.tolist()
+    #    print self.hv_vix
+
+    def GET(self):
+        df = self.df_delta[20:]
+        delta = df['price']
+        dates = map(lambda x: x[0], self.ratio_list)
+        ratio = map(lambda x: x[1], self.ratio_list)
+
+        fig = Figure(figsize=[12, 8])
+        ax1 = fig.add_axes([.1, .1, .8, .8])
+        ax2 = ax1.twinx()
+        ax1.plot(dates, delta, 'r-', label='delta')
+        ax2.plot(dates, ratio, 'b-', label='ratio')
+        ax1.legend(loc='upper left')
+        ax2.legend(loc='upper center')
+        canvas = FigureCanvasAgg(fig)
+
+        # write image data to a string buffer and get the PNG image bytes
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
+
+
+
 
 
 class Volatility(object):
@@ -263,6 +319,27 @@ class VolEquity(VolBase):
         return data
 
 
+class FindOption(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        query_string = web.ctx.query
+        query_dic = parse_query_string(query_string)
+        symbols = sorted(ETFS.get_option_symbols())
+        option_dao = OptionDAO()
+        selected_symbol = query_dic.get('symbol')
+        if selected_symbol is None:
+            selected_symbol = 'SPY'
+
+        expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), option_dao.get_all_unexpiratedDates(selected_symbol))
+        selected_expiration_date = query_dic.get('expiration')
+        #TODO:spike price, etc...
+        return render.findoption(symbols, selected_symbol, expiration_dates)
+
+
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
@@ -271,9 +348,11 @@ def run_web_app():
             '/vixf1', 'VIXF1',
             '/vixf2', 'VIXF2',
             '/vix3in1', 'VIX3in1',
+            '/spyvixhedge', 'SPYVIXHedge',
             '/volatility/(.*)', 'Volatility',
             '/volhvsi/(.*)', 'VolHvsI',
-            '/volequity/(.*)', 'VolEquity')
+            '/volequity/(.*)', 'VolEquity',
+            '/findoption', 'FindOption')
 
     app = web.application(urls, globals())
     app.run()
@@ -284,3 +363,4 @@ if __name__ == '__main__':
     #if platform.system() == 'Linux':
     #    web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)
     #app.run()
+    #print SPYVIXHedge().get_vix_delta()

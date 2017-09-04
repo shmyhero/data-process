@@ -24,19 +24,41 @@ class OptionDAO(BaseDAO):
         conn.commit()
         conn.close()
 
-    def get_following_expirationDate(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
+    def get_all_unexpiratedDates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
         query_template = """select distinct(expirationDate) from  option_data 
-                            where underlingSymbol = '{}' and expirationDate >= str_to_date('{}', '%Y-%m-%d')
-                            order by expirationDate"""
+                                    where underlingSymbol = '{}' and expirationDate >= str_to_date('{}', '%Y-%m-%d')
+                                    order by expirationDate"""
         query = query_template.format(equity_symbol, from_date_str)
         rows = self.select(query)
-        for row in rows:
-            d = row[0]
+        return map(lambda x: x[0], rows)
+
+    def get_following_expirationDate(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
+        dates = self.get_all_unexpiratedDates(equity_symbol, from_date_str)
+        for d in dates:
             if d.weekday() == 4 and 14 < d.day < 22:
                 return d
 
+    def get_spike_prices_by(self, equity_symbol, str_expirationDate):
+        query_template = """select distinct strikePrice from option_data where underlingsymbol = '{}'  and expirationDate = str_to_date('{}', '%Y-%m-%d') order by strikePrice"""
+        query = query_template.format(equity_symbol, str_expirationDate)
+        rows = self.select(query)
+        return map(lambda x: x[0], rows)
+
+    def get_option_by(self, equity_symbol, str_expirationDate, spike_price, option_type):
+        query_template = """select symbol, tradetime, lastPrice, delta, gamma, vega, theta, rho from option_data where underlingsymbol = '{}' and expirationDate = str_to_date('{}', '%Y-%m-%d') and strikePrice = {} and optionType = '{}' order by tradeTime"""
+        query = query_template.format(equity_symbol, str_expirationDate, spike_price, option_type)
+        rows = self.select(query)
+        return rows
+
+    def get_option_by_symbol(self, option_symbol):
+        query_template = """select tradetime, lastPrice, delta, gamma, vega, theta, rho from option_data where symbol = '{}' order by tradeTime"""
+        query = query_template.format(option_symbol)
+        rows = self.select(query)
+        return rows
+
+
     def find_symbol(self, equity_symbol, expration_date, current_equity_price, days_to_now = 30):
-        query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate =  str_to_date('{}', '%Y-%m-%d') and optionType = 'Call' group by strikeprice order by min(tradeTime)"""
+        query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = 'Call' group by strikeprice order by min(tradeTime)"""
         query = query_template.format(equity_symbol, expration_date.strftime('%Y-%m-%d'))
         rows = self.select(query)
         #print rows
@@ -71,7 +93,11 @@ class OptionDAO(BaseDAO):
 
 if __name__ == '__main__':
     #exp_date = OptionDAO().get_following_expirationDate('SPY')
+    #print exp_date
     #print OptionDAO().find_symbol('SPY', exp_date, 245.38)
-    print OptionDAO().get_corresponding_implied_volatilities('SPY', 245.38)
+    #print OptionDAO().get_corresponding_implied_volatilities('SPY', 245.38)
+    #print OptionDAO().get_spike_prices_by('SPY', '2017-09-15')
+    #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
+    print OptionDAO().get_option_by_symbol('SPY170915C00245000')
 
 
