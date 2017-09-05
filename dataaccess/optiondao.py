@@ -38,15 +38,15 @@ class OptionDAO(BaseDAO):
             if d.weekday() == 4 and 14 < d.day < 22:
                 return d
 
-    def get_spike_prices_by(self, equity_symbol, str_expirationDate):
+    def get_strike_prices_by(self, equity_symbol, str_expirationDate):
         query_template = """select distinct strikePrice from option_data where underlingsymbol = '{}'  and expirationDate = str_to_date('{}', '%Y-%m-%d') order by strikePrice"""
         query = query_template.format(equity_symbol, str_expirationDate)
         rows = self.select(query)
         return map(lambda x: x[0], rows)
 
-    def get_option_by(self, equity_symbol, str_expirationDate, spike_price, option_type):
+    def get_option_by(self, equity_symbol, str_expirationDate, strike_price, option_type):
         query_template = """select symbol, tradetime, lastPrice, delta, gamma, vega, theta, rho from option_data where underlingsymbol = '{}' and expirationDate = str_to_date('{}', '%Y-%m-%d') and strikePrice = {} and optionType = '{}' order by tradeTime"""
-        query = query_template.format(equity_symbol, str_expirationDate, spike_price, option_type)
+        query = query_template.format(equity_symbol, str_expirationDate, strike_price, option_type)
         rows = self.select(query)
         return rows
 

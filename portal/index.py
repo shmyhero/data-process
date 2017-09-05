@@ -194,12 +194,6 @@ class SPYVIXHedge(object):
         else:
             raise Exception('start date unequal...')
 
-    #def get_vix_delta(self):
-        #df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
-        #return type(df_delta.iloc[0].name)
-        #return self.df1.values.tolist()
-    #    print self.hv_vix
-
     def GET(self):
         df = self.df_delta[20:]
         delta = df['price']
@@ -220,11 +214,6 @@ class SPYVIXHedge(object):
         canvas.print_png(buf)
         data = buf.getvalue()
         return data
-
-
-
-
-
 
 
 class Volatility(object):
@@ -335,8 +324,13 @@ class FindOption(object):
 
         expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), option_dao.get_all_unexpiratedDates(selected_symbol))
         selected_expiration_date = query_dic.get('expiration')
-        #TODO:spike price, etc...
-        return render.findoption(symbols, selected_symbol, expiration_dates)
+        if selected_expiration_date is None:
+            selected_expiration_date = expiration_dates[0]
+        strike_prices = option_dao.get_strike_prices_by(selected_symbol, selected_expiration_date)
+        selected_strike_price = query_dic.get('strike_price')
+        if selected_strike_price is None:
+            selected_strike_price = strike_prices[0]
+        return render.findoption(symbols, selected_symbol, expiration_dates, selected_expiration_date, strike_prices, selected_strike_price)
 
 
 

@@ -1,5 +1,6 @@
 import datetime
 import pandas as pd
+from common.tradetime import TradeTime
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
 
@@ -83,10 +84,12 @@ class VIXDAO(BaseDAO):
         grouped_vix[date] = records
         return grouped_vix
 
-    def get_vix_price_by_symbol(self, symbol):
+    def get_vix_price_by_symbol(self, symbol, remove_invalid_date = True):
         query_template = """select dailyDate1dAgo, dailyLastPrice from vix where symbol = '{}' order by dailyDate1dAgo"""
         query = BaseDAO.mysql_format(query_template, symbol)
         rows = self.select(query)
+        if remove_invalid_date:
+            rows = filter(lambda x: TradeTime.is_trade_day(x[0]), rows)
         df = pd.DataFrame(rows)
         df.columns = ['date', 'price']
         return df
