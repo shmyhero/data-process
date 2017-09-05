@@ -19,14 +19,6 @@ class USTradingCalendar(AbstractHolidayCalendar):
     ]
 
 
-class USHalfTradingCalendar(AbstractHolidayCalendar):
-    rules = [
-        Holiday('USIndependenceDay', month=7, day=4, observance=nearest_workday),
-        USThanksgivingDay,
-        Holiday('Christmas', month=12, day=25, observance=nearest_workday)
-    ]
-
-
 class TradeTime(object):
 
     _holidays_cache = {}
@@ -65,22 +57,30 @@ class TradeTime(object):
         there are 3 special days for half day trading, they are:
         the date before chirstmas day,
         the date before independent day,
-        the date before thanks giving day.
+        the date after thanks giving day. Oct, the 4th Thursday
         :param nydate:
         :return:
         '''
-        holidays = USHalfTradingCalendar().holidays(datetime.datetime(year - 1, 12, 31), datetime.datetime(year, 12, 31))
-        before_holidays = map (lambda x: x - datetime.timedelta(days=1), holidays)
 
-        half_trade_dates= []
-        for date in before_holidays:
-            if date.weekday() == 5:
-                half_trade_dates.append(date-datetime.timedelta(days=1).date())
-            elif date.weekday() == 6:
-                half_trade_dates.append((date - datetime.timedelta(days=2)).date())
-            else:
-                half_trade_dates.append(date.date())
+        half_trade_dates = []
+
+        independent_before_date = datetime.date(year, 7, 3)
+        if independent_before_date.weekday() <= 5:
+            half_trade_dates.append(independent_before_date)
+
+        nov1 = datetime.date(year, 11, 1)
+        delta = 3 - nov1.weekday()
+        if delta < 0:
+            delta += 7
+        thanksgiving_after_date = datetime.date(year, 11, 1 + delta + 3*7 + 1)
+        half_trade_dates.append(thanksgiving_after_date)
+
+        christmas_eve = datetime.date(year, 12, 24)
+        if christmas_eve.weekday() <= 5:
+            half_trade_dates.append(christmas_eve)
+
         return half_trade_dates
+
 
     @staticmethod
     def is_half_trade_day(nydate):
@@ -106,7 +106,7 @@ class TradeTime(object):
 
 if __name__ == '__main__':
     print TradeTime.get_trading_close_holidays(2017)
-    print TradeTime.get_half_trade_dates(2017)
+    print TradeTime.get_half_trade_dates(2015)
     print TradeTime.is_trade_day(datetime.date(2017, 12, 25))
     print TradeTime.is_trade_day(datetime.date(2017, 9, 1))
     print TradeTime.is_trade_day(datetime.date(2017, 9, 4))
