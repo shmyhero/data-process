@@ -314,6 +314,9 @@ class FindOption(object):
         pass
 
     def GET(self):
+        return render.findoption('SPY,QQQ', 'QQQ', [1, 2], '', [], '')
+
+    def GET2(self):
         query_string = web.ctx.query
         query_dic = parse_query_string(query_string)
         symbols = sorted(ETFS.get_option_symbols())
