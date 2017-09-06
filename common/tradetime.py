@@ -90,8 +90,8 @@ class TradeTime(object):
     @staticmethod
     def is_market_open():
         now = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
-        if TradeTime.is_trade_date(now.date()):
-            if TradeTime.is_half_trade_day(now.date):
+        if TradeTime.is_trade_day(now.date()):
+            if TradeTime.is_half_trade_day(now.date()):
                 end_hour = 13
             else:
                 end_hour = 16
@@ -111,3 +111,4 @@ if __name__ == '__main__':
     print TradeTime.is_trade_day(datetime.date(2017, 9, 1))
     print TradeTime.is_trade_day(datetime.date(2017, 9, 4))
     print TradeTime.is_half_trade_day(datetime.date(2017, 7, 3))
+    print TradeTime.is_market_open()
