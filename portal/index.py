@@ -1,11 +1,13 @@
 import web
 import datetime
 import cStringIO
+import sys
 from abc import abstractmethod
 from utils.querystringparser import parse_query_string
 from common.etfs import ETFS
 from common.optioncalculater import OptionCalculater
 from entities.vix import VIX
+from dataaccess.basedao import BaseDAO
 from dataaccess.equitydao import EquityDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
@@ -176,12 +178,37 @@ class SPYVIXHedge(object):
 
     def __init__(self):
         vixdao = VIXDAO()
+        self.option_dao = OptionDAO()
+        self.yahooEquityDAO = YahooEquityDAO()
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
         symbol1 = list(symbols)[1]
         self.df1 = vixdao.get_vix_price_by_symbol(symbol1)
         self.dfi = vixdao.get_vix_price_by_symbol('VIY00')
         self.df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
-        self.ratio_list = self.get_ratio()
+        #self.ratio_list = self.get_ratio()
+        first_tradetime = self.df1.iloc[0].name
+        self.spy_records = self.yahooEquityDAO.get_all_equity_price_by_symbol('SPY', first_tradetime.strftime('%Y-%m-%d'))
+        circle = 20
+        self.hv_spy = OptionCalculater.get_year_history_volatility_list(self.spy_records, circle)
+        self.hv_vix = OptionCalculater.get_year_history_volatility_list(self.df1.values.tolist(), circle)
+        self.spy_delta_list = self.get_delta_list('SPY', self.spy_records)
+        vxx_records = self.yahooEquityDAO.get_all_equity_price_by_symbol('VXX', first_tradetime.strftime('%Y-%m-%d'))
+        self.vxx_delta_list = self.get_delta_list('VXX', self.spy_records)
+        #TODO:according the formula..
+
+    def get_delta_list(self, equity_symbol, equity_records):
+        expiration_date = self.option_dao.get_following_expirationDate(equity_symbol)
+        conn = BaseDAO.get_connection()
+        cursor = conn.cursor()
+        delta_list = []
+        for date_price in equity_records:
+            option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], cursor=cursor)
+            delta = self.option_dao.get_delta_by_symbol_and_date(option_symbol, date_price[0], cursor)
+            delta_list.append(delta)
+        conn.commit()
+        conn.close()
+        return delta_list
+
 
     def get_ratio(self):
         first_tradetime = self.df_delta.iloc[0].name
@@ -313,10 +340,10 @@ class FindOption(object):
     def __init__(self):
         pass
 
-    def GET(self):
-        return render.findoption('SPY,QQQ', 'QQQ', [1, 2], '', [], '')
+    #def GET(self):
+    #    return render.findoption('SPY,QQQ', 'QQQ', [1, 2], '', [], '')
 
-    def GET2(self):
+    def GET(self):
         query_string = web.ctx.query
         query_dic = parse_query_string(query_string)
         symbols = sorted(ETFS.get_option_symbols())
@@ -325,15 +352,27 @@ class FindOption(object):
         if selected_symbol is None:
             selected_symbol = 'SPY'
 
-        expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), option_dao.get_all_unexpiratedDates(selected_symbol))
+        unexpriated_dates = option_dao.get_all_unexpiratedDates(selected_symbol)
+        expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpriated_dates)
         selected_expiration_date = query_dic.get('expiration')
         if selected_expiration_date is None:
-            selected_expiration_date = expiration_dates[0]
+            #selected_expiration_date = expiration_dates[0]
+            for exp_date in unexpriated_dates:
+                if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
+                    selected_expiration_date = exp_date.strftime('%Y-%m-%d')
+                    break
         strike_prices = option_dao.get_strike_prices_by(selected_symbol, selected_expiration_date)
         selected_strike_price = query_dic.get('strike_price')
         if selected_strike_price is None:
-            selected_strike_price = strike_prices[0]
-        return render.findoption(symbols, selected_symbol, expiration_dates, selected_expiration_date, strike_prices, selected_strike_price)
+            #selected_strike_price = strike_prices[0]
+            current_equity_price = EquityDAO().get_latest_price(selected_symbol)
+            min = sys.maxint
+            for strike_price in strike_prices:
+                delta = abs(strike_price - current_equity_price)
+                if delta < min:
+                    min = delta
+                    selected_strike_price = strike_price
+        return render.findoption(','.join(symbols), selected_symbol, ','.join(expiration_dates), selected_expiration_date, ','.join(map(str, strike_prices)), selected_strike_price)
 
 
 

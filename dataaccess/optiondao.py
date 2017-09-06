@@ -56,11 +56,17 @@ class OptionDAO(BaseDAO):
         rows = self.select(query)
         return rows
 
+    def get_delta_by_symbol_and_date(self, option_symbol, trade_time, cursor=None):
+        query_template = """select delta from option_data where symbol = '{}' and tradeTime = str_to_date('{}', '%Y-%m-%d') limit 1"""
+        query = query_template.format(option_symbol, trade_time)
+        rows = self.select(query, cursor)
+        return rows[0]
 
-    def find_symbol(self, equity_symbol, expration_date, current_equity_price, days_to_now = 30):
+
+    def find_symbol(self, equity_symbol, expration_date, current_equity_price, days_to_now = 30, cursor = None):
         query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = 'Call' group by strikeprice order by min(tradeTime)"""
         query = query_template.format(equity_symbol, expration_date.strftime('%Y-%m-%d'))
-        rows = self.select(query)
+        rows = self.select(query, cursor)
         #print rows
         start_date = max(datetime.date.today() - datetime.timedelta(days_to_now), rows[0][1])
         filtered_rows = filter(lambda x: x[1] <= start_date, rows)
@@ -68,8 +74,9 @@ class OptionDAO(BaseDAO):
         min = sys.maxint
         strik_price = None
         for row in filtered_rows:
-            delta = abs(row[0] - current_equity_price)
-            if delta < min:
+            #delta = abs(row[0] - current_equity_price)
+            delta = row[0] - current_equity_price
+            if delta > 0 and delta < min:
                 min = delta
                 strik_price = row[0]
         # eg. 'SPY170915C00245000'

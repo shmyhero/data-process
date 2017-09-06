@@ -5,7 +5,9 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
-        body{font-size:50px}
+        body {font-size:50px}
+        select {height:50px; width:300px; font-size:37px}
+        select option { font-size: 30px;   }
     </style>
     <script lang="javascript">
         function init_select(control_id, options_str, selected_option) {
@@ -17,31 +19,29 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
 
             for (var i in options){
                 if (options[i] == selected_option) {
-                    options[i].selected=true;
+                    control.options[i].selected=true;
               }
             }
         }
         function init() {
             init_select("select_symbols", "$symbols", "$selected_symbol");
+            init_select("select_expirations", "$expiration_dates", "$selected_expiration_date");
+            init_select("select_strike_prices", "$strike_prices", "$selected_strike_price");
         }
         function go() {
+            //TODO:according the selected value to calculate the option symbol...
         }
     </script>
 </head>
 
 <body onload="init()">
-Symbols: <select id = "select_symbols"><option value="1">1</option>></select>
-    <br>
-    Expiration Date:<select id = "select_expirations">
-                    </select>
+    Symbols: <select id = "select_symbols" ></select>
+    <br/>
+    Expiration Date:<select id = "select_expirations"></select>
+    <br/>
+    Strike price:<select id = "select_strike_prices"></select>
+    <br/>
     <button value = "go"  style = "height:50px; width:100px; font-size:37px" onclick="go()"> GO </button>
 
-    $expiration_dates
-    <br/>
-    $selected_expiration_date
-    <br/>
-    $strike_prices
-    <br/>
-    $selected_strike_price
 </body>
 </html>

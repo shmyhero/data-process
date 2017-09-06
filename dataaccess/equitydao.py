@@ -51,6 +51,12 @@ class EquityDAO(BaseDAO):
         df.columns = ['symbol', 'price_change_percentage']
         return df
 
+    def get_latest_price(self, symbol):
+        query_template = """select lastPrice from equity where symbol = '{}' limit 1"""
+        query = query_template.format(symbol)
+        rows = self.select(query)
+        return rows[0][0]
+
 
 if __name__ == '__main__':
     #df = EquityDAO().get_price_change_percentage('2017-07-24', '2017-07-26')
