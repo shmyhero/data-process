@@ -56,27 +56,32 @@ class OptionDAO(BaseDAO):
         rows = self.select(query)
         return rows
 
-    def get_delta_by_symbol_and_date(self, option_symbol, trade_time, cursor=None):
-        query_template = """select delta from option_data where symbol = '{}' and tradeTime = str_to_date('{}', '%Y-%m-%d') limit 1"""
-        query = query_template.format(option_symbol, trade_time)
-        rows = self.select(query, cursor)
-        return rows[0]
+    #def get_delta_by_symbol_and_date(self, option_symbol, trade_time, cursor=None):
+    #    query_template = """select delta from option_data where symbol = '{}' and tradeTime = str_to_date('{}', '%Y-%m-%d') limit 1"""
+    #    query = query_template.format(option_symbol, trade_time)
+    #    rows = self.select(query, cursor)
+    #    print query
+    #    print rows
+    #    if len(rows) == 0:
+    #        return None
+    #    else:
+    #        return rows[0][0]
 
 
-    def find_symbol(self, equity_symbol, expration_date, current_equity_price, days_to_now = 30, cursor = None):
+    def find_symbol(self, equity_symbol, expration_date, current_equity_price, current_date = datetime.date.today(), days_to_current_date = 30, cursor = None):
         query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = 'Call' group by strikeprice order by min(tradeTime)"""
         query = query_template.format(equity_symbol, expration_date.strftime('%Y-%m-%d'))
         rows = self.select(query, cursor)
         #print rows
-        start_date = max(datetime.date.today() - datetime.timedelta(days_to_now), rows[0][1])
+        start_date = max(datetime.date.today() - datetime.timedelta(days_to_current_date), rows[0][1])
         filtered_rows = filter(lambda x: x[1] <= start_date, rows)
         #print filtered_rows
         min = sys.maxint
         strik_price = None
         for row in filtered_rows:
-            #delta = abs(row[0] - current_equity_price)
-            delta = row[0] - current_equity_price
-            if delta > 0 and delta < min:
+            delta = abs(row[0] - current_equity_price)
+            #delta = row[0] - current_equity_price
+            if delta < min:
                 min = delta
                 strik_price = row[0]
         # eg. 'SPY170915C00245000'
@@ -84,6 +89,12 @@ class OptionDAO(BaseDAO):
 
     def get_implied_volatilities(self, option_symbol):
         query_template = """select tradeTime, volatility from option_data where symbol = '{}'"""
+        query = query_template.format(option_symbol)
+        rows = self.select(query)
+        return rows
+
+    def get_delta(self, option_symbol):
+        query_template = """select tradeTime, delta from option_data where symbol = '{}'"""
         query = query_template.format(option_symbol)
         rows = self.select(query)
         return rows
@@ -97,6 +108,17 @@ class OptionDAO(BaseDAO):
         #df.columns = ['date', 'volatility']
         #return df
 
+    def get_corresponding_delta(self, equity_symbol, current_equity_price, days_to_current_date=10):
+        exp_date = self.get_following_expirationDate(equity_symbol)  # get recent exp_date for this symbol
+        option_symbol = self.find_symbol(equity_symbol, exp_date, current_equity_price, days_to_current_date=days_to_current_date)
+        rows = self.get_delta(option_symbol)
+        return rows
+
+    #found the trade time error in database, fix it...
+    def fix_date_error(self):
+        query = """update option_data set tradetime = str_to_date('2017-08-04', '%Y-%m-%d') where tradeTime <>  the_date and tradeTime = str_to_date('2017-08-05', '%Y-%m-%d')"""
+        self.execute_query(query)
+
 
 if __name__ == '__main__':
     #exp_date = OptionDAO().get_following_expirationDate('SPY')
@@ -105,6 +127,7 @@ if __name__ == '__main__':
     #print OptionDAO().get_corresponding_implied_volatilities('SPY', 245.38)
     #print OptionDAO().get_spike_prices_by('SPY', '2017-09-15')
     #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
-    print OptionDAO().get_option_by_symbol('SPY170915C00245000')
+    #print OptionDAO().get_option_by_symbol('SPY170915C00245000')
+    OptionDAO().fix_date_error()
 
 

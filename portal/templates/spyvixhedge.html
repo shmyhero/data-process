@@ -1,0 +1,32 @@
+$def with (report)
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+Notice: the vxx equity & option data was wrong before 2017-08-24
+</br>
+</br>
+<table border="1" cellspacing="0">
+    <tr>
+        <th>date</th>
+        <th>v1</th>
+        <th>p1</th>
+        <th>d1</th>
+        <th>v2</th>
+        <th>p2</th>
+        <th>d2</th>
+        <th>ratio</th>
+    </tr>
+    $for record in report:
+        <tr>
+            $for val in record:
+                <td>$val</td>
+        </tr>
+</table>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ import web
 import datetime
 import cStringIO
 import sys
+import json
 from abc import abstractmethod
 from utils.querystringparser import parse_query_string
 from common.etfs import ETFS
@@ -177,26 +178,34 @@ class VIX3in1(object):
 class SPYVIXHedge(object):
 
     def __init__(self):
-        vixdao = VIXDAO()
-        self.option_dao = OptionDAO()
-        self.yahooEquityDAO = YahooEquityDAO()
+        self.circle = 20
+
+        # get the equity records from 100 date ago.
+        from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
+        self.spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str)
+        current_spy_price = self.spy_records[-1][1]
+        self.spy_delta_records = OptionDAO().get_corresponding_delta('SPY', current_spy_price, days_to_current_date=30)
+        first_tradetime = self.spy_delta_records[0][0]
+        self.hv_spy = OptionCalculater.get_year_history_volatility_list(self.spy_records, self.circle)
+
+
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
         symbol1 = list(symbols)[1]
-        self.df1 = vixdao.get_vix_price_by_symbol(symbol1)
-        self.dfi = vixdao.get_vix_price_by_symbol('VIY00')
+        self.df1 = VIXDAO().get_vix_price_by_symbol(symbol1)
+        self.dfi = VIXDAO().get_vix_price_by_symbol('VIY00')
         self.df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
-        #self.ratio_list = self.get_ratio()
-        first_tradetime = self.df1.iloc[0].name
-        self.spy_records = self.yahooEquityDAO.get_all_equity_price_by_symbol('SPY', first_tradetime.strftime('%Y-%m-%d'))
-        circle = 20
-        self.hv_spy = OptionCalculater.get_year_history_volatility_list(self.spy_records, circle)
-        self.hv_vix = OptionCalculater.get_year_history_volatility_list(self.df1.values.tolist(), circle)
-        self.spy_delta_list = self.get_delta_list('SPY', self.spy_records)
-        vxx_records = self.yahooEquityDAO.get_all_equity_price_by_symbol('VXX', first_tradetime.strftime('%Y-%m-%d'))
-        self.vxx_delta_list = self.get_delta_list('VXX', self.spy_records)
-        #TODO:according the formula..
+        self.vixf1_records = self.df1.values.tolist()
+        self.hv_vix = OptionCalculater.get_year_history_volatility_list(self.df1.values.tolist(), self.circle)
+        vxx_records = YahooEquityDAO().get_all_equity_price_by_symbol('VXX', from_date_str)
+        self.vxx_delta_records = OptionDAO().get_corresponding_delta('VXX', vxx_records[-1][1], days_to_current_date=10)
 
-    def get_delta_list(self, equity_symbol, equity_records):
+        #first_tradetime = self.df1.iloc[0][0]
+        #self.spy_records = self.yahooEquityDAO.get_all_equity_price_by_symbol('SPY', first_tradetime.strftime('%Y-%m-%d'))
+        #self.spy_delta_list = self.get_delta_list('SPY', self.spy_records)
+
+
+    # this function is obsoleted
+    def get_delta_list_obsoleted(self, equity_symbol, equity_records):
         expiration_date = self.option_dao.get_following_expirationDate(equity_symbol)
         conn = BaseDAO.get_connection()
         cursor = conn.cursor()
@@ -209,19 +218,39 @@ class SPYVIXHedge(object):
         conn.close()
         return delta_list
 
+    def get_parameter_list(self, records, latest_date):
+        filtered_records = filter(lambda x: x[0] >= latest_date, records)
+        values =  map(lambda x: x[1], filtered_records)
 
-    def get_ratio(self):
-        first_tradetime = self.df_delta.iloc[0].name
-        equity_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', first_tradetime.strftime('%Y-%m-%d'))
-        circle = 20
-        hv_spy = OptionCalculater.get_year_history_volatility_list(equity_records, circle)
-        hv_vix = OptionCalculater.get_year_history_volatility_list(self.df1.values.tolist(), circle)
-        if hv_spy[0][0] == equity_records[20][0] == hv_vix[0][0]:
-           return map(lambda v1, p1, v2, p2: [v1[0], v1[1] * p1[1]/(v2[1]*p2[1])], hv_spy, equity_records[20:], hv_vix, self.df1.values.tolist()[20:])
-        else:
-            raise Exception('start date unequal...')
+        #f ix the wrong data, the vix option data records is not correct on 20170823.
+        previous_value = None
+        fixed_values = []
+        for value in values:
+            if value is None:
+                value = previous_value
+            previous_value = value
+            fixed_values.append(value)
+        return fixed_values
+
+    def get_report(self):
+        latest_date = max([self.spy_records[0][0], self.hv_spy[0][0], self.spy_delta_records[0][0], self.hv_vix[0][0], self.vixf1_records[0][0],self.vxx_delta_records[0][0]])
+        date_list = filter(lambda x : x >= latest_date, map(lambda x: x[0], self.spy_delta_records))
+        v1_list = self.get_parameter_list(self.hv_spy, latest_date)
+        p1_list = self.get_parameter_list(self.spy_records, latest_date)
+        d1_list = self.get_parameter_list(self.spy_delta_records, latest_date)
+        v2_list = self.get_parameter_list(self.hv_vix, latest_date)
+        p2_list = self.get_parameter_list(self.vixf1_records, latest_date)
+        d2_list = self.get_parameter_list(self.vxx_delta_records, latest_date)
+        ratio_list = map(lambda v1, p1, d1, v2, p2, d2: (v1 * p1 * d1)/(v2 * p2 * d2), v1_list, p1_list, d1_list, v2_list, p2_list,d2_list)
+        report = map(lambda date, v1, p1, d1, v2, p2, d2,ratio : [date, v1, p1, d1, v2, p2, d2, ratio], \
+                     date_list, v1_list, p1_list, d1_list, v2_list, p2_list, d2_list, ratio_list)
+        return report
 
     def GET(self):
+        report_data = self.get_report()
+        return render.spyvixhedge(report_data)
+
+    def GET_obsoleted(self):
         df = self.df_delta[20:]
         delta = df['price']
         dates = map(lambda x: x[0], self.ratio_list)
@@ -356,7 +385,6 @@ class FindOption(object):
         expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpriated_dates)
         selected_expiration_date = query_dic.get('expiration')
         if selected_expiration_date is None:
-            #selected_expiration_date = expiration_dates[0]
             for exp_date in unexpriated_dates:
                 if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
                     selected_expiration_date = exp_date.strftime('%Y-%m-%d')
@@ -364,7 +392,6 @@ class FindOption(object):
         strike_prices = option_dao.get_strike_prices_by(selected_symbol, selected_expiration_date)
         selected_strike_price = query_dic.get('strike_price')
         if selected_strike_price is None:
-            #selected_strike_price = strike_prices[0]
             current_equity_price = EquityDAO().get_latest_price(selected_symbol)
             min = sys.maxint
             for strike_price in strike_prices:
