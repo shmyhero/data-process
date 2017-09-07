@@ -13,6 +13,7 @@ Notice: the vxx equity & option data was wrong before 2017-08-24
 <table border="1" cellspacing="0">
     <tr>
         <th>date</th>
+        <th>vix delta</th>
         <th>v1</th>
         <th>p1</th>
         <th>d1</th>
@@ -23,8 +24,12 @@ Notice: the vxx equity & option data was wrong before 2017-08-24
     </tr>
     $for record in report:
         <tr>
-            $for val in record:
-                <td>$val</td>
+            $if record[1] > 2:
+                $for val in record:
+                    <td><font size="3" color="red">$val</font></td>
+            $else:
+                $for val in record:
+                    <td>$val</td>
         </tr>
 </table>
 

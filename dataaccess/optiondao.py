@@ -26,7 +26,7 @@ class OptionDAO(BaseDAO):
 
     def get_all_unexpiratedDates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
         query_template = """select distinct(expirationDate) from  option_data 
-                                    where underlingSymbol = '{}' and expirationDate >= str_to_date('{}', '%Y-%m-%d')
+                                    where underlingSymbol = '{}' and expirationDate > str_to_date('{}', '%Y-%m-%d')
                                     order by expirationDate"""
         query = query_template.format(equity_symbol, from_date_str)
         rows = self.select(query)
@@ -56,16 +56,16 @@ class OptionDAO(BaseDAO):
         rows = self.select(query)
         return rows
 
-    #def get_delta_by_symbol_and_date(self, option_symbol, trade_time, cursor=None):
-    #    query_template = """select delta from option_data where symbol = '{}' and tradeTime = str_to_date('{}', '%Y-%m-%d') limit 1"""
-    #    query = query_template.format(option_symbol, trade_time)
-    #    rows = self.select(query, cursor)
-    #    print query
-    #    print rows
-    #    if len(rows) == 0:
-    #        return None
-    #    else:
-    #        return rows[0][0]
+    def get_delta_by_symbol_and_date(self, option_symbol, trade_time, cursor=None):
+        query_template = """select delta from option_data where symbol = '{}' and tradeTime = str_to_date('{}', '%Y-%m-%d') limit 1"""
+        query = query_template.format(option_symbol, trade_time)
+        rows = self.select(query, cursor)
+        #print query
+        #print rows
+        if len(rows) == 0:
+            return None
+        else:
+            return rows[0][0]
 
 
     def find_symbol(self, equity_symbol, expration_date, current_equity_price, current_date = datetime.date.today(), days_to_current_date = 30, cursor = None):
@@ -79,13 +79,16 @@ class OptionDAO(BaseDAO):
         min = sys.maxint
         strik_price = None
         for row in filtered_rows:
-            delta = abs(row[0] - current_equity_price)
-            #delta = row[0] - current_equity_price
-            if delta < min:
+            #delta = abs(row[0] - current_equity_price)
+            delta = row[0] - current_equity_price
+            if delta > 0 and delta < min:
                 min = delta
                 strik_price = row[0]
         # eg. 'SPY170915C00245000'
-        return '%s%sC%08d' % (equity_symbol, expration_date.strftime('%y%m%d'), strik_price * 1000)
+        if strik_price is None:
+            return None
+        else:
+            return '%s%sC%08d' % (equity_symbol, expration_date.strftime('%y%m%d'), strik_price * 1000)
 
     def get_implied_volatilities(self, option_symbol):
         query_template = """select tradeTime, volatility from option_data where symbol = '{}'"""
