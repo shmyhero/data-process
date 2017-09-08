@@ -3,10 +3,13 @@ import numpy as np
 import pandas as pd
 from algorithms.cla import CLA
 from dataaccess.yahooequitydao import YahooEquityDAO
-from research.tradesimulation import TradeAccount, TradeNode, TradeSimulation
+from research.tradesimulation import Portfolio, TradeNode, TradeSimulation
 
 
 class CAA(object):
+    """
+    Classical Asset Allocation
+    """
 
     def __init__(self, symbols, lower_bounds, upper_bounds):
         self.symbols = symbols

@@ -24,7 +24,7 @@ class OptionDAO(BaseDAO):
         conn.commit()
         conn.close()
 
-    def get_all_unexpiratedDates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d'), cursor = None):
+    def get_all_unexpired_dates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d'), cursor = None):
         query_template = """select distinct(expirationDate) from  option_data 
                                     where underlingSymbol = '{}' and expirationDate > str_to_date('{}', '%Y-%m-%d')
                                     order by expirationDate"""
@@ -33,7 +33,7 @@ class OptionDAO(BaseDAO):
         return map(lambda x: x[0], rows)
 
     def get_following_expirationDate(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
-        dates = self.get_all_unexpiratedDates(equity_symbol, from_date_str)
+        dates = self.get_all_unexpired_dates(equity_symbol, from_date_str)
         for d in dates:
             if d.weekday() == 4 and 14 < d.day < 22:
                 return d
@@ -67,28 +67,44 @@ class OptionDAO(BaseDAO):
         else:
             return rows[0][0]
 
-
-    def find_symbol(self, equity_symbol, expration_date, current_equity_price, current_date = datetime.date.today(), days_to_current_date = 30, cursor = None):
-        query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = 'Call' group by strikeprice order by min(tradeTime)"""
-        query = query_template.format(equity_symbol, expration_date.strftime('%Y-%m-%d'))
+    def find_symbol(self, equity_symbol, expration_date, current_equity_price, imp_only = False, current_date = datetime.date.today(), days_to_current_date = 30, option_type='Call', cursor = None):
+        """
+        find the at the money option symbol
+        :param equity_symbol:
+        :param expration_date:
+        :param current_equity_price:
+        :param imp_only: in the money option only.
+        :param current_date:
+        :param days_to_current_date:
+        :param cursor:
+        :return: option symbol like SPY170915C00245000
+        """
+        query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = '{}' group by strikeprice order by min(tradeTime)"""
+        query = query_template.format(equity_symbol, expration_date.strftime('%Y-%m-%d'), option_type)
         rows = self.select(query, cursor)
-        #print rows
+        # print rows
         start_date = max(datetime.date.today() - datetime.timedelta(days_to_current_date), rows[0][1])
         filtered_rows = filter(lambda x: x[1] <= start_date, rows)
         #print filtered_rows
         min = sys.maxint
         strik_price = None
         for row in filtered_rows:
-            #delta = abs(row[0] - current_equity_price)
-            delta = row[0] - current_equity_price
-            if delta > 0 and delta < min:
-                min = delta
-                strik_price = row[0]
+            if imp_only:
+                delta = row[0] - current_equity_price
+                if delta > 0 and delta < min:
+                    min = delta
+                    strik_price = row[0]
+            else:
+                delta = abs(row[0] - current_equity_price)
+                if delta < min:
+                    min = delta
+                    strik_price = row[0]
+
         # eg. 'SPY170915C00245000'
         if strik_price is None:
             return None
         else:
-            return '%s%sC%08d' % (equity_symbol, expration_date.strftime('%y%m%d'), strik_price * 1000)
+            return '%s%s%s%08d' % (equity_symbol, expration_date.strftime('%y%m%d'), option_type[0], strik_price * 1000)
 
     def get_implied_volatilities(self, option_symbol):
         query_template = """select tradeTime, volatility from option_data where symbol = '{}'"""

@@ -40,6 +40,22 @@ class EquityDAO(BaseDAO):
         df.columns = ['date', 'price']
         return df
 
+    def get_equity_price_by_date(self, symbol, date, price_field = 'lastPrice', cursor=None):
+        """
+        :param symbol: equity symbol
+        :param date: the date of equity price
+        :param price_field: default as last price
+        :param cursor:
+        :return: equity price
+        """
+        query_template = """select {} from equity where symbol = '{}' and tradetime <= str_to_date('{}', '%Y-%m-%d') order by tradeTime desc limit 1"""
+        query = query_template.format(price_field, symbol, date.strftime('%Y-%m-%d'))
+        rows = self.select(query, cursor)
+        if rows is None or len(rows) < 1:
+            return None
+        else:
+            return rows[0][0]
+
     def get_price_change_percentage(self, from_date, to_date):
         query_template = """select t1.symbol, (t2.end_price - t1.start_price)/t1.start_price as percentage from 
                         (select symbol, lastPrice as start_price from equity where tradeTime = str_to_date('2017-07-24', '%Y-%m-%d')) as t1,
