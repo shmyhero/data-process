@@ -184,7 +184,7 @@ class SPYVIXHedge(object):
         # get the equity records from 100 date ago.
         from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
         self.spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str)
-        current_spy_price = self.spy_records[-1][1]
+        #current_spy_price = self.spy_records[-1][1]
         self.hv_spy = OptionCalculater.get_year_history_volatility_list(self.spy_records, self.circle)
         self.spy_delta_records = self.get_delta_records('SPY', self.spy_records)
 
@@ -206,6 +206,11 @@ class SPYVIXHedge(object):
         #self.spy_records = self.yahooEquityDAO.get_all_equity_price_by_symbol('SPY', first_tradetime.strftime('%Y-%m-%d'))
         #self.spy_delta_list = self.get_delta_list('SPY', self.spy_records)
 
+    def find_following_expiration_date(self, dates, current_date):
+        filtered_dates = filter(lambda x: x > current_date, dates)
+        for d in filtered_dates:
+            if d.weekday() == 4 and 14 < d.day < 22:
+                return d
 
     def get_delta_records(self, equity_symbol, equity_records, days_to_current_date = 10):
         conn = BaseDAO.get_connection()
@@ -213,8 +218,10 @@ class SPYVIXHedge(object):
         delta_list = []
         # hard code here, because the option was ingested from 20170724, and some vxx data may wrong before (or on) 20170824
         filtered_equity_records = filter(lambda x: x[0] >= datetime.date(2017, 8, 24), equity_records)
+        all_unexpirated_dates = self.option_dao.get_all_unexpiratedDates(equity_symbol, filtered_equity_records[0][0], cursor= cursor)
         for date_price in filtered_equity_records:
-            expiration_date = self.option_dao.get_following_expirationDate(equity_symbol, date_price[0])
+            expiration_date = self.find_following_expiration_date(all_unexpirated_dates, date_price[0])
+            #expiration_date = self.option_dao.get_following_expirationDate(equity_symbol, date_price[0])
             option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], days_to_current_date= days_to_current_date, cursor=cursor)
             delta = self.option_dao.get_delta_by_symbol_and_date(option_symbol, date_price[0], cursor)
             if delta is not None:

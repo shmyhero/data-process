@@ -24,12 +24,12 @@ class OptionDAO(BaseDAO):
         conn.commit()
         conn.close()
 
-    def get_all_unexpiratedDates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
+    def get_all_unexpiratedDates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d'), cursor = None):
         query_template = """select distinct(expirationDate) from  option_data 
                                     where underlingSymbol = '{}' and expirationDate > str_to_date('{}', '%Y-%m-%d')
                                     order by expirationDate"""
         query = query_template.format(equity_symbol, from_date_str)
-        rows = self.select(query)
+        rows = self.select(query, cursor)
         return map(lambda x: x[0], rows)
 
     def get_following_expirationDate(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
