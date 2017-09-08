@@ -389,7 +389,7 @@ class FindOption(object):
     def GET(self):
         query_string = web.ctx.query
         query_dic = parse_query_string(query_string)
-        symbols = sorted(ETFS.get_option_symbols())
+        symbols = ETFS.get_option_symbols()
         option_dao = OptionDAO()
         selected_symbol = query_dic.get('symbol')
         if selected_symbol is None:
@@ -416,6 +416,18 @@ class FindOption(object):
         return render.findoption(','.join(symbols), selected_symbol, ','.join(expiration_dates), selected_expiration_date, ','.join(map(str, strike_prices)), selected_strike_price)
 
 
+class Greeks(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self, symbol):
+        records = OptionDAO().get_option_by_symbol(symbol)
+        print records
+        return render.greeks(symbol, records)
+
+
+
 
 def run_web_app():
     urls = ('/', 'Index',
@@ -429,7 +441,8 @@ def run_web_app():
             '/volatility/(.*)', 'Volatility',
             '/volhvsi/(.*)', 'VolHvsI',
             '/volequity/(.*)', 'VolEquity',
-            '/findoption', 'FindOption')
+            '/findoption', 'FindOption',
+            '/greeks/(.*)', 'Greeks')
 
     app = web.application(urls, globals())
     app.run()

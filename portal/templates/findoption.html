@@ -23,23 +23,59 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
               }
             }
         }
+
         function init() {
             init_select("select_symbols", "$symbols", "$selected_symbol");
             init_select("select_expirations", "$expiration_dates", "$selected_expiration_date");
             init_select("select_strike_prices", "$strike_prices", "$selected_strike_price");
         }
+
+        function get_selected_option_value(control_id) {
+            control = document.getElementById(control_id);
+            selected_value = control.options[control.selectedIndex].text;
+            return selected_value
+        }
+
+        function symbol_onchange(){
+            symbol = get_selected_option_value("select_symbols")
+            url = "http://" + window.location.host + "/findoption?symbol=" + symbol;
+            window.location.href= url
+        }
+
+        function expiration_onchange(){
+            symbol = get_selected_option_value("select_symbols")
+            expiration = get_selected_option_value("select_expirations")
+            url = "http://" + window.location.host + "/findoption?symbol=" + symbol + "&expiration=" + expiration;
+            window.location.href= url
+        }
+
+        function PrefixInteger(num, length) {
+            return (num/Math.pow(10,length)).toFixed(length).substr(2);
+        }
+
         function go() {
-            //TODO:according the selected value to calculate the option symbol...
+            symbol = get_selected_option_value("select_symbols")
+            expiration = get_selected_option_value("select_expirations")
+            strike_price = get_selected_option_value("select_strike_prices")
+            option_type = get_selected_option_value("select_option_types")
+            option_symbol = symbol + expiration.replace(/-/g, "").substring(2) + option_type[0] + PrefixInteger(strike_price * 1000, 8)
+            url = "http://" + window.location.host + "/greeks/" + option_symbol;
+            window.location.href= url
         }
     </script>
 </head>
 
 <body onload="init()">
-    Symbols: <select id = "select_symbols" ></select>
+    Symbols: <select id = "select_symbols" onchange="symbol_onchange()"></select>
     <br/>
-    Expiration Date:<select id = "select_expirations"></select>
+    Expiration Date:<select id = "select_expirations" onchange="expiration_onchange()"></select>
     <br/>
     Strike price:<select id = "select_strike_prices"></select>
+    <br/>
+    Option type:<select id = "select_option_types">
+        <option>Call</option>
+        <option>Put</option>
+    </select>
     <br/>
     <button value = "go"  style = "height:50px; width:100px; font-size:37px" onclick="go()"> GO </button>
 

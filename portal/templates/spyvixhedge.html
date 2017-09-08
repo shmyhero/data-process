@@ -4,6 +4,9 @@ $def with (report)
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        body{font-size:37px}
+    </style>
 </head>
 <body>
 
@@ -11,7 +14,8 @@ Notice: the vxx equity & option data was wrong before 2017-08-24
 </br>
 </br>
 <table border="1" cellspacing="0">
-    <tr>
+
+    <tr style = "font-size:30px;">
         <th>date</th>
         <th>vix delta</th>
         <th>v1</th>
@@ -26,10 +30,10 @@ Notice: the vxx equity & option data was wrong before 2017-08-24
         <tr>
             $if record[1] > 2:
                 $for val in record:
-                    <td><font size="3" color="red">$val</font></td>
+                    <td><font size="5" color="red">$val</font></td>
             $else:
                 $for val in record:
-                    <td>$val</td>
+                    <td><font size="5">$val</font></td>
         </tr>
 </table>
 
