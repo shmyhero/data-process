@@ -125,7 +125,7 @@ class VIXF1(VIXBase):
 
     def get_symbol(self):
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
-        return list(symbols)[1]
+        return list(symbols)[0]
 
     def get_label(self):
         return 'VIX First Month'
@@ -141,7 +141,7 @@ class VIXF2(VIXBase):
 
     def get_symbol(self):
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
-        return list(symbols)[2]
+        return list(symbols)[1]
 
     def get_label(self):
         return 'VIX Second Month'
@@ -189,7 +189,7 @@ class SPYVIXHedge(object):
         self.spy_delta_records = self.get_delta_records('SPY', self.spy_records)
 
         symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
-        symbol1 = list(symbols)[1]
+        symbol1 = symbols[0]
         self.df1 = VIXDAO().get_vix_price_by_symbol(symbol1)
         self.dfi = VIXDAO().get_vix_price_by_symbol('VIY00')
         self.df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
@@ -218,11 +218,11 @@ class SPYVIXHedge(object):
         delta_list = []
         # hard code here, because the option was ingested from 20170724, and some vxx data may wrong before (or on) 20170824
         filtered_equity_records = filter(lambda x: x[0] >= datetime.date(2017, 8, 24), equity_records)
-        all_unexpirated_dates = self.option_dao.get_all_unexpiratedDates(equity_symbol, filtered_equity_records[0][0], cursor= cursor)
+        all_unexpired_dates = self.option_dao.get_all_unexpired_dates(equity_symbol, filtered_equity_records[0][0], cursor= cursor)
         for date_price in filtered_equity_records:
-            expiration_date = self.find_following_expiration_date(all_unexpirated_dates, date_price[0])
+            expiration_date = self.find_following_expiration_date(all_unexpired_dates, date_price[0])
             #expiration_date = self.option_dao.get_following_expirationDate(equity_symbol, date_price[0])
-            option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], days_to_current_date= days_to_current_date, cursor=cursor)
+            option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], imp_only=True, days_to_current_date= days_to_current_date, cursor=cursor)
             delta = self.option_dao.get_delta_by_symbol_and_date(option_symbol, date_price[0], cursor)
             if delta is not None:
                 delta_list.append([date_price[0], delta])
@@ -395,7 +395,7 @@ class FindOption(object):
         if selected_symbol is None:
             selected_symbol = 'SPY'
 
-        unexpriated_dates = option_dao.get_all_unexpiratedDates(selected_symbol)
+        unexpriated_dates = option_dao.get_all_unexpired_dates(selected_symbol)
         expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpriated_dates)
         selected_expiration_date = query_dic.get('expiration')
         if selected_expiration_date is None:

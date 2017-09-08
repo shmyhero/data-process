@@ -95,8 +95,9 @@ class VIXDAO(BaseDAO):
         return df
 
     def get3vix(self, date_str = datetime.datetime.now().strftime('%Y-%m-%d')):
-        symbols = list(VIX.get_following_symbols(date_str))
-        symbols[0] = 'VIY00'
+        following_symbols = list(VIX.get_following_symbols(date_str))
+        symbols = ['VIY00']
+        symbols.extend(following_symbols)
         return map(lambda x: self.get_vix_price_by_symbol(x), symbols)
 
 

@@ -1,4 +1,5 @@
 import json
+import datetime
 from baseentity import BaseEntity
 
 
@@ -15,7 +16,7 @@ class VIX(BaseEntity):
         return 'VI{}{}'.format(VIX.VIX_MONTH_NAMES[month-1], ymd[0][2:])
 
     @staticmethod
-    def get_following_symbols(from_date_str, count=3):
+    def get_next_symbols(from_date_str, count=3):
         ymd = from_date_str.split('-')
         month = int(float(ymd[1]))
         year = int(float(ymd[0][2:]))
@@ -27,6 +28,15 @@ class VIX(BaseEntity):
                 m = m - delta*12
                 y = y + delta
             yield 'VI%s%02d'%(VIX.VIX_MONTH_NAMES[m-1], y)
+
+    @staticmethod
+    def get_following_symbols(from_date_str):
+        next_symbols = list(VIX.get_next_symbols(from_date_str))
+        date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d')
+        if date.day >= 21 or (date.day > 14 and date.weekday() > 4):
+            return next_symbols[1:]
+        else:
+            return next_symbols[0:2]
 
     def __init__(self, symbol = None, lastPrice = None, priceChange = None, openPrice = None, highPrice = None, lowPrice = None,
                  previousPrice = None, volume = None, tradeTime = None, dailyLastPrice = None, dailyPriceChange = None, dailyOpenPrice = None,
@@ -66,4 +76,5 @@ class VIX(BaseEntity):
 
 if __name__ == '__main__':
     print VIX.date_to_symbol('2017-09-05')
-    print list(VIX.get_following_symbols('2005-09-05'))
+    print list(VIX.get_following_symbols('2017-09-07'))
+    print list(VIX.get_following_symbols('2017-09-27'))
