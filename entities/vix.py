@@ -33,7 +33,7 @@ class VIX(BaseEntity):
     def get_following_symbols(from_date_str):
         next_symbols = list(VIX.get_next_symbols(from_date_str))
         date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d')
-        if date.day >= 21 or (date.day > 14 and date.weekday() > 4):
+        if date.day >= 21 or (date.day > 14 and date.weekday() > 1):
             return next_symbols[1:]
         else:
             return next_symbols[0:2]
@@ -78,3 +78,4 @@ if __name__ == '__main__':
     print VIX.date_to_symbol('2017-09-05')
     print list(VIX.get_following_symbols('2017-09-07'))
     print list(VIX.get_following_symbols('2017-09-27'))
+    print list(VIX.get_following_symbols('2017-08-16'))
