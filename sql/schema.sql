@@ -100,6 +100,21 @@ create table nyse_credit (
 );
 
 
+drop table if exists spy_vix_hedge;
+create table spy_vix_hedge (
+    id int not null auto_increment primary key,
+    trade_date date not null,
+    vix_delta float not null,
+    spy_vol float not null,
+    spy_price float not null,
+    spy_option_delta float not null,
+    vix_vol float not null,
+    vix_price float not null,
+    vxx_delta float not null,
+    ratio float not null,
+    unique index spy_vix_hedge_index (trade_date)
+);
+
 
 --option ratio view, provide the ratio from stike_price / underling_price
 drop view if exists option_ratio_view;

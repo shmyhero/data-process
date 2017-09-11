@@ -11,6 +11,7 @@ from dataaccess.raw2db import RawToDB
 from dataaccess.dataexporter import DataExporter
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
+from aggregation.agg_spyvixhedge import AGGSPYVIXHedge
 
 
 def process_for_option_vix():
@@ -40,6 +41,11 @@ def process_for_nysecredit(logger):
     NYSECreditDAO().save(credits)
     logger.info('push credit data into database completed.')
 
+def process_for_aggregation(logger):
+    logger.info('run aggreagions...')
+    AGGSPYVIXHedge().save_to_db()
+    logger.info('run aggregation completed.')
+
 
 def main():
     logger = Logger(__name__, PathMgr.get_log_path())
@@ -47,6 +53,7 @@ def main():
         process_for_option_vix()
         process_for_nysecredit(logger)
         process_for_yahoo_data()
+        process_for_aggregation(logger)
         logger.info('Daily ingestion completed.')
         return True
     except Exception as e:

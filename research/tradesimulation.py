@@ -1,6 +1,7 @@
 import math
 import datetime
 from dataaccess.yahooequitydao import YahooEquityDAO
+from dataaccess.optiondao import OptionDAO
 
 
 class TradeNode(object):
@@ -10,6 +11,32 @@ class TradeNode(object):
         self.date = date
         self.action = action
         self.percentage = percentage
+
+
+# TODO: use records_cache to improve the performance
+class DataProvider(object):
+
+    RECORDS_CACHE = {}
+    DAILY_CACHE = {}
+
+    @staticmethod
+    def get_equity_price_list(symbol, start_date):
+        date_str = start_date.strftime('%Y-%m-%d')
+        return YahooEquityDAO().get_all_equity_price_by_symbol(symbol, date_str)
+
+    @staticmethod
+    def get_option_price_list(self, option_symbol):
+        records = OptionDAO().get_option_by_symbol(option_symbol)
+        return map(lambda x: x[0:2], records)
+
+    @staticmethod
+    def get_price_by_date(symbol, date):
+        date_str = date.strftime('%Y-%m-%d')
+        key = symbol + date_str
+        if not DataProvider.DAILY_CACHE.has_key(key):
+            price = YahooEquityDAO().get_equity_price_by_date(symbol, date_str)
+            DataProvider.DAILY_CACHE[key] = price
+        return DataProvider.DAILY_CACHE[key]
 
 
 class Portfolio(object):
@@ -22,22 +49,33 @@ class Portfolio(object):
         self.buy_tax = buy_tax
         self.sell_tax = sell_tax
         self.yahoo_equity_dao = YahooEquityDAO()
+        self.option_dao = OptionDAO()
+
+    def get_equity_price_list(self, symbol, start_date):
+        date_str = start_date.strftime('%Y-%m-%d')
+        return self.yahoo_equity_dao.get_all_equity_price_by_symbol(symbol, date_str)
+
+    def get_option_price_list(self, option_symbol):
+        records = self.option_dao.get_option_by_symbol(option_symbol)
+        return map(lambda x: x[0:2], records)
+
 
     def get_price_by_date_str(self, symbol, date_str):
         key = symbol + date_str
-        if not self.daily_data_cache.has_key(key):
+        if not Portfolio.DAILY_CACHE.has_key(key):
             price = self.yahoo_equity_dao.get_equity_price_by_date(symbol, date_str)
             self.daily_data_cache[key] = price
         return self.daily_data_cache[key]
 
-    def get_portfolio_value(self, date_str):
+
+    def get_portfolio_value(self, date):
         total = self.cash
         for symbol, quantity in self.position.items():
-            total += quantity * self.get_price_by_date_str(symbol, date_str)
+            total += quantity * self.get_price_by_date_str(symbol, date.strftime('%Y-%m-%d'))
         return total
 
-    def get_returns(self, date_str):
-        return self.get_portfolio_value(date_str) / self.init_cash
+    def get_returns(self, date):
+        return self.get_portfolio_value(date) / self.init_cash
 
     def buy(self, date_str, symbol, buy_cash=None):
         price = self.get_price_by_date_str(symbol, date_str)
@@ -98,8 +136,9 @@ class TradeSimulation(object):
                 portfolio.action(trade_nodes[j])
                 j += 1
             else:
-                date_str = dates[i].strftime('%Y-%m-%d')
-                print (date_str, portfolio.get_returns(date_str))
+                #date_str = dates[i].strftime('%Y-%m-%d')
+                #print (date_str, portfolio.get_returns(dates[i]))
+                yield [dates[i], portfolio.get_returns(dates[i])]
                 i += 1
 
 
@@ -117,4 +156,6 @@ if __name__ == '__main__':
                    TradeNode('SPY', datetime.datetime.strptime('2017-06-13', '%Y-%m-%d'), 'sell'),
                    TradeNode('QQQ', datetime.datetime.strptime('2017-06-13', '%Y-%m-%d'), 'buy'),
                    ]
-    TradeSimulation.simulate(trade_nodes, datetime.datetime.strptime('2017-01-01', '%Y-%m-%d'))
+    returns = TradeSimulation.simulate(trade_nodes, datetime.datetime.strptime('2017-01-01', '%Y-%m-%d'))
+    for [date, return_value] in returns:
+        print date, return_value

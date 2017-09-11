@@ -24,6 +24,25 @@ class OptionDAO(BaseDAO):
         conn.commit()
         conn.close()
 
+        def get_option_price_by_date(self, option_symbol, date_str, price_field='lastPrice', cursor=None):
+            """
+            :param self:
+            :param option_symbol:
+            :param date_str:
+            :param price_field: lastprice(close price) in default
+            :param cursor:
+            :return:
+            """
+            query_template = """select {} from option_data where symbol = '{}' and tradeDate <= str_to_date('{}', '%Y-%m-%d') order by tradeDate desc limit 1"""
+            query = query_template.format(price_field, option_symbol, date_str)
+            rows = self.select(query, cursor)
+            if rows is None or len(rows) < 1:
+                return None
+            else:
+                return rows[0][0]
+
+
+
     def get_all_unexpired_dates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d'), cursor = None):
         query_template = """select distinct(expirationDate) from  option_data 
                                     where underlingSymbol = '{}' and expirationDate > str_to_date('{}', '%Y-%m-%d')
@@ -91,7 +110,7 @@ class OptionDAO(BaseDAO):
         for row in filtered_rows:
             if imp_only:
                 delta = row[0] - current_equity_price
-                if delta > 0 and delta < min:
+                if 0 < delta < min:
                     min = delta
                     strik_price = row[0]
             else:
@@ -123,9 +142,6 @@ class OptionDAO(BaseDAO):
         option_symbol = self.find_symbol(equity_symbol, exp_date, current_equity_price)
         rows = self.get_implied_volatilities(option_symbol)
         return rows
-        #df = pd.DataFrame(rows)
-        #df.columns = ['date', 'volatility']
-        #return df
 
     def get_corresponding_delta(self, equity_symbol, current_equity_price, days_to_current_date=10):
         exp_date = self.get_following_expirationDate(equity_symbol)  # get recent exp_date for this symbol
@@ -148,5 +164,6 @@ if __name__ == '__main__':
     #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
     #print OptionDAO().get_option_by_symbol('SPY170915C00245000')
     OptionDAO().fix_date_error()
+
 
 
