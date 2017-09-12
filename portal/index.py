@@ -5,6 +5,7 @@ import sys
 from decimal import Decimal
 from abc import abstractmethod
 from utils.querystringparser import parse_query_string
+from utils.cachehelper import CacheMan
 from common.etfs import ETFS
 from common.optioncalculater import OptionCalculater
 from entities.vix import VIX
@@ -238,6 +239,7 @@ class VolBase(object):
             df = VIXDAO().get_vix_price_by_symbol('VIY00')
             self.iv_records = df.values.tolist()
 
+    # can be refactor to use cache man.
     def init_with_cache(self, symbol):
         symbol = symbol.upper()
         if datetime.date.today() != VolBase.CACHE_DATE:
@@ -335,10 +337,39 @@ class Greeks(object):
         pass
 
     def GET(self, symbol):
-        records = OptionDAO().get_option_by_symbol(symbol)
-        print records
+        records = CacheMan('greeks').get_with_cache(symbol, OptionDAO().get_option_by_symbol)
         return render.greeks(symbol, records)
 
+
+class GreeksDiagram(object):
+
+    def __init__(self):
+        pass
+
+    def plot(self, date_value_list, label):
+        dates = map(lambda x: x[0], date_value_list)
+        values = map(lambda x: x[1], date_value_list)
+        fig = Figure(figsize=[12, 6])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, values, label=label)
+        ax.legend(loc='upper left')
+        ax.grid()
+
+        # conver to canvas
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+    def GET(self, symbol, field):
+        records = CacheMan('greeks').get_with_cache(symbol, OptionDAO().get_option_by_symbol)
+        field_index_dic = {'lastprice':1, 'delta':2, 'gamma':3, 'vega':4, 'theta':5}
+        index = field_index_dic[field.lower()]
+        if index is not None:
+            date_value_list = map(lambda x: [x[0], x[index]], records[-20:])
+            return self.plot(date_value_list, field)
+        return None
 
 
 
@@ -355,7 +386,8 @@ def run_web_app():
             '/volhvsi/(.*)', 'VolHvsI',
             '/volequity/(.*)', 'VolEquity',
             '/findoption', 'FindOption',
-            '/greeks/(.*)', 'Greeks')
+            '/greeks/(.*)', 'Greeks',
+            '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram')
 
     app = web.application(urls, globals())
     app.run()

@@ -42,7 +42,7 @@ def process_for_nysecredit(logger):
     logger.info('push credit data into database completed.')
 
 def process_for_aggregation(logger):
-    logger.info('run aggreagions...')
+    logger.info('run aggregations...')
     AGGSPYVIXHedge().save_to_db()
     logger.info('run aggregation completed.')
 
