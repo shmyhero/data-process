@@ -17,6 +17,7 @@ class CacheMan(object):
     def __init__(self, cache_name, expiration_minutes = 60):
         self.cache = CacheRepository.get_cache(cache_name)
         self.expiration_minutes = expiration_minutes
+        self.clear()
 
     def set_value(self, key, value, expiration_minutes = None):
         if expiration_minutes:
@@ -36,6 +37,12 @@ class CacheMan(object):
                 return None
         else:
             return None
+
+    def clear(self):
+        for (k,v) in self.cache.iteritems():
+            (expiration_time, value) = v
+            if expiration_time < datetime.datetime.now():
+                self.cache.pop(k)
 
     def get_with_cache(self, key, func_or_value, expiration_minutes=None):
         value = self.get_value(key)

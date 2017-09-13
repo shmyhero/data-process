@@ -91,6 +91,11 @@ class YahooScraper(object):
             time.sleep(1)
 
     @staticmethod
+    def ingest_recently_historyical_etf(days = 10):
+        date_from = (datetime.date.today() - datetime.timedelta(days = days)).strftime("%Y-%m-%d")
+        YahooScraper.ingest_all_historical_etf(date_from)
+
+    @staticmethod
     def get_option_expirations(symbol):
         url = "https://finance.yahoo.com/quote/{}/options?p={}".format(symbol, symbol)
         content = YahooScraper.ingest_with_retry(symbol, url)
@@ -124,6 +129,7 @@ if __name__ == '__main__':
     #print get_crumble_and_cookie('SPY')
     #print download_quote('SPY', '2002-01-01', '2002-02-01')
     #YahooScraper.get_option_expirations('SPY')
-    print YahooScraper.ingest_all_etf_options()
+    #print YahooScraper.ingest_all_etf_options()
+    print YahooScraper.ingest_recently_historyical_etf()
 
 

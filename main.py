@@ -1,5 +1,4 @@
 import traceback
-
 from utils.logger import Logger
 from common.pathmgr import PathMgr
 from common.notification import notify
@@ -30,7 +29,7 @@ def process_for_option_vix():
 
 
 def process_for_yahoo_data():
-    YahooScraper.ingest_all_historical_etf()
+    YahooScraper.ingest_recently_historyical_etf()
     YahooEquityDAO().save_all()
 
 
@@ -64,7 +63,6 @@ def main():
 
 if __name__ == '__main__':
     result = main()
-    #result = True
     if result:
         notify('Daily data processing completed...')
     else:
