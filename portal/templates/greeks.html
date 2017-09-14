@@ -12,42 +12,50 @@ $def with (symbol, records)
 Greeks for $symbol
 <br/>
 <br/>
-<table border="1" cellspacing="0" style = "font-size:30px;">
+<table border="0">
     <tr>
-        <th>date</th>
-        <th>lastPrice</th>
-        <th>delta</th>
-        <th>gamma</th>
-        <th>vega</th>
-        <th>theta</th>
-        <th>rho</th>
+        <td valign="top">
+            <table border="1" cellspacing="0" style = "font-size:22px;">
+                <tr>
+                    <th>date</th>
+                    <th>lastPrice</th>
+                    <th>delta</th>
+                    <th>gamma</th>
+                    <th>vega</th>
+                    <th>theta</th>
+                    <th>rho</th>
+                </tr>
+                $for record in records:
+                    <tr>
+                        $for val in record:
+                            <td>$val</td>
+                    </tr>
+            </table>
+        </td>
+        <td valign="top">
+            <div id = "div1" >
+                    <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/lastprice">
+            </div>
+
+            <div id = "div2" >
+                    <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/delta">
+            </div>
+
+            <div id = "div3" >
+                    <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/gamma">
+            </div>
+
+            <div id = "div4" >
+                    <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/vega">
+            </div>
+
+            <div id = "div5" >
+                    <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/theta">
+            </div>
+        </td>
     </tr>
-    $for record in records:
-        <tr>
-            $for val in record:
-                <td>$val</td>
-        </tr>
 </table>
 <br/>
 </body>
 
-<div id = "div1" >
-        <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/lastprice">
-</div>
-
-<div id = "div2" >
-        <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/delta">
-</div>
-
-<div id = "div3" >
-        <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/gamma">
-</div>
-
-<div id = "div4" >
-        <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/vega">
-</div>
-
-<div id = "div5" >
-        <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/theta">
-</div>
 </html>

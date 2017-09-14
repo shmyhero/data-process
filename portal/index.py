@@ -2,10 +2,10 @@ import web
 import datetime
 import cStringIO
 import sys
-from decimal import Decimal
 from abc import abstractmethod
 from utils.querystringparser import parse_query_string
 from utils.cachehelper import CacheMan
+from utils.maths import half_adjust_round
 from common.etfs import ETFS
 from common.optioncalculater import OptionCalculater
 from entities.vix import VIX
@@ -182,16 +182,12 @@ class SPYVIXHedge(object):
     def __init__(self):
         pass
 
-    def round2(self, num):
-        return float('{:.2f}'.format(Decimal(num)))
-
-
     def get_report(self):
         records = SPYVIXHedgeDAO().select_all()
         for record in records:
             date = record[1]
             result = [date]
-            fixed_values = map(self.round2, record[2:])
+            fixed_values = map(lambda x: half_adjust_round(x, 2), record[2:])
             result.extend(fixed_values)
             yield result
 
@@ -336,9 +332,17 @@ class Greeks(object):
     def __init__(self):
         pass
 
+    def fix_for_record(self, record):
+        new_record = list(record)
+        for i in range(5):
+            new_record[2 + i] = half_adjust_round(record[2 + i], 3)
+        return new_record
+
+
     def GET(self, symbol):
         records = CacheMan('greeks').get_with_cache(symbol, OptionDAO().get_option_by_symbol)
-        return render.greeks(symbol, records)
+        new_records = map(self.fix_for_record, records[-20:])
+        return render.greeks(symbol, new_records)
 
 
 class GreeksDiagram(object):
@@ -349,7 +353,7 @@ class GreeksDiagram(object):
     def plot(self, date_value_list, label):
         dates = map(lambda x: x[0], date_value_list)
         values = map(lambda x: x[1], date_value_list)
-        fig = Figure(figsize=[12, 6])
+        fig = Figure(figsize=[12, 3])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(dates, values, label=label)
         ax.legend(loc='upper left')
