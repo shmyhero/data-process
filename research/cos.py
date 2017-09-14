@@ -42,21 +42,21 @@ class ShortOption(SingleOption):
 
 class Combination(object):
 
-    def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentage = 1, ratio = 1):
+    def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentages=[0.5, 0.5]):
         """
         hold the short combination till there are expired.
         :param symbol:
         :param start_date:
         :param delta:
         :param days_to_expiration: at least days to expiration.
-        :param percentage: the percentage of cash can be used for short options
+        :param percentages: the percentages of cash for each options
         """
         self.symbol = symbol
         self.start_date = start_date
         self.delta = delta
         self.days_to_expiration = days_to_expiration
         self.init_option_symbols()
-        self.percentage = percentage
+        self.percentages = percentages
         self.ratio = 1
 
     def find_expiration_date(self):
@@ -80,23 +80,22 @@ class Combination(object):
 
     def simulation(self):
         print self.call_symbol, self.put_symbol
-        first_percentage = self.ratio/(1.0+self.ratio)
-        second_percentage = ((1-first_percentage)*self.percentage)/(1-first_percentage*self.percentage)
-        trade_nodes = [TradeNode(self.call_symbol, self.start_date, 'buy', percentage=first_percentage*self.percentage), \
-                      TradeNode(self.put_symbol, self.start_date, 'buy', percentage=second_percentage)]
+        relative_percentages = list(TradeSimulation.get_relative_percentages(self.percentages))
+        trade_nodes = [TradeNode(self.call_symbol, self.start_date, 'buy', percentage=relative_percentages[0]), \
+                      TradeNode(self.put_symbol, self.start_date, 'buy', percentage=relative_percentages[1])]
         return TradeSimulation.simulate(trade_nodes, self.start_date)
 
 
 class LongCombination(Combination):
 
     def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentage = 1, ratio = 1):
-        Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentage = percentage, ratio=ratio)
+        Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentages=[0.5, 0.5])
 
 
 class ShortCombination(Combination):
 
     def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentage = -0.2, ratio=1):
-        Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentage = percentage, ratio = ratio)
+        Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentages=[0.1, 0.1])
 
 
 
@@ -109,6 +108,6 @@ if __name__ == '__main__':
     #for [date, return_value] in returns:
     #   print date, return_value
     #returns = ShortCombination('VXX', datetime.datetime(2017, 9, 1), delta=0).simulation()
-    returns = LongCombination('VXX', datetime.datetime(2017, 9, 1), delta=0, ratio = 1).simulation()
+    returns = LongCombination('VXX', datetime.datetime(2017, 9, 1), delta=0, percentage=[0.65, 0.35]).simulation()
     for [date, return_value] in returns:
         print date, return_value

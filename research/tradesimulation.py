@@ -126,6 +126,20 @@ class TradeSimulation(object):
             yield start_date + datetime.timedelta(n)
 
     @staticmethod
+    def get_relative_percentages(percentages):
+        """
+        #list(get_relative_percentages([0.1, 0.1, 0.1]))
+        #=>[0.1, 0.11111111111111112, 0.125]
+        :param percentages:
+        :return:
+        """
+        total = 1
+        for percentage in percentages:
+            new_percentage = percentage/total
+            total -= percentage
+            yield new_percentage
+
+    @staticmethod
     def simulate(trade_nodes, start_date, end_date = datetime.datetime.today()):
         portfolio = Portfolio()
         dates = list(TradeSimulation.date_range(start_date, end_date))
