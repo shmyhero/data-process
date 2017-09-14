@@ -39,7 +39,7 @@ class VIXDAO(BaseDAO):
         return rows
 
     def get_following_vix_by_date(self, date_str):
-        symbols = list(VIX.get_following_symbols(date_str))
+        symbols = VIX.get_following_symbols(date_str)
         columns = ['symbol', 'dailyLastPrice', 'volume']
         records = []
         for symbol in symbols:

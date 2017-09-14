@@ -1,9 +1,12 @@
 import datetime
+import threading
 
 
 class CacheRepository(object):
 
     CACHES = {}
+
+    DATE = None # check the date, if it was not equal to today, clear() the expired cache.
 
     @staticmethod
     def get_cache(cache_name):
@@ -17,7 +20,10 @@ class CacheMan(object):
     def __init__(self, cache_name, expiration_minutes = 60):
         self.cache = CacheRepository.get_cache(cache_name)
         self.expiration_minutes = expiration_minutes
-        self.clear()
+        today_str = datetime.date.today().strftime('%Y%m%d')
+        if CacheRepository.DATE  != today_str:
+            self.clear()
+            CacheRepository.DATE = datetime.date.today().strftime('%Y%m%d')
 
     def set_value(self, key, value, expiration_minutes = None):
         if expiration_minutes:
@@ -39,10 +45,13 @@ class CacheMan(object):
             return None
 
     def clear(self):
+        mutex = threading.Lock()
+        mutex.acquire(1)
         for (k,v) in self.cache.iteritems():
             (expiration_time, value) = v
             if expiration_time < datetime.datetime.now():
                 self.cache.pop(k)
+        mutex.release()
 
     def get_with_cache(self, key, func_or_value, expiration_minutes=None):
         value = self.get_value(key)
