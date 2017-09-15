@@ -57,7 +57,6 @@ class Combination(object):
         self.days_to_expiration = days_to_expiration
         self.init_option_symbols()
         self.percentages = percentages
-        self.ratio = 1
 
     def find_expiration_date(self):
         dates = OptionDAO().get_all_unexpired_dates(self.symbol, self.start_date.strftime('%Y-%m-%d'))
@@ -88,15 +87,26 @@ class Combination(object):
 
 class LongCombination(Combination):
 
-    def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentage = 1, ratio = 1):
+    def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentages=[0.5, 0.5]):
         Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentages=[0.5, 0.5])
 
 
 class ShortCombination(Combination):
 
-    def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentage = -0.2, ratio=1):
-        Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentages=[0.1, 0.1])
+    def __init__(self, symbol, start_date, delta=0, days_to_expiration=20, percentages=[-0.1, -0.1]):
+        Combination.__init__(self, symbol, start_date, delta=delta, days_to_expiration=days_to_expiration, percentages=percentages)
 
+
+def print_long_returns(symbol, date_from, delta):
+    returns = LongCombination(symbol, date_from, delta=delta).simulation()
+    for [date, return_value] in returns:
+        print date, return_value
+
+
+def print_short_returns(symbol, date_from, delta, percentages=[-0.1, -0.1]):
+    returns = ShortCombination(symbol, date_from, delta=delta, percentages=percentages).simulation()
+    for [date, return_value] in returns:
+        print date, return_value
 
 
 if __name__ == '__main__':
@@ -108,6 +118,7 @@ if __name__ == '__main__':
     #for [date, return_value] in returns:
     #   print date, return_value
     #returns = ShortCombination('VXX', datetime.datetime(2017, 9, 1), delta=0).simulation()
-    returns = LongCombination('VXX', datetime.datetime(2017, 9, 1), delta=0, percentage=[0.65, 0.35]).simulation()
+    returns = LongCombination('VXX', datetime.datetime(2017, 9, 1), delta=0, percentages=[0.5, 0.5]).simulation()
     for [date, return_value] in returns:
         print date, return_value
+    #print_short_returns('MDY', datetime.datetime(2017, 8, 15), 0.03)

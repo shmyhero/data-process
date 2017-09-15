@@ -161,9 +161,9 @@ class TradeSimulation(object):
 
 
 if __name__ == '__main__':
-    #trade = TradeAccount()
-    #trade.buy('2017-01-01', 'SPY')
-    #print trade.get_net_value('2017-07-01')
+    trade = Portfolio()
+    trade.buy(datetime.datetime(2017, 1, 1), 'QQQ')
+    print trade.get_returns(datetime.datetime(2017, 9, 13))
     trade_nodes = [TradeNode('QQQ', datetime.datetime.strptime('2017-01-01', '%Y-%m-%d'), 'buy'),
                    TradeNode('QQQ', datetime.datetime.strptime('2017-02-23', '%Y-%m-%d'), 'sell'),
                    TradeNode('SPY', datetime.datetime.strptime('2017-02-23', '%Y-%m-%d'), 'buy'),

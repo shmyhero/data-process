@@ -103,6 +103,12 @@ class TradeTime(object):
         else:
             return False
 
+    @staticmethod
+    def get_latest_trade_date():
+        trade_date = datetime.datetime.today() - datetime.timedelta(days=1)
+        for i in range(10):
+            if TradeTime.is_trade_day(trade_date):
+                return trade_date.date()
 
 if __name__ == '__main__':
     print TradeTime.get_trading_close_holidays(2017)
@@ -112,3 +118,4 @@ if __name__ == '__main__':
     print TradeTime.is_trade_day(datetime.date(2017, 9, 4))
     print TradeTime.is_half_trade_day(datetime.date(2017, 7, 3))
     print TradeTime.is_market_open()
+    print TradeTime.get_latest_trade_date()

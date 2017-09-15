@@ -1,3 +1,4 @@
+import math
 import datetime
 import pandas as pd
 from common.tradetime import TradeTime
@@ -94,14 +95,26 @@ class VIXDAO(BaseDAO):
         df.columns = ['date', 'price']
         return df
 
-    def get3vix(self, date_str = datetime.datetime.now().strftime('%Y-%m-%d')):
+    #TODO: change the vix to cross expiration date.
+    def get_3vix_new(self, from_date = None, to_date = None):
+        if from_date is None:
+            from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30)
+        if to_date is None:
+            to_date = TradeTime.get_latest_trade_date()
+        days = to_date - from_date
+        count = math.ceil(days/28.0)
+        VIX.get_following_symbols(from_date)
+        return count
+
+    def get3vix(self, date_str = TradeTime.get_latest_trade_date().strftime('%Y-%m-%d')):
         following_symbols = list(VIX.get_following_symbols(date_str))
         symbols = ['VIY00']
-        symbols.extend(following_symbols)
+        symbols.extend(following_symbols[0:3])
         return map(lambda x: self.get_vix_price_by_symbol(x), symbols)
 
 
 if __name__ == '__main__':
     #print list(VIXDAO().get_current_and_follwing_vix())
-    print VIXDAO().get3vix()
+    #print VIXDAO().get3vix()
+    print VIXDAO().get_3vix_new()
 

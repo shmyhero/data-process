@@ -338,7 +338,6 @@ class Greeks(object):
             new_record[2 + i] = half_adjust_round(record[2 + i], 3)
         return new_record
 
-
     def GET(self, symbol):
         records = CacheMan('greeks').get_with_cache(symbol, OptionDAO().get_option_by_symbol)
         new_records = map(self.fix_for_record, records[-20:])
