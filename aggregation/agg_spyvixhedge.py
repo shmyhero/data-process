@@ -1,4 +1,6 @@
 import datetime
+from utils.listhelper import list_to_hash
+from common.tradetime import TradeTime
 from common.optioncalculater import OptionCalculater
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
@@ -26,16 +28,27 @@ class AGGSPYVIXHedge(object):
         self.hv_spy = OptionCalculater.get_year_history_volatility_list(self.spy_records, self.circle)
         self.spy_delta_records = self.get_delta_records('SPY', self.spy_records)
 
-        symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
-        symbol1 = symbols[0]
-        self.df1 = VIXDAO().get_vix_price_by_symbol(symbol1)
-        self.dfi = VIXDAO().get_vix_price_by_symbol('VIY00')
-        self.df_delta = self.df1.set_index('date').subtract(self.dfi.set_index('date'))
-        self.vixf1_records = self.df1.values.tolist()
-        self.vix_delta_records = map(lambda x, y: [x[0], y[0]], self.vixf1_records, self.df_delta.values.tolist())
-        self.hv_vix = OptionCalculater.get_year_history_volatility_list(self.df1.values.tolist(), self.circle)
+        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(50)
+        vix_index_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        (records_f1, records_f2) = VIXDAO().get_following_vix(from_date)
+        self.vixf1_records = records_f1
+        self.vix_delta_records = map(lambda x, y: [x[0], y[1]-x[1]], vix_index_records, self.vixf1_records)
+        self.hv_vix = list(self.calculate_f1_volatilities())
         vxx_records = YahooEquityDAO().get_all_equity_price_by_symbol('VXX', from_date_str)
         self.vxx_delta_records = self.get_delta_records('VXX', vxx_records)
+
+    def calculate_f1_volatilities(self):
+        symbols = list(set(map(lambda x: x[2], self.vixf1_records)))
+        symbol_dic = {}
+        for symbol in symbols:
+            symbol_records = VIXDAO().get_vix_price_by_symbol_and_date(symbol, self.vixf1_records[0][0])
+            hv_dic = list_to_hash(OptionCalculater.get_year_history_volatility_list(symbol_records, self.circle))
+            symbol_dic[symbol] = hv_dic
+        for vix_f1_record in self.vixf1_records[20:]:
+            date = vix_f1_record[0]
+            symbol = vix_f1_record[2]
+            hv = symbol_dic[symbol].get(date)
+            yield [date, hv]
 
     def find_following_expiration_date(self, dates, current_date):
         filtered_dates = filter(lambda x: x > current_date, dates)

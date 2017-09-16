@@ -59,7 +59,7 @@ class Combination(object):
         self.percentages = percentages
 
     def find_expiration_date(self):
-        dates = OptionDAO().get_all_unexpired_dates(self.symbol, self.start_date.strftime('%Y-%m-%d'))
+        dates = OptionDAO().get_all_unexpired_dates(self.symbol, self.start_date)
         monthly_option_dates = OptionRules.find_monthly_option_dates(dates)
         for date in monthly_option_dates:
             dt = datetime.datetime.combine(date, datetime.time.min) - self.start_date

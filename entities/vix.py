@@ -1,5 +1,6 @@
 import json
 import datetime
+from common.tradetime import TradeTime
 from baseentity import BaseEntity
 
 
@@ -7,38 +8,75 @@ class VIX(BaseEntity):
 
     VIX_MONTH_NAMES = 'FGHJKMNQUVXZ'
 
-    #NAME_RULES =
-    @staticmethod
-    def date_to_symbol(date_str):
-        #date_str = date.strftime('%Y-%m-%d')
-        ymd = date_str.split('-')
-        month = int(float (ymd[1]))
-        return 'VI{}{}'.format(VIX.VIX_MONTH_NAMES[month-1], ymd[0][2:])
+    #@staticmethod
+    #def get_next_symbols(from_date, count=3):
+    #    year = from_date.year
+    #    month = from_date.month
+    #    for i in range(count):
+    #        m = month + i
+    #        y = year
+    #        if m > 12:
+    #            delta = m/12
+    #            m = m - delta*12
+    #            y = y + delta
+    #        yield 'VI%s%02d'%(VIX.VIX_MONTH_NAMES[m-1], y)
 
-    #:TODO change it to from_date
-    @staticmethod
-    def get_next_symbols(from_date_str, count=3):
-        ymd = from_date_str.split('-')
-        month = int(float(ymd[1]))
-        year = int(float(ymd[0][2:]))
-        for i in range(count):
-            m = month + i
-            y = year
-            if m > 12:
-                delta = m/12
-                m = m - delta*12
-                y = y + delta
-            yield 'VI%s%02d'%(VIX.VIX_MONTH_NAMES[m-1], y)
+    #@staticmethod
+    #def get_following_symbols(from_date, count = 2):
+    #    next_symbols = list(VIX.get_next_symbols(from_date, count+1))
+    #    if from_date.day >= 21 or (from_date.day > 17 and from_date.weekday() > 1):
+    #        return next_symbols[1:count+1]
+    #    else:
+    #        return next_symbols[0:count]
 
-    #TODO:change it to from date.
     @staticmethod
-    def get_following_symbols(from_date_str, count = 2):
-        next_symbols = list(VIX.get_next_symbols(from_date_str, count+1))
-        date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d')
-        if date.day >= 21 or (date.day > 14 and date.weekday() > 1):
-            return next_symbols[1:count+1]
+    def get_following_year_index(current_date):
+        month = current_date.month
+        day = current_date.day
+        weekday = datetime.date(current_date.year, month, 1).weekday()
+        delta = 2 - weekday
+        if delta <= 0:
+            delta += 7
+        expiration_day = 1 + 2*7 + delta
+        if day >= expiration_day:
+            index = month
         else:
-            return next_symbols[0:count]
+            index = month-1
+        return current_date.year, index
+
+    @staticmethod
+    def get_year_index_list(from_date, to_date, fx=1):
+        (from_year, from_index) = VIX.get_following_year_index(from_date)
+        (to_year, to_index) = VIX.get_following_year_index(to_date)
+        to_index += fx - 1
+        count = (to_year-from_year) * 12 + to_index - from_index
+        for i in range(count + 1):
+            year = from_year
+            index = from_index + i
+            if index >= 12:
+                delta_year = index / 12
+                index = index - delta_year * 12
+                year = year + delta_year
+            yield (year, index)
+
+    @staticmethod
+    def get_symbol_by_year_index(year, index):
+        return 'VI%s%02d'%(VIX.VIX_MONTH_NAMES[index], year%100)
+
+    @staticmethod
+    def get_f1_by_date(date):
+        (year, index) = VIX.get_following_year_index(date)
+        return VIX.get_symbol_by_year_index(year, index)
+
+    @staticmethod
+    def get_f2_by_date(date):
+        (year, index) = VIX.get_following_year_index(date)
+        return VIX.get_symbol_by_year_index(year, index+1)
+
+    @staticmethod
+    def get_vix_symbol_list(from_date, to_date = TradeTime.get_latest_trade_date(), fx=1):
+        for (year, index) in VIX.get_year_index_list(from_date, to_date, fx):
+            yield VIX.get_symbol_by_year_index(year, index)
 
     def __init__(self, symbol = None, lastPrice = None, priceChange = None, openPrice = None, highPrice = None, lowPrice = None,
                  previousPrice = None, volume = None, tradeTime = None, dailyLastPrice = None, dailyPriceChange = None, dailyOpenPrice = None,
@@ -77,7 +115,8 @@ class VIX(BaseEntity):
 
 
 if __name__ == '__main__':
-    print VIX.date_to_symbol('2017-09-05')
-    print list(VIX.get_following_symbols('2017-09-19'))
-    print list(VIX.get_following_symbols('2017-09-27'))
-    print list(VIX.get_following_symbols('2017-08-16'))
+    print VIX.get_f1_by_date(datetime.datetime(2017, 8, 15))
+    print VIX.get_f1_by_date(datetime.datetime(2017, 9, 15))
+    print VIX.get_f1_by_date(datetime.datetime(2017, 9, 19))
+    print VIX.get_f2_by_date(datetime.datetime(2017, 9, 20))
+    print list(VIX.get_vix_symbol_list(datetime.datetime(2017, 8, 10), datetime.datetime(2017, 9, 20), 2))

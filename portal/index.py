@@ -8,6 +8,7 @@ from utils.cachehelper import CacheMan
 from utils.maths import half_adjust_round
 from common.etfs import ETFS
 from common.optioncalculater import OptionCalculater
+from common.tradetime import TradeTime
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
 from dataaccess.equitydao import EquityDAO
@@ -75,94 +76,19 @@ class Credit:
         return data
 
 
-class VIXBase(object):
-
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def get_symbol(self):
-        return None
-
-    @abstractmethod
-    def get_label(self):
-        return None
-
-    def get_plot_data(self):
-        symbol = self.get_symbol()
-        df = VIXDAO().get_vix_price_by_symbol(symbol)
-        dates = df['date']
-        price = df['price']
-        fig = Figure(figsize=[12, 8])
-        ax = fig.add_axes([.1, .1, .8, .8])
-        ax.plot(dates, price, label=self.get_label())
-        ax.legend(loc='upper left')
-        ax.grid()
-        canvas = FigureCanvasAgg(fig)
-        buf = cStringIO.StringIO()
-        canvas.print_png(buf)
-        data = buf.getvalue()
-        return data
-
-
-class VIXIndex(VIXBase):
-
-    def __init__(self):
-        VIXBase.__init__(self)
-
-    def get_symbol(self):
-        return 'VIY00'
-
-    def get_label(self):
-        return 'VIX Index'
-
-    def GET(self):
-        return self.get_plot_data()
-
-
-class VIXF1(VIXBase):
-
-    def __init__(self):
-        VIXBase.__init__(self)
-
-    def get_symbol(self):
-        symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
-        return list(symbols)[0]
-
-    def get_label(self):
-        return 'VIX First Month'
-
-    def GET(self):
-        return self.get_plot_data()
-
-
-class VIXF2(VIXBase):
-
-    def __init__(self):
-        VIXBase.__init__(self)
-
-    def get_symbol(self):
-        symbols = VIX.get_following_symbols(datetime.datetime.now().strftime('%Y-%m-%d'))
-        return list(symbols)[1]
-
-    def get_label(self):
-        return 'VIX Second Month'
-
-    def GET(self):
-        return self.get_plot_data()
-
-
 class VIX3in1(object):
 
     def __init__(self):
         pass
 
     def GET(self):
-        dfs = VIXDAO().get3vix()
-        dates = dfs[0]['date']
-        price_index = dfs[0]['price']
-        price_f1 = dfs[1]['price']
-        price_f2 = dfs[2]['price']
+        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30)
+        records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        dates = map(lambda x: x[0], records_index)
+        price_index = map(lambda x: x[1], records_index)
+        (records_f1, records_f2) = VIXDAO().get_following_vix(from_date)
+        price_f1 = map(lambda x: x[1], records_f1)
+        price_f2 = map(lambda x: x[1], records_f2)
         fig = Figure(figsize=[12, 8])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(dates, price_index, label='vix index')
@@ -232,8 +158,7 @@ class VolBase(object):
         self.hv_records = hv_records
         self.iv_records = option_iv_records
         if symbol.upper() == 'SPY':
-            df = VIXDAO().get_vix_price_by_symbol('VIY00')
-            self.iv_records = df.values.tolist()
+            self.iv_records = VIXDAO().get_vix_price_by_symbol('VIY00')
 
     # can be refactor to use cache man.
     def init_with_cache(self, symbol):
@@ -306,7 +231,7 @@ class FindOption(object):
         if selected_symbol is None:
             selected_symbol = 'SPY'
 
-        unexpriated_dates = option_dao.get_all_unexpired_dates(selected_symbol)
+        unexpriated_dates = option_dao.get_all_unexpired_dates(selected_symbol, from_date= TradeTime.get_latest_trade_date()-datetime.timedelta(days=20))
         expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpriated_dates)
         selected_expiration_date = query_dic.get('expiration')
         if selected_expiration_date is None:
@@ -379,10 +304,6 @@ class GreeksDiagram(object):
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
-            '/vix', 'VixAll',
-            '/vixindex', 'VIXIndex',
-            '/vixf1', 'VIXF1',
-            '/vixf2', 'VIXF2',
             '/vix3in1', 'VIX3in1',
             '/spyvixhedge', 'SPYVIXHedge',
             '/volatility/(.*)', 'Volatility',

@@ -1,6 +1,7 @@
 import sys
 import datetime
 import pandas as pd
+from common.tradetime import TradeTime
 from dataaccess.basedao import BaseDAO
 
 
@@ -43,16 +44,16 @@ class OptionDAO(BaseDAO):
 
 
 
-    def get_all_unexpired_dates(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d'), cursor = None):
+    def get_all_unexpired_dates(self, equity_symbol, from_date=TradeTime.get_latest_trade_date(), cursor = None):
         query_template = """select distinct(expirationDate) from  option_data 
                                     where underlingSymbol = '{}' and expirationDate > str_to_date('{}', '%Y-%m-%d')
                                     order by expirationDate"""
-        query = query_template.format(equity_symbol, from_date_str)
+        query = query_template.format(equity_symbol, from_date.strftime('%Y-%m-%d'))
         rows = self.select(query, cursor)
         return map(lambda x: x[0], rows)
 
-    def get_following_expirationDate(self, equity_symbol, from_date_str=datetime.datetime.today().strftime('%Y-%m-%d')):
-        dates = self.get_all_unexpired_dates(equity_symbol, from_date_str)
+    def get_following_expirationDate(self, equity_symbol, from_date=TradeTime.get_latest_trade_date()):
+        dates = self.get_all_unexpired_dates(equity_symbol, from_date)
         for d in dates:
             if d.weekday() == 4 and 14 < d.day < 22:
                 return d

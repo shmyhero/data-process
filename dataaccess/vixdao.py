@@ -1,6 +1,7 @@
 import math
 import datetime
 import pandas as pd
+from utils.listhelper import list_to_hash
 from common.tradetime import TradeTime
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
@@ -91,20 +92,33 @@ class VIXDAO(BaseDAO):
         rows = self.select(query)
         if remove_invalid_date:
             rows = filter(lambda x: TradeTime.is_trade_day(x[0]), rows)
-        df = pd.DataFrame(rows)
-        df.columns = ['date', 'price']
-        return df
+        return rows
 
-    #TODO: change the vix to cross expiration date.
-    def get_3vix_new(self, from_date = None, to_date = None):
-        if from_date is None:
-            from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30)
-        if to_date is None:
-            to_date = TradeTime.get_latest_trade_date()
-        days = to_date - from_date
-        count = math.ceil(days/28.0)
-        VIX.get_following_symbols(from_date)
-        return count
+    def get_vix_price_by_symbol_and_date(self, symbol, from_date=datetime.datetime(1993,1,1), to_date = TradeTime.get_latest_trade_date(), remove_invalid_date = True):
+        query_template = """select dailyDate1dAgo, dailyLastPrice from vix where symbol = '{}' and dailyDate1dAgo >= str_to_date('{}', '%Y-%m-%d') and dailyDate1dAgo <= str_to_date('{}', '%Y-%m-%d') order by dailyDate1dAgo"""
+        query = BaseDAO.mysql_format(query_template, symbol, from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d') )
+        rows = self.select(query)
+        if remove_invalid_date:
+            rows = filter(lambda x: TradeTime.is_trade_day(x[0]), rows)
+        return rows
+
+    def get_following_vix(self, from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30), to_date = TradeTime.get_latest_trade_date()):
+        symbols = VIX.get_vix_symbol_list(from_date, to_date, 2)
+        #records_index = self.get_vix_price_by_symbol('VIY00')
+        symbol_dic = {}
+        for symbol in symbols:
+            symbol_dic[symbol] = list_to_hash(self.get_vix_price_by_symbol_and_date(symbol, from_date, to_date))
+        days = (to_date - from_date).days+1
+        records_f1 = []
+        records_f2 = []
+        for i in range(days):
+            date = from_date + datetime.timedelta(days=i)
+            if TradeTime.is_trade_day(date):
+                symbol_f1 = VIX.get_f1_by_date(date)
+                symbol_f2 = VIX.get_f2_by_date(date)
+                records_f1.append([date, symbol_dic[symbol_f1].get(date), symbol_f1])
+                records_f2.append([date, symbol_dic[symbol_f2].get(date), symbol_f2])
+        return (records_f1, records_f2)
 
     def get3vix(self, date_str = TradeTime.get_latest_trade_date().strftime('%Y-%m-%d')):
         following_symbols = list(VIX.get_following_symbols(date_str))
@@ -116,5 +130,6 @@ class VIXDAO(BaseDAO):
 if __name__ == '__main__':
     #print list(VIXDAO().get_current_and_follwing_vix())
     #print VIXDAO().get3vix()
-    print VIXDAO().get_3vix_new()
+    print VIXDAO().get_following_vix()
+
 
