@@ -28,4 +28,5 @@ class DataExporter(object):
 
 
 if __name__ == '__main__':
-    DataExporter().export_skew()
+    #DataExporter().export_skew()
+    DataExporter().export_vix()
