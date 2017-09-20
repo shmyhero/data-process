@@ -17,12 +17,19 @@ class CacheRepository(object):
 
 class CacheMan(object):
 
+    clearing = False
+
     def __init__(self, cache_name, expiration_minutes = 60):
         self.cache = CacheRepository.get_cache(cache_name)
         self.expiration_minutes = expiration_minutes
         today_str = datetime.date.today().strftime('%Y%m%d')
         if CacheRepository.DATE  != today_str:
-            self.clear()
+            if CacheMan.clearing:
+                pass
+            else:
+                CacheMan.clearing = True
+                self.clear()
+                CacheMan.clearing = False
             CacheRepository.DATE = datetime.date.today().strftime('%Y%m%d')
 
     def set_value(self, key, value, expiration_minutes = None):
