@@ -104,6 +104,7 @@ drop table if exists spy_vix_hedge;
 create table spy_vix_hedge (
     id int not null auto_increment primary key,
     trade_date date not null,
+    vix_index float not null,
     vix_delta float not null,
     spy_vol float not null,
     spy_price float not null,

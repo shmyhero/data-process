@@ -231,11 +231,11 @@ class FindOption(object):
         if selected_symbol is None:
             selected_symbol = 'SPY'
 
-        unexpriated_dates = option_dao.get_all_unexpired_dates(selected_symbol, from_date= TradeTime.get_latest_trade_date()-datetime.timedelta(days=20))
-        expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpriated_dates)
+        unexpired_dates = option_dao.get_all_unexpired_dates(selected_symbol, from_date= TradeTime.get_latest_trade_date()-datetime.timedelta(days=20))
+        expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpired_dates)
         selected_expiration_date = query_dic.get('expiration')
         if selected_expiration_date is None:
-            for exp_date in unexpriated_dates:
+            for exp_date in filter(lambda x: x > TradeTime.get_latest_trade_date(), unexpired_dates):
                 if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
                     selected_expiration_date = exp_date.strftime('%Y-%m-%d')
                     break

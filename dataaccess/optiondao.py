@@ -154,6 +154,12 @@ class OptionDAO(BaseDAO):
         query = """update option_data set tradetime = str_to_date('2017-08-04', '%Y-%m-%d') where tradeTime <>  the_date and tradeTime = str_to_date('2017-08-05', '%Y-%m-%d')"""
         self.execute_query(query)
 
+    def delete_option(self, underlying_symbol):
+        query_template = """delete from option_data where underlingSymbol = '{}'"""
+        query = query_template.format(underlying_symbol)
+        self.execute_query(query)
+
+
 
 if __name__ == '__main__':
     #exp_date = OptionDAO().get_following_expirationDate('SPY')
@@ -163,7 +169,9 @@ if __name__ == '__main__':
     #print OptionDAO().get_spike_prices_by('SPY', '2017-09-15')
     #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
     #print OptionDAO().get_option_by_symbol('SPY170915C00245000')
-    OptionDAO().fix_date_error()
+    #OptionDAO().fix_date_error()
+    OptionDAO().delete_option('^VIX')
+
 
 
 

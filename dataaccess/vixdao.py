@@ -54,10 +54,13 @@ class VIXDAO(BaseDAO):
 
     # notice: the performance can be improved if get all vix the data from database once.
     def gen_all_vix(self):
+        #dates = map(lambda x: x.strftime('%Y-%m-%d'), self.get_all_vix_date())
+        #records = map(self.get_following_vix_by_date, dates)
+
         dates = self.get_all_vix_date()
         min_date = min(dates)
         (records_f1, records_f2) = self.get_following_vix(min_date)
-        records = map(lambda x,y: [x[0], x[1], y[1]], records_f1, records_f2)
+        records = map(lambda x, y: [x[0], x[1], y[1]], records_f1, records_f2)
         df = pd.DataFrame(records)
         df.columns = ['date', 'f1', 'f2']
         return df

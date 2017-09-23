@@ -112,9 +112,9 @@ class YahooScraper(object):
 
 
     @staticmethod
-    def ingest_all_etf_options():
+    def ingest_all_options(symbols=ETFS.get_option_symbols()):
         logger = Logger(__name__, PathMgr.get_log_path())
-        for symbol in ETFS.get_option_symbols():
+        for symbol in symbols:
             logger.info('ingest option data for %s...' % symbol)
             date_values = YahooScraper.get_option_expirations(symbol)
             for date_value in date_values:
@@ -130,6 +130,7 @@ if __name__ == '__main__':
     #print download_quote('SPY', '2002-01-01', '2002-02-01')
     #YahooScraper.get_option_expirations('SPY')
     #print YahooScraper.ingest_all_etf_options()
-    print YahooScraper.ingest_recently_historyical_etf()
+    #print YahooScraper.ingest_recently_historyical_etf()
+    print YahooScraper.ingest_all_options(['^VIX'])
 
 

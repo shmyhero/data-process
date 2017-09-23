@@ -4,8 +4,15 @@ $def with (report)
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <style>
-        body{font-size:37px}
+    <style  type="text/css">
+        body{font-size:25px}
+
+        .my_table tr:nth-child(even) {
+            background: #d8ebfa;
+        }
+        .my_table tr:nth-child(odd) {
+            background: White;
+        }
     </style>
 </head>
 <body>
@@ -13,22 +20,23 @@ $def with (report)
 Notice: the vxx start from 2017-08-24
 </br>
 </br>
-<table border="1" cellspacing="0">
+<table border="1" cellspacing="0" >
 
-    <tr style = "font-size:25px;">
+    <tr style = "font-size:18px;">
         <th>date</th>
+        <th>VIX Index</th>
         <th>VIX F1-Index</th>
         <th>SPY vol</th>
         <th>SPY price</th>
         <th>SPY option delta</th>
         <th>VIX vol</th>
-        <th>VIX price</th>
+        <th>VIX F1 price</th>
         <th>VXX option delta</th>
         <th>ratio</th>
     </tr>
     $for record in report:
         <tr>
-            $if record[1] > 2:
+            $if record[2] > 2:
                 $for val in record:
                     <td><font size="5" color="red">$val</font></td>
             $else:

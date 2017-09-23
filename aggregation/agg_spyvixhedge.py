@@ -29,10 +29,10 @@ class AGGSPYVIXHedge(object):
         self.spy_delta_records = self.get_delta_records('SPY', self.spy_records)
 
         from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(50)
-        vix_index_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        self.vix_index_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
         (records_f1, records_f2) = VIXDAO().get_following_vix(from_date)
         self.vixf1_records = records_f1
-        self.vix_delta_records = map(lambda x, y: [x[0], y[1]-x[1]], vix_index_records, self.vixf1_records)
+        self.vix_delta_records = map(lambda x, y: [x[0], y[1]-x[1]], self.vix_index_records, self.vixf1_records)
         self.hv_vix = list(self.calculate_f1_volatilities())
         vxx_records = YahooEquityDAO().get_all_equity_price_by_symbol('VXX', from_date_str)
         self.vxx_delta_records = self.get_delta_records('VXX', vxx_records)
@@ -92,7 +92,7 @@ class AGGSPYVIXHedge(object):
 
     def get_records(self):
         latest_date = max([self.spy_records[0][0], self.hv_spy[0][0], self.spy_delta_records[0][0], self.hv_vix[0][0],
-                           self.vixf1_records[0][0], self.vxx_delta_records[0][0], self.vix_delta_records[0][0]])
+                           self.vixf1_records[0][0], self.vxx_delta_records[0][0], self.vix_index_records[0][0], self.vix_delta_records[0][0]])
         all_dates = map(lambda r: r[0], self.spy_delta_records)
         date_list = filter(lambda x: x >= latest_date, all_dates)
         v1_list = self.get_parameter_list(self.hv_spy, latest_date)
@@ -101,11 +101,12 @@ class AGGSPYVIXHedge(object):
         v2_list = self.get_parameter_list(self.hv_vix, latest_date)
         p2_list = self.get_parameter_list(self.vixf1_records, latest_date)
         d2_list = self.get_parameter_list(self.vxx_delta_records, latest_date)
+        vix_index_list = self.get_parameter_list(self.vix_index_records, latest_date)
         vix_delta_list = self.get_parameter_list(self.vix_delta_records, latest_date)
         ratio_list = map(lambda v1, p1, d1, v2, p2, d2: (v1 * p1 * d1) / (v2 * p2 * d2), v1_list, p1_list, d1_list, v2_list,
                          p2_list, d2_list)
-        records = map(lambda date, vix_delta, v1, p1, d1, v2, p2, d2, ratio: [date, vix_delta, v1, p1, d1, v2, p2, d2, ratio], \
-                     date_list, vix_delta_list, v1_list, p1_list, d1_list, v2_list, p2_list, d2_list, ratio_list)
+        records = map(lambda date, vix_index, vix_delta, v1, p1, d1, v2, p2, d2, ratio: [date, vix_index, vix_delta, v1, p1, d1, v2, p2, d2, ratio], \
+                     date_list, vix_index_list, vix_delta_list, v1_list, p1_list, d1_list, v2_list, p2_list, d2_list, ratio_list)
         return records
 
     def save_to_db(self):

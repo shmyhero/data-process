@@ -56,7 +56,7 @@ class PathMgr(object):
         return etf_path
 
     @staticmethod
-    def get_yahoo_option_dir(sub_path = str(datetime.date.today())):
+    def get_yahoo_option_dir(sub_path = datetime.date.today().strftime('%Y-%m-%d')):
         yahoo_option_dir = PathMgr.get_data_path('yahoo_option')
         ensure_dir_exists(yahoo_option_dir)
         if sub_path:
@@ -65,6 +65,11 @@ class PathMgr(object):
             option_path = os.path.join(yahoo_option_dir)
         ensure_dir_exists(option_path)
         return option_path
+
+    @staticmethod
+    def get_yahoo_option_symbol_dir(symbol,  sub_path= datetime.date.today().strftime('%Y-%m-%d')):
+        option_path = PathMgr.get_yahoo_option_dir(sub_path)
+        return os.path.join(option_path, symbol)
 
     @staticmethod
     def get_yahoo_option_path(symbol, date_value):
