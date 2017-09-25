@@ -121,6 +121,7 @@ class YahooScraper(object):
                 content = YahooScraper.ingest_option(symbol, date_value)
                 write_to_file(path, content)
                 time.sleep(1)
+        logger.info('ingest option data completed..')
 
 
 

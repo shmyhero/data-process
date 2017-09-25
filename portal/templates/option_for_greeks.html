@@ -38,14 +38,14 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
 
         function symbol_onchange(){
             symbol = get_selected_option_value("select_symbols")
-            url = "http://" + window.location.host + "/findoption?symbol=" + symbol;
+            url = "http://" + window.location.host + "/optionforgreeks?symbol=" + symbol;
             window.location.href= url
         }
 
         function expiration_onchange(){
             symbol = get_selected_option_value("select_symbols")
             expiration = get_selected_option_value("select_expirations")
-            url = "http://" + window.location.host + "/findoption?symbol=" + symbol + "&expiration=" + expiration;
+            url = "http://" + window.location.host + "/optionforgreeks?symbol=" + symbol + "&expiration=" + expiration;
             window.location.href= url
         }
 

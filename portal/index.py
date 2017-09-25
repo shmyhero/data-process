@@ -217,39 +217,88 @@ class VolEquity(VolBase):
 class FindOption(object):
 
     def __init__(self):
-        pass
+        query_string = web.ctx.query
+        self.query_dic = parse_query_string(query_string)
+
+    def get_symbols(self):
+        return ETFS.get_option_symbols()
+
+    def get_selected_symbol(self):
+        selected_symbol = self.query_dic.get('symbol')
+        if selected_symbol is None:
+            selected_symbol = 'SPY'
+        return selected_symbol
+
+    def get_unexpired_dates(self, selected_symbol):
+        unexpired_dates = OptionDAO().get_all_unexpired_dates(selected_symbol, from_date=TradeTime.get_latest_trade_date() - datetime.timedelta(days=20))
+        return unexpired_dates
+
+    def get_selected_expiration_date(self, unexpired_dates):
+        selected_expiration_date = self.query_dic.get('expiration')
+        if selected_expiration_date is None:
+            for exp_date in filter(lambda x: x > TradeTime.get_latest_trade_date(), unexpired_dates):
+                if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
+                    return exp_date.strftime('%Y-%m-%d')
+
+    def get_strike_prices(self, selected_symbol, selected_expiration_date):
+        strike_prices = OptionDAO().get_strike_prices_by(selected_symbol, selected_expiration_date)
+        return strike_prices
+
+    def get_selected_strike_price(self, selected_symbol, strike_prices):
+        selected_strike_price = self.query_dic.get('strike_price')
+        if selected_strike_price is None:
+            current_equity_price = EquityDAO().get_latest_price(selected_symbol)
+            min_delta = sys.maxint
+            for strike_price in strike_prices:
+                delta = abs(strike_price - current_equity_price)
+                if delta < min_delta:
+                    min_delta = delta
+                    selected_strike_price = strike_price
+        return selected_strike_price
+
+    def get_all_parameters(self):
+        symbols = self.get_symbols()
+        selected_symbol = self.get_selected_symbol()
+        unexpired_dates = self.get_unexpired_dates(selected_symbol)
+        expiration_dates = map(str, unexpired_dates)
+        selected_expiration_date = self.get_selected_expiration_date(unexpired_dates)
+        strike_prices = self.get_strike_prices(selected_symbol, selected_expiration_date)
+        selected_strike_price = self.get_selected_strike_price(selected_symbol, strike_prices)
+        return [','.join(symbols), selected_symbol, ','.join(expiration_dates), selected_expiration_date, ','.join(map(str, strike_prices)), selected_strike_price]
+
+
+class OptionForGreeks(FindOption):
+
+    def __init__(self):
+        FindOption.__init__(self)
 
     #def GET(self):
     #    return render.findoption('SPY,QQQ', 'QQQ', [1, 2], '', [], '')
 
     def GET(self):
-        query_string = web.ctx.query
-        query_dic = parse_query_string(query_string)
-        symbols = ETFS.get_option_symbols()
-        option_dao = OptionDAO()
-        selected_symbol = query_dic.get('symbol')
-        if selected_symbol is None:
-            selected_symbol = 'SPY'
+        parameters = self.get_all_parameters()
+        return render.option_for_greeks(*parameters)
 
-        unexpired_dates = option_dao.get_all_unexpired_dates(selected_symbol, from_date= TradeTime.get_latest_trade_date()-datetime.timedelta(days=20))
-        expiration_dates = map(lambda x: x.strftime('%Y-%m-%d'), unexpired_dates)
-        selected_expiration_date = query_dic.get('expiration')
-        if selected_expiration_date is None:
-            for exp_date in filter(lambda x: x > TradeTime.get_latest_trade_date(), unexpired_dates):
-                if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
-                    selected_expiration_date = exp_date.strftime('%Y-%m-%d')
-                    break
-        strike_prices = option_dao.get_strike_prices_by(selected_symbol, selected_expiration_date)
-        selected_strike_price = query_dic.get('strike_price')
-        if selected_strike_price is None:
-            current_equity_price = EquityDAO().get_latest_price(selected_symbol)
-            min = sys.maxint
-            for strike_price in strike_prices:
-                delta = abs(strike_price - current_equity_price)
-                if delta < min:
-                    min = delta
-                    selected_strike_price = strike_price
-        return render.findoption(','.join(symbols), selected_symbol, ','.join(expiration_dates), selected_expiration_date, ','.join(map(str, strike_prices)), selected_strike_price)
+
+class OptionsForBackTest(FindOption):
+
+    def __init__(self):
+        FindOption.__init__(self)
+
+    @staticmethod
+    def parse_option_quantity(query_str):
+        result = []
+        for record_str in query_str.split(';'):
+            record = record_str.split(',')
+            option_symbol = record[0]
+            quantity = int(record[1])
+            result.append([option_symbol, quantity])
+        return result
+
+    def GET(self):
+        parameters = self.get_all_parameters()
+        parameters.append(self.query_dic.get('option_quantity_list'))
+        return render.options_for_back_test(*parameters)
 
 
 class Greeks(object):
@@ -309,9 +358,10 @@ def run_web_app():
             '/volatility/(.*)', 'Volatility',
             '/volhvsi/(.*)', 'VolHvsI',
             '/volequity/(.*)', 'VolEquity',
-            '/findoption', 'FindOption',
+            '/optionforgreeks', 'OptionForGreeks',
             '/greeks/(.*)', 'Greeks',
-            '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram')
+            '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram',
+            '/optionsforbacktest', 'OptionsForBackTest')
 
     app = web.application(urls, globals())
     app.run()
