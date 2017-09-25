@@ -58,11 +58,6 @@ class OptionCalculater(object):
         return gamma
 
     @staticmethod
-    def get_gamma(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
-        gamma = vollib.black_scholes.greeks.numerical.gamma(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
-        return gamma
-
-    @staticmethod
     def get_vega(underlying_price, strike_price, left_days, risk_free_interest_rate, sigma, flag='c'):
         vega = vollib.black_scholes.greeks.numerical.vega(flag, underlying_price, strike_price, left_days/365.0, risk_free_interest_rate, sigma)
         return vega

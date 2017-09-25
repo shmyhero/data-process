@@ -110,7 +110,6 @@ class YahooScraper(object):
         content = YahooScraper.ingest_with_retry(symbol, url)
         return content
 
-
     @staticmethod
     def ingest_all_options(symbols=ETFS.get_option_symbols()):
         logger = Logger(__name__, PathMgr.get_log_path())

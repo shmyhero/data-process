@@ -25,24 +25,22 @@ class OptionDAO(BaseDAO):
         conn.commit()
         conn.close()
 
-        def get_option_price_by_date(self, option_symbol, date_str, price_field='lastPrice', cursor=None):
-            """
-            :param self:
-            :param option_symbol:
-            :param date_str:
-            :param price_field: lastprice(close price) in default
-            :param cursor:
-            :return:
-            """
-            query_template = """select {} from option_data where symbol = '{}' and tradeDate <= str_to_date('{}', '%Y-%m-%d') order by tradeDate desc limit 1"""
-            query = query_template.format(price_field, option_symbol, date_str)
-            rows = self.select(query, cursor)
-            if rows is None or len(rows) < 1:
-                return None
-            else:
-                return rows[0][0]
-
-
+    def get_option_price_by_date(self, option_symbol, date_str, price_field='lastPrice', cursor=None):
+        """
+        :param self:
+        :param option_symbol:
+        :param date_str:
+        :param price_field: lastprice(close price) in default
+        :param cursor:
+        :return:
+        """
+        query_template = """select {} from option_data where symbol = '{}' and tradeDate <= str_to_date('{}', '%Y-%m-%d') order by tradeDate desc limit 1"""
+        query = query_template.format(price_field, option_symbol, date_str)
+        rows = self.select(query, cursor)
+        if rows is None or len(rows) < 1:
+            return None
+        else:
+            return rows[0][0]
 
     def get_all_unexpired_dates(self, equity_symbol, from_date=TradeTime.get_latest_trade_date(), cursor = None):
         query_template = """select distinct(expirationDate) from  option_data 
@@ -149,16 +147,14 @@ class OptionDAO(BaseDAO):
         rows = self.get_delta(option_symbol)
         return rows
 
-    #found the trade time error in database, fix it...
-    def fix_date_error(self):
-        query = """update option_data set tradetime = str_to_date('2017-08-04', '%Y-%m-%d') where tradeTime <>  the_date and tradeTime = str_to_date('2017-08-05', '%Y-%m-%d')"""
-        self.execute_query(query)
+    def get_vix_options(self):
+        query = """select symbol, tradeTime, daysToExpiration, strikePrice, optiontype from option_data where underlingSymbol = '^VIX'"""
+        return self.select(query)
 
-    def delete_option(self, underlying_symbol):
-        query_template = """delete from option_data where underlingSymbol = '{}'"""
-        query = query_template.format(underlying_symbol)
-        self.execute_query(query)
-
+    def update_delta_for_vix_options(self, symbol, tradeTime, delta, cursor):
+        query_template = """update option_data set delta = {} where underlingSymbol = '^VIX' and symbol = '{}' and tradeTime = '{}'"""
+        query = query_template.format(delta, symbol, tradeTime)
+        self.execute_query(query, cursor)
 
 
 if __name__ == '__main__':
@@ -168,9 +164,8 @@ if __name__ == '__main__':
     #print OptionDAO().get_corresponding_implied_volatilities('SPY', 245.38)
     #print OptionDAO().get_spike_prices_by('SPY', '2017-09-15')
     #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
-    #print OptionDAO().get_option_by_symbol('SPY170915C00245000')
-    #OptionDAO().fix_date_error()
-    OptionDAO().delete_option('^VIX')
+    print OptionDAO().get_option_by_symbol('SPY170915C00245000')
+
 
 
 

@@ -10,6 +10,7 @@ from dataaccess.raw2db import RawToDB
 from dataaccess.dataexporter import DataExporter
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
+from dataaccess.yahoooptionparser import YahooOptionParser
 from aggregation.agg_spyvixhedge import AGGSPYVIXHedge
 
 
@@ -29,6 +30,8 @@ def process_for_option_vix():
 
 
 def process_for_yahoo_data():
+    YahooScraper.ingest_all_options(['^VIX'])
+    YahooOptionParser.update_delta()
     YahooScraper.ingest_recently_historyical_etf()
     YahooEquityDAO().save_all()
 
