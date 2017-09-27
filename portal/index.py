@@ -3,6 +3,8 @@ import datetime
 import cStringIO
 import sys
 from abc import abstractmethod
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from utils.querystringparser import parse_query_string
 from utils.cachehelper import CacheMan
 from utils.maths import half_adjust_round
@@ -17,8 +19,7 @@ from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.optiondao import OptionDAO
 from dataaccess.spyvixhedgedao import SPYVIXHedgeDAO
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg
+from research.optionbacktest import OptionBackTest
 
 
 render = web.template.render('portal/templates')
@@ -239,6 +240,8 @@ class FindOption(object):
             for exp_date in filter(lambda x: x > TradeTime.get_latest_trade_date(), unexpired_dates):
                 if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
                     return exp_date.strftime('%Y-%m-%d')
+        else:
+            return selected_expiration_date
 
     def get_strike_prices(self, selected_symbol, selected_expiration_date):
         strike_prices = OptionDAO().get_strike_prices_by(selected_symbol, selected_expiration_date)
@@ -284,16 +287,6 @@ class OptionsForBackTest(FindOption):
 
     def __init__(self):
         FindOption.__init__(self)
-
-    @staticmethod
-    def parse_option_quantity(query_str):
-        result = []
-        for record_str in query_str.split(';'):
-            record = record_str.split(',')
-            option_symbol = record[0]
-            quantity = int(record[1])
-            result.append([option_symbol, quantity])
-        return result
 
     def GET(self):
         parameters = self.get_all_parameters()
@@ -349,6 +342,48 @@ class GreeksDiagram(object):
         return None
 
 
+class OptionBackTestDiagram(object):
+
+    def __init__(self):
+        query_string = web.ctx.query
+        self.query_dic = parse_query_string(query_string)
+        self.option_quantity_query = self.query_dic.get('option_quantity_list')
+        self.option_quantity_list = OptionBackTestDiagram.parse_option_quantity(self.option_quantity_query)
+        self.start_date = datetime.datetime.strptime(self.query_dic.get('start_date'), '%Y-%m-%d').date()
+
+    @staticmethod
+    def parse_option_quantity(query_str):
+        result = []
+        for record_str in query_str.split(';'):
+            record = record_str.split(',')
+            option_symbol = record[0]
+            quantity = int(record[1])
+            long_short = record[2]
+            result.append([option_symbol, quantity, long_short])
+        return result
+
+    def plot(self, date_value_list, label):
+        dates = map(lambda x: x[0], date_value_list)
+        values = map(lambda x: x[1], date_value_list)
+        fig = Figure(figsize=[12, 8])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, values, label=label)
+        ax.legend(loc='upper left')
+        ax.grid()
+
+        # convert to canvas
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+    def GET(self):
+        date_values = OptionBackTest(self.option_quantity_list, self.start_date).get_values()
+        return self.plot(date_values, self.option_quantity_query)
+
+
+
 
 def run_web_app():
     urls = ('/', 'Index',
@@ -361,7 +396,8 @@ def run_web_app():
             '/optionforgreeks', 'OptionForGreeks',
             '/greeks/(.*)', 'Greeks',
             '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram',
-            '/optionsforbacktest', 'OptionsForBackTest')
+            '/optionsforbacktest', 'OptionsForBackTest',
+            '/optionbacktest', 'OptionBackTestDiagram')
 
     app = web.application(urls, globals())
     app.run()

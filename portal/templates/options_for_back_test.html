@@ -5,9 +5,9 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
-        body {font-size:50px}
-        select {height:50px; width:300px; font-size:37px}
-        select option { font-size: 30px;   }
+        body {font-size:37px}
+        select {height:50px; width:300px; font-size:30px}
+        select option { font-size: 23px;   }
     </style>
     <script lang="javascript">
         function init_select(control_id, options_str, selected_option) {
@@ -33,35 +33,63 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
         }
 
         function refresh_table_options() {
-            hidden_control = document.getElementById('hidden_options');
-            table_control =  document.getElementById('table_options');
-            alert(hidden_control.value);
-            //TODO: complete refresh table options...
+            var hidden_control = document.getElementById('hidden_options');
+            var table_control =  document.getElementById('table_options');
+            hidden_control_value = hidden_control.value;
+            if (hidden_control_value != null && hidden_control_value != 'undefined') {
+                var records = hidden_control_value.split(';');
+                var inner_html = '<tr><th>Option Symbol</th><th>Quantity</th><th>Long/Short</th></tr>';
+                for (var i in records) {
+                    inner_html += '<tr>';
+                    var values = records[i].split(',');
+                    for (var j in values) {
+                        inner_html += '<td>' + values[j] + '</td>';
+                    }
+                    inner_html += '</tr>';
+                }
+                table_control.innerHTML = inner_html;
+            }
+        }
+
+        function init_start_date() {
+            var d = new Date();
+            d.setMonth(d.getMonth() - 1);
+            document.getElementById('input_start_date').valueAsDate = d;
         }
 
         function init() {
             init_select("select_symbols", "$symbols", "$selected_symbol");
             init_select("select_expirations", "$expiration_dates", "$selected_expiration_date");
             init_select("select_strike_prices", "$strike_prices", "$selected_strike_price");
-            init_hidden_options()
+            init_hidden_options();
+            refresh_table_options();
+            init_start_date();
         }
 
         function get_selected_option_value(control_id) {
             control = document.getElementById(control_id);
             selected_value = control.options[control.selectedIndex].text;
-            return selected_value
+            return selected_value;
         }
 
         function symbol_onchange(){
-            symbol = get_selected_option_value("select_symbols")
-            url = "http://" + window.location.host + "/optionsforbacktest?symbol=" + symbol;
-            window.location.href= url
+            symbol = get_selected_option_value("select_symbols");
+            hidden_control = document.getElementById('hidden_options');
+            url = "http://" + window.location.host + "/optionsforbacktest?symbol=" + symbol
+            if (hidden_control.value != null && hidden_control.value != '' && hidden_control.value != 'undefined') {
+                url += "&option_quantity_list=" + hidden_control.value;
+            }
+            window.location.href= url;
         }
 
         function expiration_onchange(){
             symbol = get_selected_option_value("select_symbols");
             expiration = get_selected_option_value("select_expirations");
-            url = "http://" + window.location.host + "/optionsforbacktest?symbol=" + symbol + "&expiration=" + expiration;
+            hidden_control = document.getElementById('hidden_options');
+            url = "http://" + window.location.host + "/optionsforbacktest?symbol=" + symbol + "&expiration=" + expiration
+            if (hidden_control.value != null && hidden_control.value != '' && hidden_control.value != 'undefined') {
+                url += "&option_quantity_list=" + hidden_control.value;
+            }
             window.location.href= url;
         }
 
@@ -75,14 +103,15 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
             strike_price = get_selected_option_value("select_strike_prices");
             option_type = get_selected_option_value("select_option_types");
             option_symbol = symbol + expiration.replace(/-/g, "").substring(2) + option_type[0] + PrefixInteger(strike_price * 1000, 8);
-            return option_symbol
+            return option_symbol;
         }
 
         function add_option() {
             option_symbol = get_selected_option();
             hidden_control = document.getElementById('hidden_options');
             input_quantity_control = document.getElementById('input_quantity');
-            record = option_symbol + "," + input_quantity_control.value;
+            long_or_short = get_selected_option_value('select_long_short');
+            record = option_symbol + "," + input_quantity_control.value + "," + long_or_short;
             if (hidden_control.value == null) {
                 hidden_control.value = record;
             }
@@ -90,6 +119,18 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
                 hidden_control.value += ";" + record;
             }
             refresh_table_options();
+        }
+
+        function back_test() {
+            hidden_control = document.getElementById('hidden_options');
+            if (hidden_control.value == null) {
+                alert('Please add options');
+            }
+            else {
+                start_date = document.getElementById('input_start_date').value;
+                url = "http://" + window.location.host + "/optionbacktest?option_quantity_list=" + hidden_control.value + "&start_date=" + start_date;
+                window.location.href= url;
+            }
         }
     </script>
 </head>
@@ -106,18 +147,24 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
         <option>Put</option>
     </select>
     <br/>
+    Option type:<select id = "select_long_short">
+        <option>Long</option>
+        <option>Short</option>
+    </select>
+    <br/>
     Quantity:<input type="text" id="input_quantity"  size="5" style = "height:50px; font-size:37px" value ="1"/>
+    <br/>
     <br/>
     <button value = "Add"  style = "height:50px; width:100px; font-size:37px" onclick="add_option()"> Add </button>
     <hidden id = hidden_options></hidden>
-    <table id = "table_options" border="1">
-    $if option_quantity_str is not None and len(option_quantity_str) > 0:
-        $for record_str in option_quantity_str.split(';'):
-            <tr>
-            $for val in record_str.split(','):
-                <td>$val</td>
-            </tr>
+    <br/>
+    <table id = "table_options" border="1" cellspacing="0" style = "font-size:22px;">
     </table>
+    <br/>
+    <input id = "input_start_date" type="date" />
+    <br/>
+    <br/>
+    <button  style = "height:50px; width:300px; font-size:37px" onclick="back_test()"> Back Test </button>
 
 </body>
 </html>

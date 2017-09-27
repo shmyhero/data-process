@@ -31,6 +31,7 @@ def process_for_option_vix():
 
 def process_for_yahoo_data():
     YahooScraper.ingest_all_options(['^VIX'])
+    YahooOptionParser.save_to_db()
     YahooOptionParser.update_delta()
     YahooScraper.ingest_recently_historyical_etf()
     YahooEquityDAO().save_all()
