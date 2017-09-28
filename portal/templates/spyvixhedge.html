@@ -37,11 +37,25 @@ Notice: the vxx start from 2017-08-24
     $for record in report:
         <tr>
             $if record[2] > 2:
-                $for val in record:
-                    <td><font size="5" color="red">$val</font></td>
+                $for i in range(len(record)):
+                    $if 1 <= i <= 2:
+                        <td style="background-color:#F6CECE"><font size="5" color="red">$record[i]</font></td>
+                    $elif 3 <= i <= 5:
+                        <td style="background-color:#E3F6CE"><font size="5" color="red">$record[i]</font></td>
+                    $elif 6 <= i <= 8:
+                        <td style="background-color:#CED8F6"><font size="5" color="red">$record[i]</font></td>
+                    $else:
+                        <td ><font size="5" color="red">$record[i]</font></td>
             $else:
-                $for val in record:
-                    <td><font size="5">$val</font></td>
+                $for i in range(len(record)):
+                    $if 1 <= i <= 2:
+                        <td style="background-color:#F6CECE"><font size="5">$record[i]</font></td>
+                    $elif 3 <= i <= 5:
+                        <td style="background-color:#E3F6CE"><font size="5">$record[i]</font></td>
+                    $elif 6 <= i <= 8:
+                        <td style="background-color:#CED8F6"><font size="5">$record[i]</font></td>
+                    $else:
+                        <td ><font size="5">$record[i]</font></td>
         </tr>
 </table>
 
