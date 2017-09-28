@@ -67,7 +67,7 @@ class AGGSPYVIXHedge(object):
         for date_price in filtered_equity_records:
             expiration_date = self.find_following_expiration_date(all_unexpired_dates, date_price[0])
             # expiration_date = self.option_dao.get_following_expirationDate(equity_symbol, date_price[0])
-            option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], imp_only=True,
+            option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], imp_only=True, current_date=date_price[0],
                                                         days_to_current_date=days_to_current_date, cursor=cursor)
             delta = self.option_dao.get_delta_by_symbol_and_date(option_symbol, date_price[0], cursor)
             if delta is not None:
