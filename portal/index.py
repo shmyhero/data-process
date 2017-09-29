@@ -58,6 +58,10 @@ class Credit:
     def GET(self):
         credits_df = NYSECreditDAO().get_all_margin_debt()
         spy_df = YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['lastdate', 'adjcloseprice'])
+        #print credits_df
+        #print spy_df
+        credits_df = credits_df[credits_df.lastDate >= '2008-01-01']
+        spy_df = spy_df[spy_df.lastdate >= datetime.date(2008, 1, 1)]
         dates = map(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d'), credits_df['lastDate'])
         debt = credits_df['margin_debt']
         spy_prices = spy_df['adjcloseprice'][0:len(dates)]
@@ -68,6 +72,7 @@ class Credit:
         ax2.plot(dates, spy_prices, 'b-', label='SPY')
         ax1.legend(loc='upper left')
         ax2.legend(loc='upper center')
+        ax1.grid()
         canvas = FigureCanvasAgg(fig)
 
         # write image data to a string buffer and get the PNG image bytes
@@ -230,8 +235,8 @@ class FindOption(object):
             selected_symbol = 'SPY'
         return selected_symbol
 
-    def get_unexpired_dates(self, selected_symbol):
-        unexpired_dates = OptionDAO().get_all_unexpired_dates(selected_symbol, from_date=TradeTime.get_latest_trade_date() - datetime.timedelta(days=20))
+    def get_unexpired_dates(self, selected_symbol, delta_days = 20):
+        unexpired_dates = OptionDAO().get_all_unexpired_dates(selected_symbol, from_date=TradeTime.get_latest_trade_date() - datetime.timedelta(days=delta_days))
         return unexpired_dates
 
     def get_selected_expiration_date(self, unexpired_dates):
@@ -287,6 +292,9 @@ class OptionsForBackTest(FindOption):
 
     def __init__(self):
         FindOption.__init__(self)
+
+    def get_unexpired_dates(self, selected_symbol, delta_days = 10000):
+        return super(OptionsForBackTest, self).get_unexpired_dates(selected_symbol, delta_days)
 
     def GET(self):
         parameters = self.get_all_parameters()

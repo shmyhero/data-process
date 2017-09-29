@@ -36,6 +36,7 @@ class AGGSPYVIXHedge(object):
         self.hv_vix = list(self.calculate_f1_volatilities())
         vxx_records = YahooEquityDAO().get_all_equity_price_by_symbol('VXX', from_date_str)
         self.vxx_delta_records = self.get_delta_records('VXX', vxx_records)
+        #self.vxx_delta_records = self.get_delta_records('^VIX', self.vix_index_records)
 
     def calculate_f1_volatilities(self):
         symbols = list(set(map(lambda x: x[2], self.vixf1_records)))
@@ -70,6 +71,7 @@ class AGGSPYVIXHedge(object):
             option_symbol = self.option_dao.find_symbol(equity_symbol, expiration_date, date_price[1], imp_only=True, current_date=date_price[0],
                                                         days_to_current_date=days_to_current_date, cursor=cursor)
             delta = self.option_dao.get_delta_by_symbol_and_date(option_symbol, date_price[0], cursor)
+            #print [date_price[0], delta]
             if delta is not None:
                 delta_list.append([date_price[0], delta])
         conn.commit()
