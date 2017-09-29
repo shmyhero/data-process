@@ -19,6 +19,7 @@ from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.optiondao import OptionDAO
 from dataaccess.spyvixhedgedao import SPYVIXHedgeDAO
+from dataaccess.optionskewdao import OptionSkewDAO
 from research.optionbacktest import OptionBackTest
 
 
@@ -220,6 +221,26 @@ class VolEquity(VolBase):
         return data
 
 
+class OptionVolSkew(object):
+
+    def GET(self, symbol):
+        df = OptionSkewDAO().select_by_symbol(symbol)
+        dates = df['tradeTime'].get_values()
+        skews = df['skew'].get_values()
+        fig = Figure(figsize=[12, 6])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, skews, label='option volatility skew')
+        ax.legend(loc='upper left')
+        ax.grid()
+
+        # conver to canvas
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
 class FindOption(object):
 
     def __init__(self):
@@ -401,6 +422,7 @@ def run_web_app():
             '/volatility/(.*)', 'Volatility',
             '/volhvsi/(.*)', 'VolHvsI',
             '/volequity/(.*)', 'VolEquity',
+            '/optionvolskew/(.*)', 'OptionVolSkew',
             '/optionforgreeks', 'OptionForGreeks',
             '/greeks/(.*)', 'Greeks',
             '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram',
