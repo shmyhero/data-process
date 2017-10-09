@@ -411,9 +411,6 @@ class OptionBackTestDiagram(object):
         date_values = OptionBackTest(self.option_quantity_list, self.start_date).get_values()
         return self.plot(date_values, self.option_quantity_query)
 
-
-
-
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
