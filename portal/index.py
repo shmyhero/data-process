@@ -8,7 +8,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from utils.querystringparser import parse_query_string
 from utils.cachehelper import CacheMan
 from utils.maths import half_adjust_round
-from common.etfs import ETFS
+from common.symbols import Symbols
 from common.optioncalculater import OptionCalculater
 from common.tradetime import TradeTime
 from entities.vix import VIX
@@ -248,7 +248,7 @@ class FindOption(object):
         self.query_dic = parse_query_string(query_string)
 
     def get_symbols(self):
-        return ETFS.get_option_symbols()
+        return Symbols.get_option_symbols()
 
     def get_selected_symbol(self):
         selected_symbol = self.query_dic.get('symbol')

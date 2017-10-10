@@ -5,7 +5,7 @@ import datetime
 import time
 from utils.iohelper import write_to_file
 from utils.stringhelper import string_fetch
-from common.etfs import ETFS
+from common.symbols import Symbols
 from common.pathmgr import PathMgr
 from utils.logger import Logger
 
@@ -81,9 +81,9 @@ class YahooScraper(object):
         return ""
 
     @staticmethod
-    def ingest_all_historical_etf(date_from = '1993-01-29', date_to = datetime.date.today().strftime("%Y-%m-%d")):
+    def ingest_all_historical_etf(date_from = '1993-01-29', date_to = datetime.date.today().strftime("%Y-%m-%d"), symbols = Symbols.get_all_symbols()):
         logger = Logger(__name__, PathMgr.get_log_path())
-        for symbol in ETFS.get_all_symbols():
+        for symbol in symbols:
             logger.info('ingest for %s...' % symbol)
             path = PathMgr.get_historical_etf_path(symbol)
             content = YahooScraper.download_quote(symbol, date_from, date_to)
@@ -111,7 +111,7 @@ class YahooScraper(object):
         return content
 
     @staticmethod
-    def ingest_all_options(symbols=ETFS.get_option_symbols()):
+    def ingest_all_options(symbols=Symbols.get_option_symbols()):
         logger = Logger(__name__, PathMgr.get_log_path())
         for symbol in symbols:
             logger.info('ingest option data for %s...' % symbol)
@@ -131,6 +131,8 @@ if __name__ == '__main__':
     #YahooScraper.get_option_expirations('SPY')
     #print YahooScraper.ingest_all_etf_options()
     #print YahooScraper.ingest_recently_historyical_etf()
-    print YahooScraper.ingest_all_options(['^VIX'])
+    YahooScraper.ingest_all_historical_etf(symbols = ['^SPX'])
+    #print YahooScraper.ingest_all_options(['^VIX'])
+
 
 

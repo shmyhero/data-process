@@ -2,7 +2,7 @@ import os.path
 import json
 import datetime
 import glob
-from common.etfs import ETFS
+from common.symbols import Symbols
 from common.pathmgr import PathMgr
 from entities.equity import Equity
 from entities.option import Option
@@ -50,7 +50,7 @@ class RawDataParser(object):
         #return equity
 
     def load_all(self):
-        for symbol in ETFS.get_option_symbols():
+        for symbol in Symbols.get_option_symbols():
             equity = self.load_equity_data_by_symbol(symbol)
             self.equity_records.append(equity)
             option_list = list(self.load_option_data_by_symbol(symbol, equity.tradeTime))
@@ -62,12 +62,15 @@ class RawDataParser(object):
 
 if __name__ == '__main__':
     #parser = RawDataParser(PathMgr.get_data_path(str(datetime.date.today())));
-    parser = RawDataParser(PathMgr.get_raw_data_path('2017-07-25'));
+    parser = RawDataParser(PathMgr.get_raw_data_path('2017-10-10'));
     #parser.load_equity_data_by_symbol('UNG')
     #parser.load_option_data_by_symbol('UNG')
     #vix_list = list(parser.load_vix_data_by_symbol())
     #print len(vix_list)
     #print vix_list[8].to_json()
-    parser.load_all()
+    #parser.load_all()
     #print parser.vix_records
+    records = list(parser.load_vix_data_by())
+    from dataaccess.vixdao import VIXDAO
+    VIXDAO().insert(records)
 

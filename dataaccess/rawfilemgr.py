@@ -53,7 +53,8 @@ class RawFileMgr(object):
 
 
 if __name__ == '__main__':
-    RawFileMgr().clean_obsoleted_data()
+    #RawFileMgr().clean_obsoleted_data()
+    RawFileMgr().backup()
 
 
 

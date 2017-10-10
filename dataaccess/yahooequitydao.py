@@ -1,6 +1,6 @@
 import pandas as pd
 from dataaccess.basedao import BaseDAO
-from common.etfs import ETFS
+from common.symbols import Symbols
 from common.pathmgr import PathMgr
 
 
@@ -56,7 +56,7 @@ class YahooEquityDAO(BaseDAO):
         conn.close()
 
     def insert_all(self):
-        for symbol in ETFS.get_all_symbols():
+        for symbol in Symbols.get_all_symbols():
             self.logger.info('insert data for %s...' %symbol)
             path = PathMgr.get_historical_etf_path(symbol)
             df = pd.read_csv(path)
@@ -75,8 +75,8 @@ class YahooEquityDAO(BaseDAO):
         conn.commit()
         conn.close()
 
-    def save_all(self):
-        for symbol in ETFS.get_all_symbols():
+    def save_all(self, symbols = Symbols.get_all_symbols()):
+        for symbol in symbols:
             self.logger.info('save data for %s...' %symbol)
             path = PathMgr.get_historical_etf_path(symbol)
             df = pd.read_csv(path)
@@ -84,7 +84,7 @@ class YahooEquityDAO(BaseDAO):
 
 
 if __name__ == '__main__':
-    #YahooEquityDAO().save_all()
+    YahooEquityDAO().save_all(['^SPX'])
     #print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
     #print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
-    print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
+    #print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')

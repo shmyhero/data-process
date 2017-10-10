@@ -1,7 +1,7 @@
 from utils.listhelper import flatten
 
 
-class ETFS(object):
+class Symbols(object):
 
     dic = {
        'Large Cap'             :['SPY','IVV','VOO','IWB'],
@@ -27,20 +27,25 @@ class ETFS(object):
        'Bonds'                 :['BND','AGG','JNK','LQD'],
        'T-Bond'                :['TLT','IEF','IEI','SHY','BIL'],
        'Precious Metals Miners':['SIL','GDX','GDXJ'],
-       'Volatility'            :['VXX', 'VXZ', 'UVXY','SVXY'] #, 'XIV', 'ZIV'] # no options for XIV and ZIV
+       'Volatility'            :['VXX', 'VXZ', 'UVXY','SVXY'], #, 'XIV', 'ZIV'] # no options for XIV and ZIV
+       'Others'                :['DIA', 'EFA', 'EWJ', 'SSO', 'QLD', 'TQQQ', 'TLH', 'HYG', 'UBT', 'TMF', 'VWO', 'VNQ', 'GSG'],
+       'Stocks'                :['LMT', 'MO', 'CME']
         }
 
-    non_option_symbols = ['XIV', 'ZIV', 'EFA', 'EWJ', 'HYG']
+    non_option_symbols = ['XIV', 'ZIV', 'EDV']
+
+    indexes = ['INDU', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX', '^SPX']
 
     @staticmethod
     def get_option_symbols():
-        return sorted(flatten(ETFS.dic.values()))
+        return sorted(flatten(Symbols.dic.values()))
 
     @staticmethod
     def get_all_symbols():
-        option_symbols = ETFS.get_option_symbols()
-        option_symbols.extend(ETFS.non_option_symbols)
-        return sorted(option_symbols)
+        symbols = Symbols.get_option_symbols()
+        symbols.extend(Symbols.non_option_symbols)
+        symbols.extend(Symbols.indexes)
+        return sorted(symbols)
 
 
 
