@@ -103,6 +103,7 @@ $def with (symbols, selected_symbol, expiration_dates, selected_expiration_date,
             strike_price = get_selected_option_value("select_strike_prices");
             option_type = get_selected_option_value("select_option_types");
             option_symbol = symbol + expiration.replace(/-/g, "").substring(2) + option_type[0] + PrefixInteger(strike_price * 1000, 8);
+            option_symbol = option_symbol.replace("^", "")
             return option_symbol;
         }
 

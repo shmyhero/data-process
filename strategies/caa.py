@@ -76,7 +76,7 @@ class CAA(object):
 #mu,sigma,weights=cla.efFrontier(1000)
 
 if __name__ == '__main__':
-    caa = CAA(['SPY', 'QQQ','BIL'], [[0.00],[0.00],[0.00]], [[1],[1],[1]])
+    caa = CAA(['SPY', 'QQQ'], [[0.00],[0.00]], [[1],[1]])
     #print caa.get_covar(1)
     #print caa.get_mean_by_prices_list(1)
-    print caa.rebalance(1, 0.2)
+    print caa.rebalance(1, 0.08)

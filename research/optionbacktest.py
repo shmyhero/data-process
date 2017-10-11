@@ -24,7 +24,7 @@ class OptionQuantity(object):
             date = self.start_date + datetime.timedelta(days=i)
             if TradeTime.is_trade_day(date):
                 value = DataProvider.get_price_by_date(self.option_symbol, date)
-                print 'date=%s,value=%s'%(date,value)
+                #print 'date=%s,value=%s'%(date,value)
                 if value is not None:
                     if self.long_short.lower() == 'short':
                         value = -value

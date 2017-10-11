@@ -248,7 +248,9 @@ class FindOption(object):
         self.query_dic = parse_query_string(query_string)
 
     def get_symbols(self):
-        return Symbols.get_option_symbols()
+        symbols =  Symbols.get_option_symbols()
+        symbols.append('^VIX')
+        return symbols
 
     def get_selected_symbol(self):
         selected_symbol = self.query_dic.get('symbol')
@@ -263,9 +265,14 @@ class FindOption(object):
     def get_selected_expiration_date(self, unexpired_dates):
         selected_expiration_date = self.query_dic.get('expiration')
         if selected_expiration_date is None:
-            for exp_date in filter(lambda x: x > TradeTime.get_latest_trade_date(), unexpired_dates):
+            filtered_dates = filter(lambda x: x > TradeTime.get_latest_trade_date(), unexpired_dates)
+            for exp_date in filtered_dates:
                 if exp_date.weekday() == 4 and 14 < exp_date.day < 22:
                     return exp_date.strftime('%Y-%m-%d')
+            # if not find, return the first element of filtered dates,
+            # e.g. ^VIX is a special option, the expiration date is not the third Friday likes other option...
+            if len(filtered_dates) > 0:
+                return filtered_dates[0].strftime('%Y-%m-%d')
         else:
             return selected_expiration_date
 
@@ -276,7 +283,10 @@ class FindOption(object):
     def get_selected_strike_price(self, selected_symbol, strike_prices):
         selected_strike_price = self.query_dic.get('strike_price')
         if selected_strike_price is None:
-            current_equity_price = EquityDAO().get_latest_price(selected_symbol)
+            if selected_symbol == '^VIX':
+                current_equity_price = YahooEquityDAO().get_latest_price(selected_symbol)
+            else:
+                current_equity_price = EquityDAO().get_latest_price(selected_symbol)
             min_delta = sys.maxint
             for strike_price in strike_prices:
                 delta = abs(strike_price - current_equity_price)
@@ -331,7 +341,8 @@ class Greeks(object):
     def fix_for_record(self, record):
         new_record = list(record)
         for i in range(5):
-            new_record[2 + i] = half_adjust_round(record[2 + i], 3)
+            if new_record[2+i] is not None:
+                new_record[2 + i] = half_adjust_round(record[2 + i], 3)
         return new_record
 
     def GET(self, symbol):

@@ -68,7 +68,7 @@ class EquityDAO(BaseDAO):
         return df
 
     def get_latest_price(self, symbol):
-        query_template = """select lastPrice from equity where symbol = '{}' limit 1"""
+        query_template = """select lastPrice from equity where symbol = '{}' order by tradetime desc limit 1"""
         query = query_template.format(symbol)
         rows = self.select(query)
         return rows[0][0]
@@ -79,4 +79,5 @@ if __name__ == '__main__':
     #print df
     #df_left =
     #print df[df.symbol.any(['IXC', 'IXP', 'UNG', 'IDU', 'GLD'])]
-    print EquityDAO().get_date_price_list('SPY')
+    #print EquityDAO().get_date_price_list('SPY')
+    print EquityDAO().get_latest_price('SPY')

@@ -43,6 +43,12 @@ class YahooEquityDAO(BaseDAO):
         df.columns = columns
         return df
 
+    def get_latest_price(self, symbol):
+        query_template = """select closePrice from yahoo_equity where symbol = '{}' order by tradeDate desc limit 1"""
+        query = query_template.format(symbol)
+        rows = self.select(query)
+        return rows[0][0]
+
     def insert(self, symbol, df):
         query_template = """insert into yahoo_equity (symbol,tradeDate,openPrice,highPrice,lowPrice,closePrice,adjClosePrice,volume) values ('{}','{}',{},{},{},{},{},{})"""
         conn = BaseDAO.get_connection()
@@ -85,6 +91,7 @@ class YahooEquityDAO(BaseDAO):
 
 if __name__ == '__main__':
     YahooEquityDAO().save_all(['^SPX'])
+    #print YahooEquityDAO().get_latest_price('SPY')
     #print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
     #print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
     #print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
