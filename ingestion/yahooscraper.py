@@ -99,9 +99,12 @@ class YahooScraper(object):
     def get_option_expirations(symbol):
         url = "https://finance.yahoo.com/quote/{}/options?p={}".format(symbol, symbol)
         content = YahooScraper.ingest_with_retry(symbol, url)
-        content = string_fetch(content, 'select class=\"Fz(s)\"', '</div>')
-        items = content.split('><option')
-        values = map(lambda x: string_fetch(x, 'value=\"', '\"'),  items[1:])
+        content = string_fetch(content, '\"underlyingSymbol\":\"^VIX\"},', '\"sortState\":1}}}')
+        items = content.split('volume')
+        values = map(lambda x: string_fetch(x, '\"expiration\":{\"raw\":', ','), items[:-1])
+        #content = string_fetch(content, 'select class=\"Fz(s)\"', '</div>')
+        #items = content.split('><option')
+        #values = map(lambda x: string_fetch(x, 'value=\"', '\"'),  items[1:])
         return values
 
     @staticmethod
@@ -131,8 +134,9 @@ if __name__ == '__main__':
     #YahooScraper.get_option_expirations('SPY')
     #print YahooScraper.ingest_all_etf_options()
     #print YahooScraper.ingest_recently_historyical_etf()
-    YahooScraper.ingest_all_historical_etf(symbols = ['^SPX'])
-    #print YahooScraper.ingest_all_options(['^VIX'])
+    #YahooScraper.ingest_all_historical_etf(symbols = ['^SPX'])
+    #YahooScraper.ingest_all_historical_etf(symbols=['^GSPC', '^DJI'])
+    print YahooScraper.ingest_all_options(['^VIX'])
 
 
 

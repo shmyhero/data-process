@@ -88,4 +88,5 @@ class YahooOptionParser(object):
 
 
 if __name__ == '__main__':
+    YahooOptionParser.save_to_db()
     YahooOptionParser.update_delta()

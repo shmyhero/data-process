@@ -34,7 +34,7 @@ class Symbols(object):
 
     non_option_symbols = ['XIV', 'ZIV', 'EDV']
 
-    indexes = ['INDU', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX', '^SPX']
+    indexes = ['^DJI', '^GSPC', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX']
 
     @staticmethod
     def get_option_symbols():
