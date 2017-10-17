@@ -20,7 +20,7 @@ class OptionQuantity(object):
         expiration_date = self.get_expiration_date()
         latest_date = min(TradeTime.get_latest_trade_date(), expiration_date)
         days = (latest_date - self.start_date).days
-        for i in range(days):
+        for i in range(days+1):
             date = self.start_date + datetime.timedelta(days=i)
             if TradeTime.is_trade_day(date):
                 value = DataProvider.get_price_by_date(self.option_symbol, date)
