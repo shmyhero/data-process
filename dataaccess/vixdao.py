@@ -122,6 +122,7 @@ class VIXDAO(BaseDAO):
                 symbol_f2 = VIX.get_f2_by_date(date)
                 records_f1.append([date, symbol_dic[symbol_f1].get(date), symbol_f1])
                 records_f2.append([date, symbol_dic[symbol_f2].get(date), symbol_f2])
+        self.logger.info([records_f1[-1], records_f2[-1]])
         return (records_f1, records_f2)
 
     def get3vix(self, date_str = TradeTime.get_latest_trade_date().strftime('%Y-%m-%d')):

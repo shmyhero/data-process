@@ -1,4 +1,5 @@
 import traceback
+import datetime
 import mysql.connector
 from utils.logger import Logger
 from common.pathmgr import PathMgr
@@ -8,7 +9,7 @@ from common.configmgr import ConfigMgr
 class BaseDAO(object):
 
     def __init__(self):
-        self.logger = Logger(__name__, PathMgr.get_log_path())
+        self.logger = Logger(self.__class__.__name__, PathMgr.get_log_path())
 
     @staticmethod
     def get_connection():

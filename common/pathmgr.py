@@ -57,14 +57,10 @@ class PathMgr(object):
 
     @staticmethod
     def get_yahoo_option_dir(sub_path = datetime.date.today().strftime('%Y-%m-%d')):
-        yahoo_option_dir = PathMgr.get_data_path('yahoo_option')
+        raw_date_dir = PathMgr.get_raw_data_path(sub_path)
+        yahoo_option_dir = os.path.join(raw_date_dir, 'yahoo_option')
         ensure_dir_exists(yahoo_option_dir)
-        if sub_path:
-            option_path = os.path.join(yahoo_option_dir, sub_path)
-        else:
-            option_path = os.path.join(yahoo_option_dir)
-        ensure_dir_exists(option_path)
-        return option_path
+        return yahoo_option_dir
 
     @staticmethod
     def get_yahoo_option_symbol_dir(symbol,  sub_path= datetime.date.today().strftime('%Y-%m-%d')):
@@ -76,4 +72,16 @@ class PathMgr(object):
         symbol_path = os.path.join(PathMgr.get_yahoo_option_dir(), symbol)
         ensure_dir_exists(symbol_path)
         return os.path.join(symbol_path, date_value + '.html')
+
+    @staticmethod
+    def get_bigcharts_option_dir(sub_path = datetime.date.today().strftime('%Y-%m-%d')):
+        raw_date_dir = PathMgr.get_raw_data_path(sub_path)
+        bigcharts_option_dir = os.path.join(raw_date_dir, 'bigcharts_option')
+        ensure_dir_exists(bigcharts_option_dir)
+        return bigcharts_option_dir
+
+    @staticmethod
+    def get_bigcharts_option_symbol_path(symbol,  sub_path= datetime.date.today().strftime('%Y-%m-%d')):
+        option_path = PathMgr.get_bigcharts_option_dir(sub_path)
+        return os.path.join(option_path, symbol + '.html')
 
