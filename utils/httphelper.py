@@ -7,8 +7,11 @@ class HttpHelper:
         pass
 
     @staticmethod
-    def http_get(url):
-        f = urllib2.urlopen(url)
+    def http_get(url, headers=None):
+        if headers:
+            f = urllib2.urlopen(urllib2.Request(url=url, headers=headers))
+        else:
+            f = urllib2.urlopen(url)
         s = f.read()
         return s
 
