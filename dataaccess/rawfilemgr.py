@@ -1,3 +1,4 @@
+import time
 import datetime
 import os.path
 import shutil
@@ -35,7 +36,9 @@ class RawFileMgr(object):
 
     def backup(self, folder_name = str(datetime.date.today())):
         file_path = RawFileMgr.zip_raw_data(folder_name, self.logger)
+        time.sleep(3)
         RawFileMgr.backup_to_s3(file_path, self.logger)
+        time.sleep(3)
         self.logger.info('remove local zip file {} ...'.format(file_path))
         os.remove(file_path)
 
