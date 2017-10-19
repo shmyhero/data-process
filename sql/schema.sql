@@ -63,6 +63,8 @@ create table option_data (
 	unique index option_index (symbol, tradeTime)
 );
 
+alter table option_data add index index_option_underlingSymbol(underlingSymbol);
+
 drop table if exists vix;
 create table vix (
     id int not null auto_increment primary key,
