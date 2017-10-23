@@ -107,7 +107,7 @@ class VIXDAO(BaseDAO):
         return rows
 
     def get_following_vix(self, from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30), to_date = TradeTime.get_latest_trade_date()):
-        self.logger.info('from_date=%s, to_date=%s'%(from_date, to_date))
+        self.logger.info('today=%s, from_date=%s, to_date=%s'%(datetime.datetime.today(), from_date, to_date))
         symbols = VIX.get_vix_symbol_list(from_date, to_date, 2)
         #records_index = self.get_vix_price_by_symbol('VIY00')
         symbol_dic = {}
