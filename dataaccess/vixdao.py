@@ -98,7 +98,8 @@ class VIXDAO(BaseDAO):
             rows = filter(lambda x: TradeTime.is_trade_day(x[0]), rows)
         return rows
 
-    def get_vix_price_by_symbol_and_date(self, symbol, from_date=datetime.datetime(1993,1,1), to_date = TradeTime.get_latest_trade_date(), remove_invalid_date = True):
+    def get_vix_price_by_symbol_and_date(self, symbol, from_date=datetime.datetime(1993,1,1), to_date = None, remove_invalid_date = True):
+        to_date = to_date or TradeTime.get_latest_trade_date()
         query_template = """select dailyDate1dAgo, dailyLastPrice from vix where symbol = '{}' and dailyDate1dAgo >= str_to_date('{}', '%Y-%m-%d') and dailyDate1dAgo <= str_to_date('{}', '%Y-%m-%d') order by dailyDate1dAgo"""
         query = BaseDAO.mysql_format(query_template, symbol, from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d') )
         rows = self.select(query)
@@ -106,7 +107,9 @@ class VIXDAO(BaseDAO):
             rows = filter(lambda x: TradeTime.is_trade_day(x[0]), rows)
         return rows
 
-    def get_following_vix(self, from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30), to_date = TradeTime.get_latest_trade_date()):
+    def get_following_vix(self, from_date = None, to_date = None):
+        from_date = from_date or TradeTime.get_latest_trade_date() - datetime.timedelta(30)
+        to_date = to_date or TradeTime.get_latest_trade_date()
         self.logger.info('today=%s, from_date=%s, to_date=%s'%(datetime.datetime.today(), from_date, to_date))
         symbols = VIX.get_vix_symbol_list(from_date, to_date, 2)
         #records_index = self.get_vix_price_by_symbol('VIY00')
@@ -126,7 +129,8 @@ class VIXDAO(BaseDAO):
         self.logger.info([records_f1[-1], records_f2[-1]])
         return (records_f1, records_f2)
 
-    def get3vix(self, date_str = TradeTime.get_latest_trade_date().strftime('%Y-%m-%d')):
+    def get3vix(self, date_str=None):
+        date_str = date_str or TradeTime.get_latest_trade_date().strftime('%Y-%m-%d')
         following_symbols = list(VIX.get_following_symbols(date_str))
         symbols = ['VIY00']
         symbols.extend(following_symbols[0:3])

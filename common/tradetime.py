@@ -80,7 +80,6 @@ class TradeTime(object):
 
         return half_trade_dates
 
-
     @staticmethod
     def is_half_trade_day(nydate):
         half_trade_dates = list(TradeTime.get_half_trade_dates(nydate.year))

@@ -42,7 +42,8 @@ class OptionDAO(BaseDAO):
         else:
             return rows[0][0]
 
-    def get_all_unexpired_dates(self, equity_symbol, from_date=TradeTime.get_latest_trade_date(), cursor = None):
+    def get_all_unexpired_dates(self, equity_symbol, from_date=None, cursor = None):
+        from_date = from_date or TradeTime.get_latest_trade_date()
         query_template = """select distinct(expirationDate) from  option_data 
                                     where underlingSymbol = '{}' and expirationDate > str_to_date('{}', '%Y-%m-%d')
                                     order by expirationDate"""
@@ -50,7 +51,8 @@ class OptionDAO(BaseDAO):
         rows = self.select(query, cursor)
         return map(lambda x: x[0], rows)
 
-    def get_following_expirationDate(self, equity_symbol, from_date=TradeTime.get_latest_trade_date()):
+    def get_following_expirationDate(self, equity_symbol, from_date=None):
+        from_date = from_date or TradeTime.get_latest_trade_date()
         dates = self.get_all_unexpired_dates(equity_symbol, from_date)
         for d in dates:
             if d.weekday() == 4 and 14 < d.day < 22:
@@ -85,7 +87,7 @@ class OptionDAO(BaseDAO):
         else:
             return rows[0][0]
 
-    def find_symbol(self, equity_symbol, expiration_date, current_equity_price, imp_only = False, current_date = datetime.date.today(), days_to_current_date = 30, option_type='Call', cursor = None):
+    def find_symbol(self, equity_symbol, expiration_date, current_equity_price, imp_only = False, current_date=None, days_to_current_date = 30, option_type='Call', cursor = None):
         """
         find the at the money option symbol
         :param equity_symbol:
@@ -97,6 +99,7 @@ class OptionDAO(BaseDAO):
         :param cursor:
         :return: option symbol like SPY170915C00245000
         """
+        current_date = current_date or  datetime.date.today()
         query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = '{}' group by strikeprice order by min(tradeTime)"""
         query = query_template.format(equity_symbol, expiration_date.strftime('%Y-%m-%d'), option_type)
         rows = self.select(query, cursor)

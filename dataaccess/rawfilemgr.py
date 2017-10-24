@@ -19,7 +19,8 @@ class RawFileMgr(object):
         self.logger = Logger(__name__, PathMgr.get_log_path())
 
     @staticmethod
-    def zip_raw_data(folder_name = str(datetime.date.today()), logger = Logger(None, None, True)):
+    def zip_raw_data(folder_name = None, logger = Logger(None, None, True)):
+        folder_name = folder_name or str(datetime.date.today())
         folder_path = PathMgr.get_raw_data_path(folder_name)
         file_path = os.path.join(PathMgr.get_raw_data_path(), folder_name + '.zip')
         logger.info('zip file form {} to {}...'.format(folder_path, file_path))
@@ -34,11 +35,10 @@ class RawFileMgr(object):
         logger.info('upload file from {} to {}...'.format(file_path, s3_key))
         S3(s3_config['bucket']).upload_file(file_path, s3_key)
 
-    def backup(self, folder_name = str(datetime.date.today())):
+    def backup(self, folder_name = None):
+        folder_name = folder_name or str(datetime.date.today())
         file_path = RawFileMgr.zip_raw_data(folder_name, self.logger)
-        time.sleep(30)
         RawFileMgr.backup_to_s3(file_path, self.logger)
-        time.sleep(3)
         self.logger.info('remove local zip file {} ...'.format(file_path))
         os.remove(file_path)
 

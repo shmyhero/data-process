@@ -81,7 +81,8 @@ class YahooScraper(object):
         return ""
 
     @staticmethod
-    def ingest_all_historical_etf(date_from = '1993-01-29', date_to = datetime.date.today().strftime("%Y-%m-%d"), symbols = Symbols.get_all_symbols()):
+    def ingest_all_historical_etf(date_from = '1993-01-29', date_to=None, symbols = Symbols.get_all_symbols()):
+        date_to = date_to or datetime.date.today().strftime("%Y-%m-%d")
         logger = Logger(__name__, PathMgr.get_log_path())
         for symbol in symbols:
             logger.info('ingest for %s...' % symbol)

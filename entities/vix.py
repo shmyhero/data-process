@@ -83,7 +83,8 @@ class VIX(BaseEntity):
         return VIX.get_symbol_by_year_index(year, index+1)
 
     @staticmethod
-    def get_vix_symbol_list(from_date, to_date = TradeTime.get_latest_trade_date(), fx=1):
+    def get_vix_symbol_list(from_date, to_date = None, fx=1):
+        to_date = to_date or TradeTime.get_latest_trade_date()
         for (year, index) in VIX.get_year_index_list(from_date, to_date, fx):
             yield VIX.get_symbol_by_year_index(year, index)
 

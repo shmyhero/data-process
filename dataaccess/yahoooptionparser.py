@@ -50,7 +50,8 @@ class YahooOptionParser(object):
             yield YahooOptionParser.json_obj_to_option(obj, underling_symbol)
 
     @staticmethod
-    def parse_raw_data(subpath=datetime.date.today().strftime('%Y-%m-%d')):
+    def parse_raw_data(subpath=None):
+        subpath = subpath or datetime.date.today().strftime('%Y-%m-%d')
         dir = PathMgr.get_yahoo_option_symbol_dir('^VIX', subpath)
         files = get_sub_files(dir, 'html')
         options = []
