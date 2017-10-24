@@ -422,6 +422,15 @@ class OptionBackTestDiagram(object):
         date_values = OptionBackTest(self.option_quantity_list, self.start_date).get_values()
         return self.plot(date_values, self.option_quantity_query)
 
+
+class Others(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        return render.others()
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
@@ -435,7 +444,8 @@ def run_web_app():
             '/greeks/(.*)', 'Greeks',
             '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram',
             '/optionsforbacktest', 'OptionsForBackTest',
-            '/optionbacktest', 'OptionBackTestDiagram')
+            '/optionbacktest', 'OptionBackTestDiagram',
+            '/others', 'Others')
 
     app = web.application(urls, globals())
     app.run()

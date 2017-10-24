@@ -84,6 +84,27 @@ def run(process):
         return False
 
 
+def run_all():
+    # need abstract these process.
+    # insert the record to database
+    processes = [clean_obsoleted_data,
+                 process_for_option_vix,
+                 process_for_nysecredit,
+                 process_for_yahoo_option_data,
+                 process_for_bigcharts_option_data,
+                 update_option_delta,
+                 backup_daily_data,
+                 process_for_yahoo_historical_data,
+                 process_for_aggregation]
+    succeed = True
+    for process in processes:
+        # start time stamp
+        result = run(process)
+        #update the result to database.
+        succeed = succeed or result
+    return succeed
+
+
 def main():
     succeed = True
     succeed = run(clean_obsoleted_data) and succeed
