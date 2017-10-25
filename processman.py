@@ -6,24 +6,32 @@ from common.pathmgr import PathMgr
 from processdao import ProcessDAO
 
 
-class ProcessStatus(object):
-    NotStart = 0
-    Running = 1
-    Completed = 2
-    Failed = 3
-
-
 class ProcessesInfo(object):
 
-    def __init__(self, processes):
+    def __init__(self, processes, update_process_fn):
         self.processes = processes
-        self.processes_dict = list_to_hash(map(lambda x: [x, ProcessStatus.NotStart], processes))
+        self.processes_dict = list_to_hash(map(lambda x: [x, [False, None, None]], processes))
+        self.update_process_fn = update_process_fn
 
     def get_processes(self):
         return self.processes
 
     def update_status(self, process, status):
         self.processes_dict[process] = status
+
+    def start_process(self, process):
+        self.processes_dict[process] = [False, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), None]
+        self.update_process_fn(self)
+
+    def complete_process(self, process):
+        new_value = [True, self.processes_dict[process][1], datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
+        self.processes_dict[process] = new_value
+        self.update_process_fn(self)
+
+    def failed_process(self, process):
+        new_value = [False, self.processes_dict[process][1], datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
+        self.processes_dict[process] = new_value
+        self.update_process_fn(self)
 
     def to_text_dict(self):
         return list_to_hash(map(lambda x, y: [x.__name__, y], self.processes_dict.keys(), self.processes_dict.values()))
@@ -36,9 +44,9 @@ class ProcessMan(object):
 
     def __init__(self, process_type, processes):
         self.process_type = process_type
-        self.processes_info = ProcessesInfo(processes)
-        self.logger = Logger(__name__, PathMgr.get_log_path())
         self.processDao = ProcessDAO()
+        self.processes_info = ProcessesInfo(processes, self.update_process)
+        self.logger = Logger(__name__, PathMgr.get_log_path())
         self.start_time = None
 
     def run_process(self, process):
@@ -50,8 +58,7 @@ class ProcessMan(object):
             self.logger.error('Error: ' + str(e))
             return False
 
-    def update_process(self, process, status):
-        self.processes_info.update_status(process, status)
+    def update_process(self, process):
         self.processDao.update(self.process_type, self.start_time, str(self.processes_info))
 
     def run_all(self):
@@ -59,12 +66,12 @@ class ProcessMan(object):
         self.processDao.insert(self.process_type, self.start_time, str(self.processes_info))
         succeed = True
         for process in self.processes_info.get_processes():
-            self.update_process(process, ProcessStatus.Running)
+            self.processes_info.start_process(process)
             result = self.run_process(process)
             if result:
-                self.update_process(process, ProcessStatus.Completed)
+                self.processes_info.complete_process(process)
             else:
-                self.update_process(process, ProcessStatus.Failed)
+                self.processes_info.failed_process(process)
             succeed = succeed or result
         return succeed
 
