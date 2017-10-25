@@ -13,6 +13,7 @@ from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahoooptionparser import YahooOptionParser
 from aggregation.agg_spyvixhedge import AGGSPYVIXHedge
+from processman import ProcessMan
 
 logger = Logger(__name__, PathMgr.get_log_path())
 
@@ -75,18 +76,7 @@ def process_for_aggregation():
     logger.info('run aggregation completed.')
 
 
-def run(process):
-    try:
-        process()
-    except Exception as e:
-        logger.exception('Trace: ' + traceback.format_exc())
-        logger.error('Error: ' + str(e))
-        return False
-
-
-def run_all():
-    # need abstract these process.
-    # insert the record to database
+def run():
     processes = [clean_obsoleted_data,
                  process_for_option_vix,
                  process_for_nysecredit,
@@ -96,36 +86,20 @@ def run_all():
                  backup_daily_data,
                  process_for_yahoo_historical_data,
                  process_for_aggregation]
-    succeed = True
-    for process in processes:
-        # start time stamp
-        result = run(process)
-        #update the result to database.
-        succeed = succeed or result
-    return succeed
+    return ProcessMan('data-process', processes).run_all()
 
 
 def main():
-    succeed = True
-    succeed = run(clean_obsoleted_data) and succeed
-    succeed = run(process_for_option_vix) and succeed
-    succeed = run(process_for_nysecredit) and succeed
-    succeed = run(process_for_yahoo_option_data) and succeed
-    succeed = run(process_for_bigcharts_option_data) and succeed
-    succeed = run(update_option_delta) and succeed
-    succeed = run(backup_daily_data) and succeed
-    succeed = run(process_for_yahoo_historical_data) and succeed
-    succeed = run(process_for_aggregation) and succeed
-    return succeed
-
-
-if __name__ == '__main__':
-    result = main()
+    result = run()
     if result:
         logger.info('Daily ingestion completed.')
         notify('Daily data processing completed...')
     else:
         notify('Daily data processing failed...')
+
+
+if __name__ == '__main__':
+    main()
 
 
 

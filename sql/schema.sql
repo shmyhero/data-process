@@ -122,11 +122,10 @@ drop table if exists process;
 create table process (
     id int not null auto_increment primary key,
     type varchar(32) not null,
-    start_time date not null,
-    steps text null,
+    start_time datetime not null,
+    processes_info text null,
     unique index process_index (type, start_time)
 );
-
 
 --option ratio view, provide the ratio from stike_price / underling_price
 drop view if exists option_ratio_view;
