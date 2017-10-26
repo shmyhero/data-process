@@ -3,7 +3,7 @@ from datetime import datetime
 from utils.logger import Logger
 from utils.listhelper import list_to_hash
 from common.pathmgr import PathMgr
-from processdao import ProcessDAO
+from dataaccess.processdao import ProcessDAO
 
 
 class ProcessesInfo(object):
