@@ -110,7 +110,7 @@ class VIXDAO(BaseDAO):
     def get_following_vix(self, from_date = None, to_date = None):
         from_date = from_date or TradeTime.get_latest_trade_date() - datetime.timedelta(30)
         to_date = to_date or TradeTime.get_latest_trade_date()
-        self.logger.info('today=%s, from_date=%s, to_date=%s'%(datetime.datetime.today(), from_date, to_date))
+        #self.logger.info('today=%s, from_date=%s, to_date=%s'%(datetime.datetime.today(), from_date, to_date))
         symbols = VIX.get_vix_symbol_list(from_date, to_date, 2)
         #records_index = self.get_vix_price_by_symbol('VIY00')
         symbol_dic = {}
@@ -126,7 +126,7 @@ class VIXDAO(BaseDAO):
                 symbol_f2 = VIX.get_f2_by_date(date)
                 records_f1.append([date, symbol_dic[symbol_f1].get(date), symbol_f1])
                 records_f2.append([date, symbol_dic[symbol_f2].get(date), symbol_f2])
-        self.logger.info([records_f1[-1], records_f2[-1]])
+        #self.logger.info([records_f1[-1], records_f2[-1]])
         return (records_f1, records_f2)
 
     def get3vix(self, date_str=None):

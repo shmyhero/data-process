@@ -20,6 +20,7 @@ from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.optiondao import OptionDAO
 from dataaccess.spyvixhedgedao import SPYVIXHedgeDAO
 from dataaccess.optionskewdao import OptionSkewDAO
+from dataaccess.processdao import ProcessDAO
 from research.optionbacktest import OptionBackTest
 
 
@@ -423,6 +424,16 @@ class OptionBackTestDiagram(object):
         return self.plot(date_values, self.option_quantity_query)
 
 
+class ProcessStatus(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        records = ProcessDAO().get_latest_processes('data-process')
+        return render.process_status(records)
+
+
 class Others(object):
 
     def __init__(self):
@@ -445,6 +456,7 @@ def run_web_app():
             '/greeksdiagram/(.*)/(.*)', 'GreeksDiagram',
             '/optionsforbacktest', 'OptionsForBackTest',
             '/optionbacktest', 'OptionBackTestDiagram',
+            '/processstatus', 'ProcessStatus',
             '/others', 'Others')
 
     app = web.application(urls, globals())

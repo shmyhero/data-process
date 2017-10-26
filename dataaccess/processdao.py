@@ -17,8 +17,10 @@ class ProcessDAO(BaseDAO):
         sql_template = """select processes_info from process where type = '{}' order by start_time desc limit 1"""
         sql = sql_template.format(process_type)
         rows = self.select(sql)
-        return rows[0][0]
+        str_value = rows[0][0]
+        return eval(str_value)
 
 
 if __name__ == '__main__':
+    #print ProcessDAO().get_latest_processes('data-process')
     print ProcessDAO().get_latest_processes('test')

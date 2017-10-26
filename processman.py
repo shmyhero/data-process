@@ -33,11 +33,11 @@ class ProcessesInfo(object):
         self.processes_dict[process] = new_value
         self.update_process_fn(self)
 
-    def to_text_dict(self):
-        return list_to_hash(map(lambda x, y: [x.__name__, y], self.processes_dict.keys(), self.processes_dict.values()))
+    def to_text(self):
+        return map(lambda x, y: [x.__name__] + y, self.processes_dict.keys(), self.processes_dict.values())
 
     def __str__(self):
-        return str(self.to_text_dict())
+        return str(self.to_text())
 
 
 class ProcessMan(object):
