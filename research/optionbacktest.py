@@ -52,7 +52,9 @@ class OptionBackTest(object):
                     sum_dic[date] = value
                 else:
                     sum_dic[date] += value
-        return hash_to_list(sum_dic, True)
+        values = hash_to_list(sum_dic, True)
+        benchmark  = values[0][1]
+        return map(lambda x: [x[0], x[1]/benchmark], values)
 
 
 if __name__ == '__main__':
