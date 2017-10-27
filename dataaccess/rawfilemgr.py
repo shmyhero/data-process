@@ -37,7 +37,13 @@ class RawFileMgr(object):
 
     def backup(self, folder_name = None):
         folder_name = folder_name or str(datetime.date.today())
-        file_path = RawFileMgr.zip_raw_data(folder_name, self.logger)
+        for i in range(3):
+            self.logger.info('zip file for %s'%folder_name)
+            file_path = RawFileMgr.zip_raw_data(folder_name, self.logger)
+            if os.path.exists(file_path):
+                break
+            else:
+                self.logger.info('%s does not exists...'%file_path)
         RawFileMgr.backup_to_s3(file_path, self.logger)
         self.logger.info('remove local zip file {} ...'.format(file_path))
         os.remove(file_path)

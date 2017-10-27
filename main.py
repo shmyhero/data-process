@@ -22,11 +22,6 @@ def clean_obsoleted_data():
     RawFileMgr().clean_obsoleted_data()
 
 
-def backup_daily_data():
-    logger.info('backup...')
-    RawFileMgr().backup()
-
-
 def process_for_option_vix():
     logger.info('daily ingestion...')
     daily_ingestor = DailyIngestor()
@@ -62,6 +57,11 @@ def process_for_bigcharts_option_data():
 def update_option_delta():
     logger.info('update delta for vix option data...')
     YahooOptionParser.update_delta()
+
+
+def backup_daily_data():
+    logger.info('backup...')
+    RawFileMgr().backup()
 
 
 def process_for_yahoo_historical_data():
