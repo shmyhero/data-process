@@ -17,13 +17,13 @@ $def with (records)
 
     <tr style = "font-size:18px;">
         <th>Process name</th>
-        <th>Completed?</th>
+        <th>Status</th>
         <th>Start time</th>
         <th>End time</th>
     </tr>
     $for record in records:
-        <tr>
-            $for i in range(len(record)):
+        <tr style="background-color:$record[4]">
+            $for i in range(len(record)-1):
                 <td ><font size="5" >$record[i]</font></td>
         </tr>
 </table>

@@ -34,7 +34,7 @@ class ProcessesInfo(object):
         self.update_process_fn(self)
 
     def to_text(self):
-        return map(lambda x, y: [x.__name__] + y, self.processes_dict.keys(), self.processes_dict.values())
+        return map(lambda x: [x.__name__] + self.processes_dict[x], self.processes)
 
     def __str__(self):
         return str(self.to_text())
@@ -84,5 +84,14 @@ if __name__ == '__main__':
     def foo2():
         pass
 
-    fns = [foo1, foo2]
+    def foo3():
+        pass
+
+    def foo4():
+        pass
+
+    def foo5():
+        pass
+
+    fns = [foo1, foo2, foo3, foo4, foo5]
     ProcessMan('test', fns).run_all()

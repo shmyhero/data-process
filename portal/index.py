@@ -430,7 +430,24 @@ class ProcessStatus(object):
         pass
 
     def GET(self):
-        records = ProcessDAO().get_latest_processes('data-process')
+        processes_info = ProcessDAO().get_latest_processes('data-process')
+        records = []
+        for process_info in processes_info:
+            record = process_info
+            if process_info[1] is True:
+                record[1] = 'Completed'
+                record.append('lightgreen')
+            elif process_info[2] is not None:
+                if process_info[3] is None:
+                    record[1] = 'Running'
+                    record.append('khaki')
+                else:
+                    record[1] = 'Failed'
+                    record.append('tomato')
+            else:
+                record[1] = 'Not Started'
+                record.append('white')
+            records.append(record)
         return render.process_status(records)
 
 
