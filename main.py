@@ -83,10 +83,9 @@ def run():
                  process_for_yahoo_option_data,
                  process_for_bigcharts_option_data,
                  update_option_delta,
-                 backup_daily_data,
                  process_for_yahoo_historical_data,
-                 backup_daily_data,
-                 process_for_aggregation]
+                 process_for_aggregation,
+                 backup_daily_data]
     return ProcessMan('data-process', processes).run_all()
 
 

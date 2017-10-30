@@ -1,4 +1,5 @@
 import traceback
+import time
 from datetime import datetime
 from utils.logger import Logger
 from utils.listhelper import list_to_hash
@@ -72,26 +73,26 @@ class ProcessMan(object):
                 self.processes_info.complete_process(process)
             else:
                 self.processes_info.failed_process(process)
-            succeed = succeed or result
+            succeed = succeed and result
         return succeed
 
 
 if __name__ == '__main__':
 
     def foo1():
-        pass
+        time.sleep(1)
 
     def foo2():
-        pass
+        time.sleep(2)
 
     def foo3():
-        pass
+        time.sleep(3)
 
     def foo4():
-        pass
+        time.sleep(4)
 
     def foo5():
-        pass
+        time.sleep(5)
 
     fns = [foo1, foo2, foo3, foo4, foo5]
     ProcessMan('test', fns).run_all()
