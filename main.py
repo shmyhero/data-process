@@ -85,6 +85,7 @@ def run():
                  update_option_delta,
                  backup_daily_data,
                  process_for_yahoo_historical_data,
+                 backup_daily_data,
                  process_for_aggregation]
     return ProcessMan('data-process', processes).run_all()
 
