@@ -44,11 +44,6 @@ class RawDataParser(object):
                 vix = VIX.loads(record)
                 yield vix
 
-        #with open(file_path) as fs:
-        #    json_data = json.load(fs)
-        #equity = Equity.loads(json_data['data'][0])
-        #return equity
-
     def load_all(self):
         for symbol in Symbols.get_option_symbols():
             equity = self.load_equity_data_by_symbol(symbol)

@@ -29,9 +29,16 @@ class Shell:
             os.system(cmd)
 
     @staticmethod
-    def zip(folder_path, file_path):
+    def zip(folder_path, file_path, logger=None):
         cmd = 'zip -q -r -o {} {}'.format(file_path, folder_path)
-        Shell.run_cmd(cmd)
+        if logger:
+            logger.info(cmd)
+        result = Shell.run_cmd(cmd, True)
+        if logger:
+            logger.info(result)
+        else:
+            print result
+
 
 
 if __name__ == '__main__':

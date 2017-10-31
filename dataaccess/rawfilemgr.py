@@ -24,7 +24,7 @@ class RawFileMgr(object):
         folder_path = PathMgr.get_raw_data_path(folder_name)
         file_path = os.path.join(PathMgr.get_raw_data_path(), folder_name + '.zip')
         logger.info('zip file form {} to {}...'.format(folder_path, file_path))
-        Shell.zip(folder_path, file_path)
+        Shell.zip(folder_path, file_path, logger)
         return file_path
 
     @staticmethod

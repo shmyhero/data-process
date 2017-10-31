@@ -77,15 +77,16 @@ def process_for_aggregation():
 
 
 def run():
-    processes = [clean_obsoleted_data,
-                 process_for_option_vix,
+    processes = [process_for_option_vix,
                  process_for_nysecredit,
-                 process_for_yahoo_option_data,
+                 process_for_yahoo_option_data,	
                  process_for_bigcharts_option_data,
                  update_option_delta,
                  process_for_yahoo_historical_data,
-                 process_for_aggregation,
-                 backup_daily_data]
+                 process_for_aggregation
+                 #backup_daily_data,
+                 #clean_obsoleted_data
+                 ]
     return ProcessMan('data-process', processes).run_all()
 
 

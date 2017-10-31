@@ -11,9 +11,9 @@ from ingestion.barchartscraper import BarchartScraper
 
 class DailyIngestor(object):
 
-    def __init__(self, raw_data_path = PathMgr.get_raw_data_path()):
+    def __init__(self, raw_data_path = None):
         self.date = datetime.date.today()
-        self.raw_data_path = raw_data_path
+        self.raw_data_path = raw_data_path or PathMgr.get_raw_data_path()
         self.daily_path = os.path.join(self.raw_data_path, str(self.date))
         self.expiration_date_dir = os.path.join(self.daily_path, 'expiration_date')
         self.equity_dir = os.path.join(self.daily_path, 'equity_data')
