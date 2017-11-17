@@ -152,8 +152,8 @@ class VolBase(object):
         # price_list = df_equity['price'].to_list()
         # OptionCalculater().get_year_history_volatility(price_list)
 
-        # get the equity records from 100 date ago.
-        from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
+        # get the equity records from 150 date ago.
+        from_date_str = (datetime.date.today() - datetime.timedelta(150)).strftime('%Y-%m-%d')
         equity_records = YahooEquityDAO().get_all_equity_price_by_symbol(symbol, from_date_str)
         current_quity_price = equity_records[-1][1]
         option_iv_records = OptionDAO().get_corresponding_implied_volatilities(symbol, current_quity_price)
@@ -259,7 +259,7 @@ class FindOption(object):
             selected_symbol = 'SPY'
         return selected_symbol
 
-    def get_unexpired_dates(self, selected_symbol, delta_days = 20):
+    def get_unexpired_dates(self, selected_symbol, delta_days = 60):
         unexpired_dates = OptionDAO().get_all_unexpired_dates(selected_symbol, from_date=TradeTime.get_latest_trade_date() - datetime.timedelta(days=delta_days))
         return unexpired_dates
 

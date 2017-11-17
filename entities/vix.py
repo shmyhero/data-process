@@ -35,13 +35,13 @@ class VIX(BaseEntity):
         day = current_date.day
         weekday = datetime.date(current_date.year, month, 1).weekday()
         delta = 2 - weekday
-        if delta <= 0:
+        if delta < 0:
             delta += 7
         expiration_day = 1 + 2 * 7 + delta
         year = current_date.year
         if day >= expiration_day:
             month += 1
-            if month >= 12:
+            if month > 12:
                 month -= 12
                 year += 1
         return datetime.date(year, month, expiration_day)
@@ -80,7 +80,10 @@ class VIX(BaseEntity):
     @staticmethod
     def get_f2_by_date(date):
         (year, index) = VIX.get_following_year_index(date)
-        return VIX.get_symbol_by_year_index(year, index+1)
+        if index >= 11:
+            return VIX.get_symbol_by_year_index(year+1, index+1-12)
+        else:
+            return VIX.get_symbol_by_year_index(year, index+1)
 
     @staticmethod
     def get_vix_symbol_list(from_date, to_date = None, fx=1):
@@ -125,9 +128,9 @@ class VIX(BaseEntity):
 
 
 if __name__ == '__main__':
-    print VIX.get_f1_by_date(datetime.datetime(2017, 12, 25))
+    print VIX.get_f1_by_date(datetime.datetime(2017, 11, 16))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 15))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 19))
-    print VIX.get_f2_by_date(datetime.datetime(2017, 9, 20))
+    print VIX.get_f2_by_date(datetime.datetime(2017, 11, 15))
     print VIX.get_following_expiration_date(datetime.datetime(2017, 12, 25))
     print list(VIX.get_vix_symbol_list(datetime.datetime(2017, 8, 10), datetime.datetime(2017, 9, 20), 2))
