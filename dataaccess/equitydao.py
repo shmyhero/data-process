@@ -33,12 +33,20 @@ class EquityDAO(BaseDAO):
 
     def get_date_price_list(self, symbol, days_to_now = 30):
         start_date = datetime.datetime.now() - datetime.timedelta(days_to_now)
-        query_template = """select tradeTime, lastPrice from equity where symbol = '{}' and tradeTime >= str_to_date('{}', '%Y-%m-%d')"""
-        query = query_template.format(symbol, start_date.strftime('%Y-%m-%d'))
-        rows = self.select(query)
+        # query_template = """select tradeTime, lastPrice from equity where symbol = '{}' and tradeTime >= str_to_date('{}', '%Y-%m-%d')"""
+        # query = query_template.format(symbol, start_date.strftime('%Y-%m-%d'))
+        # rows = self.select(query)
+        rows = self.get_all_equity_price_by_symbol(symbol, start_date)
         df = pd.DataFrame(rows)
         df.columns = ['date', 'price']
         return df
+
+    def get_all_equity_price_by_symbol(self, symbol, from_date=datetime.date(2017, 7, 24)):
+        from_date_str = from_date.strftime('%Y-%m-%d')
+        query_template = """select tradeTime, lastPrice from equity where symbol = '{}' and tradeTime >= str_to_date('{}', '%Y-%m-%d') order by tradeTime"""
+        query = query_template.format(symbol, from_date_str)
+        rows = self.select(query)
+        return rows
 
     def get_equity_price_by_date(self, symbol, date, price_field = 'lastPrice', cursor=None):
         """

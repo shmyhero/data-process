@@ -6,6 +6,7 @@ from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
 from dataaccess.optiondao import OptionDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
+from dataaccess.equitydao import EquityDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.spyvixhedgedao import SPYVIXHedgeDAO
 
@@ -23,8 +24,10 @@ class AGGSPYVIXHedge(object):
         self.option_dao = OptionDAO()
 
         # get the equity records from 100 date ago.
-        from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
-        self.spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str)
+        #from_date_str = (datetime.date.today() - datetime.timedelta(100)).strftime('%Y-%m-%d')
+        from_date = (datetime.date.today() - datetime.timedelta(100))
+        #self.spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str)
+        self.spy_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
         self.hv_spy = OptionCalculater.get_year_history_volatility_list(self.spy_records, self.circle)
         self.spy_delta_records = self.get_delta_records('SPY', self.spy_records)
 
@@ -34,7 +37,8 @@ class AGGSPYVIXHedge(object):
         self.vixf1_records = records_f1
         self.vix_delta_records = map(lambda x, y: [x[0], y[1]-x[1]], self.vix_index_records, self.vixf1_records)
         self.hv_vix = list(self.calculate_f1_volatilities())
-        vxx_records = YahooEquityDAO().get_all_equity_price_by_symbol('VXX', from_date_str)
+        #vxx_records = YahooEquityDAO().get_all_equity_price_by_symbol('VXX', from_date_str)
+        vxx_records = EquityDAO().get_all_equity_price_by_symbol('VXX', from_date)
         self.vxx_delta_records = self.get_delta_records('VXX', vxx_records)
         #self.vxx_delta_records = self.get_delta_records('^VIX', self.vix_index_records)
 

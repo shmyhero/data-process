@@ -153,8 +153,10 @@ class VolBase(object):
         # OptionCalculater().get_year_history_volatility(price_list)
 
         # get the equity records from 150 date ago.
-        from_date_str = (datetime.date.today() - datetime.timedelta(150)).strftime('%Y-%m-%d')
-        equity_records = YahooEquityDAO().get_all_equity_price_by_symbol(symbol, from_date_str)
+        #from_date_str = (datetime.date.today() - datetime.timedelta(150)).strftime('%Y-%m-%d')
+        from_date = (datetime.date.today() - datetime.timedelta(150))
+        #equity_records = YahooEquityDAO().get_all_equity_price_by_symbol(symbol, from_date_str)
+        equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
         current_quity_price = equity_records[-1][1]
         option_iv_records = OptionDAO().get_corresponding_implied_volatilities(symbol, current_quity_price)
         first_tradetime = option_iv_records[0][0]
