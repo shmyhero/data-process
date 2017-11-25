@@ -76,6 +76,25 @@ class OptionDAO(BaseDAO):
         rows = self.select(query)
         return rows
 
+    def get_china_option_by_symbol(self, option_symbol):
+        underlying_symbol = option_symbol[0:6]
+        expiration_date = datetime.datetime.strptime(option_symbol[6:12], '%y%m%d')
+        if option_symbol[12] == 'C':
+            option_type = 'Call'
+        else:
+            option_type = 'Put'
+        strike_price = float(option_symbol[13:])/1000.0
+        query_template = """select tradetime, lastPrice, delta, gamma, vega, theta, rho from option_data where underlingsymbol = '{}'and expirationdate = '{}' and  optiontype='{}' and strikePrice = {} order by tradeTime"""
+        query = query_template.format(underlying_symbol, expiration_date.strftime('%Y-%m-%d'), option_type, strike_price)
+        rows = self.select(query)
+        return rows
+
+    def compatible_get_option_by_symbol(self, option_symbol):
+        if option_symbol[0:6] == '510050':
+            return self.get_china_option_by_symbol(option_symbol)
+        else:
+            return self.get_option_by_symbol(option_symbol)
+
     def get_delta_by_symbol_and_date(self, option_symbol, trade_time, cursor=None):
         query_template = """select delta from option_data where symbol = '{}' and tradeTime = str_to_date('{}', '%Y-%m-%d') limit 1"""
         query = query_template.format(option_symbol, trade_time)

@@ -42,7 +42,7 @@ create table option_data (
 	the_date date null,
 	daysToExpiration int null,
 	optionType varchar(32) not null,
-	strikePrice float null,
+	strikePrice float(12,5) null,
 	askprice float null,
 	bidDate date null,
 	bidPrice float null,

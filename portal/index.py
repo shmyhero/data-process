@@ -253,6 +253,7 @@ class FindOption(object):
     def get_symbols(self):
         symbols =  Symbols.get_option_symbols()
         symbols.append('^VIX')
+        symbols.append('510050')
         return symbols
 
     def get_selected_symbol(self):
@@ -349,7 +350,7 @@ class Greeks(object):
         return new_record
 
     def GET(self, symbol):
-        records = CacheMan('greeks').get_with_cache(symbol, OptionDAO().get_option_by_symbol)
+        records = CacheMan('greeks').get_with_cache(symbol, OptionDAO().compatible_get_option_by_symbol)
         new_records = map(self.fix_for_record, records[-20:])
         return render.greeks(symbol, new_records)
 

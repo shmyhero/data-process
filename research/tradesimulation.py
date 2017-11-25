@@ -26,7 +26,7 @@ class DataProvider(object):
 
     @staticmethod
     def _get_option_price_list_as_dic(option_symbol):
-        records = OptionDAO().get_option_by_symbol(option_symbol)
+        records = OptionDAO().compatible_get_option_by_symbol(option_symbol)
         result = {}
         for record in records:
             d = int(record[0].strftime('%Y%m%d'))
