@@ -53,13 +53,16 @@ class OptionBackTest(object):
                 else:
                     sum_dic[date] += value
         values = hash_to_list(sum_dic, True)
-        positive_values = []
+        continues_values = []
         for i, value in enumerate(values):
             if value[1] != 0:
-                positive_values = values[i:]
+                continues_values = values[i:]
                 break
-        benchmark = positive_values[0][1]
-        return map(lambda x: [x[0], x[1]/benchmark], positive_values)
+        benchmark = continues_values[0][1]
+        if benchmark > 0 :
+            return map(lambda x: [x[0], x[1]/benchmark], continues_values)
+        else:
+            return map(lambda x: [x[0], (benchmark-x[1])/benchmark], continues_values)
 
 
 if __name__ == '__main__':
