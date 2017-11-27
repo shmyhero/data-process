@@ -1,6 +1,6 @@
 import sys
 import datetime
-import pandas as pd
+from utils.stringhelper import all_number_p
 from common.tradetime import TradeTime
 from dataaccess.basedao import BaseDAO
 
@@ -54,9 +54,12 @@ class OptionDAO(BaseDAO):
     def get_following_expirationDate(self, equity_symbol, from_date=None):
         from_date = from_date or TradeTime.get_latest_trade_date()
         dates = self.get_all_unexpired_dates(equity_symbol, from_date)
-        for d in dates:
-            if d.weekday() == 4 and 14 < d.day < 22:
-                return d
+        if all_number_p(equity_symbol):
+            return dates[0]
+        else:
+            for d in dates:
+                if d.weekday() == 4 and 14 < d.day < 22:
+                    return d
 
     def get_strike_prices_by(self, equity_symbol, str_expirationDate):
         query_template = """select distinct strikePrice from option_data where underlingsymbol = '{}'  and expirationDate = str_to_date('{}', '%Y-%m-%d') order by strikePrice"""
@@ -90,7 +93,7 @@ class OptionDAO(BaseDAO):
         return rows
 
     def compatible_get_option_by_symbol(self, option_symbol):
-        if option_symbol[0:6] == '510050':
+        if all_number_p(option_symbol[0:6]):
             return self.get_china_option_by_symbol(option_symbol)
         else:
             return self.get_option_by_symbol(option_symbol)
@@ -151,6 +154,28 @@ class OptionDAO(BaseDAO):
         rows = self.select(query)
         return rows
 
+    def get_china_implied_volatilities(self, option_symbol):
+        underlying_symbol = option_symbol[0:6]
+        expiration_date = datetime.datetime.strptime(option_symbol[6:12], '%y%m%d')
+        if option_symbol[12] == 'C':
+            option_type = 'Call'
+        else:
+            option_type = 'Put'
+        strike_price = float(option_symbol[13:]) / 1000.0
+        query_template = """select tradetime, volatility from option_data where underlingsymbol = '{}'and expirationdate = '{}' and  optiontype='{}' and strikePrice = {} order by tradeTime"""
+        query = query_template.format(underlying_symbol, expiration_date.strftime('%Y-%m-%d'), option_type,
+                                      strike_price)
+        rows = self.select(query)
+        # the china a share volatilities need to * 100, if the raw data * 100 in ingestion, this can be removed..
+        return map(lambda x: [x[0], x[1] * 100], rows)
+
+    def compatible_get_implied_volatilities(self, option_symbol):
+        if all_number_p(option_symbol[0:6]):
+            return self.get_china_implied_volatilities(option_symbol)
+        else:
+            return self.get_implied_volatilities(option_symbol)
+
+
     def get_delta(self, option_symbol):
         query_template = """select tradeTime, delta from option_data where symbol = '{}'"""
         query = query_template.format(option_symbol)
@@ -160,7 +185,7 @@ class OptionDAO(BaseDAO):
     def get_corresponding_implied_volatilities(self, equity_symbol, current_equity_price):
         exp_date = self.get_following_expirationDate(equity_symbol) #get recent exp_date for this symbol
         option_symbol = self.find_symbol(equity_symbol, exp_date, current_equity_price)
-        rows = self.get_implied_volatilities(option_symbol)
+        rows = self.compatible_get_implied_volatilities(option_symbol)
         return rows
 
     def get_corresponding_delta(self, equity_symbol, current_equity_price, days_to_current_date=10):
