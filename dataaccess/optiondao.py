@@ -74,7 +74,7 @@ class OptionDAO(BaseDAO):
         return rows
 
     def get_option_by_symbol(self, option_symbol):
-        query_template = """select tradetime, lastPrice, delta, gamma, vega, theta, rho from option_data where symbol = '{}' order by tradeTime"""
+        query_template = """select tradetime, lastPrice, delta, gamma, vega, theta, volatility from option_data where symbol = '{}' order by tradeTime"""
         query = query_template.format(option_symbol)
         rows = self.select(query)
         return rows
@@ -87,7 +87,7 @@ class OptionDAO(BaseDAO):
         else:
             option_type = 'Put'
         strike_price = float(option_symbol[13:])/1000.0
-        query_template = """select tradetime, lastPrice, delta, gamma, vega, theta, rho from option_data where underlingsymbol = '{}'and expirationdate = '{}' and  optiontype='{}' and strikePrice = {} order by tradeTime"""
+        query_template = """select tradetime, lastPrice, delta, gamma, vega, theta, volatility from option_data where underlingsymbol = '{}'and expirationdate = '{}' and  optiontype='{}' and strikePrice = {} order by tradeTime"""
         query = query_template.format(underlying_symbol, expiration_date.strftime('%Y-%m-%d'), option_type, strike_price)
         rows = self.select(query)
         return rows
@@ -166,8 +166,7 @@ class OptionDAO(BaseDAO):
         query = query_template.format(underlying_symbol, expiration_date.strftime('%Y-%m-%d'), option_type,
                                       strike_price)
         rows = self.select(query)
-        # the china a share volatilities need to * 100, if the raw data * 100 in ingestion, this can be removed..
-        return map(lambda x: [x[0], x[1] * 100], rows)
+        return rows
 
     def compatible_get_implied_volatilities(self, option_symbol):
         if all_number_p(option_symbol[0:6]):

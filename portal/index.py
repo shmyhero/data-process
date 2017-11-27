@@ -2,7 +2,7 @@ import web
 import datetime
 import cStringIO
 import sys
-from abc import abstractmethod
+from utils.stringhelper import all_number_p
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from utils.querystringparser import parse_query_string
@@ -189,7 +189,10 @@ class VolHvsI(VolBase):
         self.init_with_cache(symbol)
         dates = map(lambda x: x[0], self.equity_records)
         hv = map(lambda x: x[1] * 100.0, self.hv_records)
-        iv = map(lambda x: x[1], self.iv_records)
+        if all_number_p(symbol):
+            iv = map(lambda x: x[1] * 100.0, self.iv_records)
+        else:
+            iv = map(lambda x: x[1], self.iv_records)
         fig = Figure(figsize=[12, 6])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(dates, hv, label='historical volatility')
@@ -378,7 +381,7 @@ class GreeksDiagram(object):
 
     def GET(self, symbol, field):
         records = CacheMan('portal_greeks').get_with_cache(symbol, OptionDAO().compatible_get_option_by_symbol)
-        field_index_dic = {'lastprice':1, 'delta':2, 'gamma':3, 'vega':4, 'theta':5}
+        field_index_dic = {'lastprice':1, 'delta':2, 'gamma':3, 'vega':4, 'theta':5, 'volatility':6}
         index = field_index_dic[field.lower()]
         if index is not None:
             date_value_list = map(lambda x: [x[0], x[index]], records[-20:])

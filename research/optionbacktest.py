@@ -62,7 +62,7 @@ class OptionBackTest(object):
         if benchmark > 0 :
             return map(lambda x: [x[0], x[1]/benchmark], continues_values)
         else:
-            return map(lambda x: [x[0], (benchmark-x[1])/benchmark], continues_values)
+            return map(lambda x: [x[0], (2*benchmark-x[1])/benchmark], continues_values)
 
 
 if __name__ == '__main__':

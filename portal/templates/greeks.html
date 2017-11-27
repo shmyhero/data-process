@@ -18,12 +18,12 @@ Greeks for $symbol
             <table border="1" cellspacing="0" style = "font-size:22px;">
                 <tr>
                     <th>date</th>
-                    <th>lastPrice</th>
+                    <th>price</th>
                     <th>delta</th>
                     <th>gamma</th>
                     <th>vega</th>
                     <th>theta</th>
-                    <th>rho</th>
+                    <th>volatility</th>
                 </tr>
                 $for record in records:
                     <tr>
@@ -51,6 +51,10 @@ Greeks for $symbol
 
             <div id = "div5" >
                     <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/theta">
+            </div>
+
+            <div id = "div6" >
+                    <img style="-webkit-user-select: none;" src="/greeksdiagram/$symbol/volatility">
             </div>
         </td>
     </tr>
