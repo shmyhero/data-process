@@ -377,7 +377,7 @@ class GreeksDiagram(object):
         return data
 
     def GET(self, symbol, field):
-        records = CacheMan('portal_greeks').get_with_cache(symbol, OptionDAO().get_option_by_symbol)
+        records = CacheMan('portal_greeks').get_with_cache(symbol, OptionDAO().compatible_get_option_by_symbol)
         field_index_dic = {'lastprice':1, 'delta':2, 'gamma':3, 'vega':4, 'theta':5}
         index = field_index_dic[field.lower()]
         if index is not None:

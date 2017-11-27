@@ -40,7 +40,7 @@ class Option(BaseEntity):
         for k, v in dic.items():
             setattr(option, k, BaseEntity.fix_na(v))
         BaseEntity.parse_for_entity(BaseEntity.parse_float, option, ['strikePrice', 'askPrice', 'bidPrice', 'openPrice', 'highPrice', 'lowPrice', 'lastPrice', 'priceChange', 'theoretical', 'delta', 'gamma', 'rho', 'theta', 'vega', 'openInterest', 'volume'])
-        BaseEntity.parse_for_entity(BaseEntity.parse_date, option, ['tradeTime','expirationDate', 'date', 'bidDate'])
+        BaseEntity.parse_for_entity(BaseEntity.parse_date, option, ['tradeTime', 'expirationDate', 'date', 'bidDate'])
         option.volatility = BaseEntity.parse_float(option.volatility.replace('%', ''))
         return option
 
