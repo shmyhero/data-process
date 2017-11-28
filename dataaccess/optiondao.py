@@ -162,7 +162,7 @@ class OptionDAO(BaseDAO):
         else:
             option_type = 'Put'
         strike_price = float(option_symbol[13:]) / 1000.0
-        query_template = """select tradetime, volatility from option_data where underlingsymbol = '{}'and expirationdate = '{}' and  optiontype='{}' and strikePrice = {} order by tradeTime"""
+        query_template = """select tradetime, volatility from option_data where underlingsymbol = '{}'and expirationdate = '{}' and  optiontype='{}' and strikePrice = {} and tradeTime > '2017-10-22' order by tradeTime"""
         query = query_template.format(underlying_symbol, expiration_date.strftime('%Y-%m-%d'), option_type,
                                       strike_price)
         rows = self.select(query)
