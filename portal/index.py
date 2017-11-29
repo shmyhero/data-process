@@ -187,7 +187,7 @@ class VolHvsI(VolBase):
 
     def GET(self, symbol):
         if all_number_p(symbol):
-            self.init_data()
+            self.init_data(symbol)
         else:
             self.init_with_cache(symbol)
         dates = map(lambda x: x[0], self.equity_records)
