@@ -22,20 +22,20 @@ def clean_obsoleted_data():
     RawFileMgr().clean_obsoleted_data()
 
 
-def process_for_option_vix():
+def process_for_ingesting_barchart_data():
     logger.info('daily ingestion...')
     daily_ingestor = DailyIngestor()
     daily_ingestor.gen_all()
     if daily_ingestor.validate():
         RawToDB().push_to_db()
-        exporter = DataExporter()
-        exporter.export_skew()
-        exporter.export_vix()
+        #exporter = DataExporter()
+        #exporter.export_skew()
+        #exporter.export_vix()
     else:
         raise Exception('raw data validation failed...')
 
 
-def process_for_nysecredit():
+def process_for_ingesting_nyse_credit():
     logger.info('Ingesting credit data...')
     credits = NYSEIngestor.ingest_credit()
     logger.info('Ingesting credit data completed, start to push data into database.')
@@ -43,18 +43,18 @@ def process_for_nysecredit():
     logger.info('push credit data into database completed.')
 
 
-def process_for_yahoo_option_data():
+def process_for_ingesting_yahoo_option_data():
     logger.info('ingest yahoo option data...')
     YahooScraper.ingest_all_options(['^VIX'])
     YahooOptionParser.save_to_db()
 
 
-def process_for_bigcharts_option_data():
+def process_for_ingesting_bigcharts_option_data():
     logger.info('ingest bigcharts option data...')
     BigChartsScraper.ingest_options('^VIX')
 
 
-def update_option_delta():
+def process_for_updating_option_delta():
     logger.info('update delta for vix option data...')
     YahooOptionParser.update_delta()
 
@@ -70,19 +70,19 @@ def process_for_yahoo_historical_data():
     YahooEquityDAO().save_all()
 
 
-def process_for_aggregation():
+def aggregation_for_spy_vix_hedge_table():
     logger.info('run aggregations...')
     AGGSPYVIXHedge().save_to_db()
     logger.info('run aggregation completed.')
 
 
 def run():
-    processes = [process_for_option_vix,
-                 process_for_yahoo_option_data,
-                 process_for_bigcharts_option_data,
-                 update_option_delta,
-                 process_for_aggregation,
-                 process_for_nysecredit,
+    processes = [process_for_ingesting_barchart_data,
+                 process_for_ingesting_yahoo_option_data,
+                 process_for_ingesting_bigcharts_option_data,
+                 process_for_updating_option_delta,
+                 aggregation_for_spy_vix_hedge_table,
+                 process_for_ingesting_nyse_credit,
                  process_for_yahoo_historical_data,
                  #backup_daily_data,
                  #clean_obsoleted_data

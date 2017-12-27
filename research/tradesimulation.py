@@ -1,6 +1,7 @@
 import math
 import datetime
 from utils.cachehelper import CacheMan
+from common.tradetime import TradeTime
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.optiondao import OptionDAO
 
@@ -113,7 +114,8 @@ class Portfolio(object):
         if trade_node.action == 'buy':
             self.buy(trade_node.date, trade_node.symbol, self.cash * trade_node.percentage)
         elif trade_node.action == 'sell':
-            self.sell(trade_node.date, trade_node.symbol, self.position[trade_node.symbol] * trade_node.percentage)
+            if self.position.has_key(trade_node.symbol):
+                self.sell(trade_node.date, trade_node.symbol, self.position[trade_node.symbol] * trade_node.percentage)
         else:
             raise AssertionError('the trade date should be in dates ranges.')
 
@@ -122,7 +124,7 @@ class TradeSimulation(object):
 
     @staticmethod
     def date_range(start_date, end_date):
-        for n in range(int((end_date - start_date).days)):
+        for n in range(int((end_date - start_date).days) + 1):
             yield start_date + datetime.timedelta(n)
 
     @staticmethod
@@ -140,7 +142,9 @@ class TradeSimulation(object):
             yield new_percentage
 
     @staticmethod
-    def simulate(trade_nodes, start_date, end_date = datetime.datetime.today()):
+    def simulate(trade_nodes, start_date, end_date = None):
+        if end_date is None:
+            end_date = TradeTime.get_latest_trade_date()
         portfolio = Portfolio()
         dates = list(TradeSimulation.date_range(start_date, end_date))
         #print trade_nodes
@@ -156,7 +160,7 @@ class TradeSimulation(object):
             else:
                 #date_str = dates[i].strftime('%Y-%m-%d')
                 #print (date_str, portfolio.get_returns(dates[i]))
-                yield [dates[i].date(), portfolio.get_returns(dates[i])]
+                yield [dates[i], portfolio.get_returns(dates[i])]
                 i += 1
 
 
@@ -164,16 +168,16 @@ if __name__ == '__main__':
     trade = Portfolio()
     trade.buy(datetime.datetime(2017, 1, 1), 'QQQ')
     print trade.get_returns(datetime.datetime(2017, 9, 13))
-    trade_nodes = [TradeNode('QQQ', datetime.datetime.strptime('2017-01-01', '%Y-%m-%d'), 'buy'),
-                   TradeNode('QQQ', datetime.datetime.strptime('2017-02-23', '%Y-%m-%d'), 'sell'),
-                   TradeNode('SPY', datetime.datetime.strptime('2017-02-23', '%Y-%m-%d'), 'buy'),
-                   TradeNode('SPY', datetime.datetime.strptime('2017-03-07', '%Y-%m-%d'), 'sell'),
-                   TradeNode('QQQ', datetime.datetime.strptime('2017-03-07', '%Y-%m-%d'), 'buy'),
-                   TradeNode('QQQ', datetime.datetime.strptime('2017-06-09', '%Y-%m-%d'), 'sell'),
-                   TradeNode('SPY', datetime.datetime.strptime('2017-06-09', '%Y-%m-%d'), 'buy'),
-                   TradeNode('SPY', datetime.datetime.strptime('2017-06-13', '%Y-%m-%d'), 'sell'),
-                   TradeNode('QQQ', datetime.datetime.strptime('2017-06-13', '%Y-%m-%d'), 'buy'),
+    trade_nodes = [TradeNode('QQQ', datetime.date(2017, 1, 1), 'buy'),
+                   TradeNode('QQQ', datetime.date(2017, 2, 23), 'sell'),
+                   TradeNode('SPY', datetime.date(2017, 2, 23), 'buy'),
+                   TradeNode('SPY', datetime.date(2017, 3, 7), 'sell'),
+                   TradeNode('QQQ', datetime.date(2017, 3, 7), 'buy'),
+                   TradeNode('QQQ', datetime.date(2017, 6, 9), 'sell'),
+                   TradeNode('SPY', datetime.date(2017, 6, 9), 'buy'),
+                   TradeNode('SPY', datetime.date(2017, 6, 13), 'sell'),
+                   TradeNode('QQQ', datetime.date(2017, 6, 13), 'buy'),
                    ]
-    returns = TradeSimulation.simulate(trade_nodes, datetime.datetime.strptime('2017-01-01', '%Y-%m-%d'))
+    returns = TradeSimulation.simulate(trade_nodes, datetime.date(2017, 1, 1))
     for [date, return_value] in returns:
         print date, return_value

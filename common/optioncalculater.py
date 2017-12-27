@@ -137,6 +137,8 @@ def _test_vol():
     print results
 
 if __name__ == '__main__':
-    spy_option()
+    #spy_option()
     #_test_vol()
+    print OptionCalculater.get_history_volatility([1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0])
+    print OptionCalculater.get_year_history_volatility([1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0])
 

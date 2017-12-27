@@ -1,0 +1,49 @@
+import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
+from dataaccess.yahooequitydao import YahooEquityDAO
+from research.tradesimulation import TradeNode, TradeSimulation
+
+
+class RollYield(object):
+
+    def __init__(self):
+        self.vix_records = YahooEquityDAO().get_all_equity_price_by_symbol('^VIX', from_date_str='2010-12-17')
+        self.vxv_records = YahooEquityDAO().get_all_equity_price_by_symbol('^VXV', from_date_str='2010-12-17')
+        self.dates = map(lambda x: x[0], self.vix_records)[10:]
+        vix_values = map(lambda x: x[1], self.vix_records)
+        self.vix_ma10 = pd.Series(vix_values).rolling(window=10).mean().tolist()[10:]
+        vxv_values = map(lambda x: x[1], self.vxv_records)
+        self.vxv_ma10 = pd.Series(vxv_values).rolling(window=10).mean().tolist()[10:]
+
+    def run(self):
+        trade_nodes = []
+        for i in range(len(self.dates)):
+            #date = datetime.datetime.fromordinal(self.dates[i].toordinal())
+            date = self.dates[i]
+            if self.vxv_ma10[i] > self.vix_ma10[i]:
+                trade_nodes.append(TradeNode('VXX', date, 'sell'))
+                trade_nodes.append(TradeNode('XIV', date, 'buy'))
+            else:
+                trade_nodes.append(TradeNode('XIV', date, 'sell'))
+                trade_nodes.append(TradeNode('VXX', date, 'buy'))
+        returns = list(TradeSimulation.simulate(trade_nodes, self.dates[0]))
+        for [date, return_value] in returns:
+            print date, return_value
+        self.plot(returns)
+
+    def plot(self, returns):
+        fig, ax = plt.subplots()
+        dates = map(lambda x: x[0], returns)
+        values = map(lambda x: x[1], returns)
+        ax.plot(dates, values)
+        lines, labels = ax.get_legend_handles_labels()
+        ax.legend(lines[:2], labels[:2])
+        plt.show()
+
+if __name__ == '__main__':
+    RollYield().run()
+
+
+
+

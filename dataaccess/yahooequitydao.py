@@ -91,7 +91,8 @@ class YahooEquityDAO(BaseDAO):
 
 if __name__ == '__main__':
     #YahooEquityDAO().save_all(['^GSPC'])
-    YahooEquityDAO().save_all(['^GSPC', '^DJI'])
+    #YahooEquityDAO().save_all(['^GSPC', '^DJI'])
+    YahooEquityDAO().save_all(['^VXV'])
     #print YahooEquityDAO().get_latest_price('SPY')
     #print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
     #print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
