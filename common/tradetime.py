@@ -108,6 +108,18 @@ class TradeTime(object):
             if TradeTime.is_trade_day(trade_date):
                 return trade_date.date()
 
+    @staticmethod
+    def get_from_date_by_window(window):
+        current_date = TradeTime.get_latest_trade_date()
+        count = 1
+        for i in range(2*window):
+            if count >= window:
+                return current_date
+            current_date -= datetime.timedelta(days=1)
+            if TradeTime.is_trade_day(current_date):
+                count +=1
+
+
 if __name__ == '__main__':
     print TradeTime.get_trading_close_holidays(2017)
     print TradeTime.get_half_trade_dates(2015)

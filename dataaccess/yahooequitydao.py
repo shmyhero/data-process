@@ -2,6 +2,7 @@ import pandas as pd
 from dataaccess.basedao import BaseDAO
 from common.symbols import Symbols
 from common.pathmgr import PathMgr
+from common.tradetime import TradeTime
 
 
 class YahooEquityDAO(BaseDAO):
@@ -88,12 +89,19 @@ class YahooEquityDAO(BaseDAO):
             df = pd.read_csv(path)
             self.save(symbol, df)
 
+    def get_last_trade_day_symbols(self):
+        date = TradeTime.get_latest_trade_date()
+        query = """select symbol from yahoo_equity where tradeDate = '{}'""".format(date)
+        rows = self.select(query)
+        return map(lambda row: row[0], rows)
+
 
 if __name__ == '__main__':
-    #YahooEquityDAO().save_all(['^GSPC'])
-    #YahooEquityDAO().save_all(['^GSPC', '^DJI'])
-    YahooEquityDAO().save_all(['^VXV'])
-    #print YahooEquityDAO().get_latest_price('SPY')
-    #print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
-    #print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
-    #print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
+    # YahooEquityDAO().save_all(['^GSPC'])
+    # YahooEquityDAO().save_all(['^GSPC', '^DJI'])
+    # YahooEquityDAO().save_all(['^VXV'])
+    # print YahooEquityDAO().get_latest_price('SPY')
+    # print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
+    # print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
+    # print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
+    print YahooEquityDAO().get_last_trade_day_symbols()

@@ -14,6 +14,9 @@ class TradeNode(object):
         self.action = action
         self.percentage = percentage
 
+    def __str__(self):
+        return str(self.__dict__)
+
 
 class DataProvider(object):
 

@@ -14,6 +14,7 @@ from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahoooptionparser import YahooOptionParser
 from aggregation.agg_spyvixhedge import AGGSPYVIXHedge
 from processman import ProcessMan
+from validation import Validator
 
 logger = Logger(__name__, PathMgr.get_log_path())
 
@@ -65,7 +66,7 @@ def backup_daily_data():
 
 
 def process_for_yahoo_historical_data():
-    logger.info('process for yahoo historial data...')
+    logger.info('process for yahoo historical data...')
     YahooScraper.ingest_recently_historyical_etf()
     YahooEquityDAO().save_all()
 
@@ -76,6 +77,12 @@ def aggregation_for_spy_vix_hedge_table():
     logger.info('run aggregation completed.')
 
 
+def data_validation():
+    logger.info('run caa validation...')
+    Validator.validate_caa_data()
+    logger.info('completed...')
+
+
 def run():
     processes = [process_for_ingesting_barchart_data,
                  process_for_ingesting_yahoo_option_data,
@@ -84,6 +91,7 @@ def run():
                  aggregation_for_spy_vix_hedge_table,
                  process_for_ingesting_nyse_credit,
                  process_for_yahoo_historical_data,
+                 data_validation,
                  #backup_daily_data,
                  #clean_obsoleted_data
                  ]

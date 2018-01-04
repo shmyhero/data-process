@@ -81,7 +81,9 @@ class YahooScraper(object):
         return ""
 
     @staticmethod
-    def ingest_all_historical_etf(date_from = '1993-01-29', date_to=None, symbols = Symbols.get_all_symbols()):
+    def ingest_all_historical_etf(date_from = '1993-01-29', date_to=None, symbols=None):
+        if symbols is None:
+            symbols = Symbols.get_all_symbols()
         date_to = date_to or datetime.date.today().strftime("%Y-%m-%d")
         logger = Logger(__name__, PathMgr.get_log_path())
         for symbol in symbols:
@@ -92,9 +94,9 @@ class YahooScraper(object):
             time.sleep(1)
 
     @staticmethod
-    def ingest_recently_historyical_etf(days = 10):
-        date_from = (datetime.date.today() - datetime.timedelta(days = days)).strftime("%Y-%m-%d")
-        YahooScraper.ingest_all_historical_etf(date_from)
+    def ingest_recently_historyical_etf(days=10, symbols=None):
+        date_from = (datetime.date.today() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+        YahooScraper.ingest_all_historical_etf(date_from, symbols=symbols)
 
     @staticmethod
     def get_option_expirations(symbol):
