@@ -95,6 +95,21 @@ class YahooEquityDAO(BaseDAO):
         rows = self.select(query)
         return map(lambda row: row[0], rows)
 
+    def get_start_date_by_symbol(self, symbol, cursor):
+        query = """select tradeDate from yahoo_equity where symbol = '{}' limit 1 """.format(symbol)
+        rows = self.select(query, cursor)
+        return rows[0][0]
+
+    def get_start_data_by_symbols(self):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        records = []
+        for symbol in Symbols.get_all_symbols():
+            start_date = self.get_start_date_by_symbol(symbol, cursor)
+            records.append([symbol, start_date])
+        conn.close()
+        return records
+
 
 if __name__ == '__main__':
     # YahooEquityDAO().save_all(['^GSPC'])
@@ -104,4 +119,5 @@ if __name__ == '__main__':
     # print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
     # print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
     # print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
-    print YahooEquityDAO().get_last_trade_day_symbols()
+    # print YahooEquityDAO().get_last_trade_day_symbols()
+    print YahooEquityDAO().get_start_data_by_symbols()

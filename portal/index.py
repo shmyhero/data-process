@@ -468,6 +468,15 @@ class Others(object):
     def GET(self):
         return render.others()
 
+class StartDate(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        records = YahooEquityDAO().get_start_data_by_symbols()
+        return render.start_date(records)
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
@@ -483,6 +492,7 @@ def run_web_app():
             '/optionsforbacktest', 'OptionsForBackTest',
             '/optionbacktest', 'OptionBackTestDiagram',
             '/processstatus', 'ProcessStatus',
+            '/startdate', 'StartDate',
             '/others', 'Others')
 
     app = web.application(urls, globals())
