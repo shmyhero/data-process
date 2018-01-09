@@ -1,4 +1,5 @@
 import traceback
+import time
 from utils.logger import Logger
 from common.pathmgr import PathMgr
 from common.notification import notify
@@ -83,6 +84,23 @@ def data_validation():
     logger.info('completed...')
 
 
+def catch_up_missing_data():
+    logger.info('run catch up missing_data')
+    retry_count = 10
+    for i in range(retry_count):
+        symbols = YahooEquityDAO().get_missing_records_symbols()
+        if len(symbols) == 0:
+            break
+        else:
+            if i == retry_count-1:
+                raise Exception('Unable to ingest missing data from yahoo website for %s times..'% retry_count)
+            else:
+                time.sleep(300) # sleep 5 minutes, then retry
+                YahooScraper.ingest_recently_historyical_etf(symbols=symbols)
+                YahooEquityDAO().save_all(symbols)
+    logger.info('completed')
+
+
 def run():
     processes = [process_for_ingesting_barchart_data,
                  process_for_ingesting_yahoo_option_data,
@@ -92,6 +110,7 @@ def run():
                  process_for_ingesting_nyse_credit,
                  process_for_yahoo_historical_data,
                  data_validation,
+                 catch_up_missing_data,
                  #backup_daily_data,
                  #clean_obsoleted_data
                  ]

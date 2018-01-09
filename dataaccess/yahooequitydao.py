@@ -96,28 +96,50 @@ class YahooEquityDAO(BaseDAO):
         return map(lambda row: row[0], rows)
 
     def get_start_date_by_symbol(self, symbol, cursor):
-        query = """select tradeDate from yahoo_equity where symbol = '{}' limit 1 """.format(symbol)
+        query = """select tradeDate from yahoo_equity where symbol = '{}' order by tradeDate limit 1 """.format(symbol)
         rows = self.select(query, cursor)
         return rows[0][0]
 
-    def get_start_data_by_symbols(self):
+    def get_end_date_by_symbol(self, symbol, cursor):
+        query = """select tradeDate from yahoo_equity where symbol = '{}' order by tradeDate desc limit 1 """.format(symbol)
+        rows = self.select(query, cursor)
+        return rows[0][0]
+
+    def get_start_end_date_by_symbols(self):
+        reversed_yahoo_symbol_mapping = Symbols.get_reversed_yahoo_symbol_mapping()
         conn = self.get_connection()
         cursor = conn.cursor()
         records = []
         for symbol in Symbols.get_all_symbols():
             start_date = self.get_start_date_by_symbol(symbol, cursor)
-            records.append([symbol, start_date])
+            end_date = self.get_end_date_by_symbol(symbol, cursor)
+            records.append([Symbols.get_mapped_symbol(symbol,reversed_yahoo_symbol_mapping), start_date, end_date])
+            records.sort()
         conn.close()
         return records
+
+    def get_missing_records_symbols(self):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        missing_symbols = []
+        last_trade_date = TradeTime.get_latest_trade_date()
+        for symbol in Symbols.get_all_symbols():
+            end_date = self.get_end_date_by_symbol(symbol, cursor)
+            if end_date < last_trade_date:
+                missing_symbols.append(symbol)
+        conn.close()
+        return missing_symbols
+
+
 
 
 if __name__ == '__main__':
     # YahooEquityDAO().save_all(['^GSPC'])
     # YahooEquityDAO().save_all(['^GSPC', '^DJI'])
-    # YahooEquityDAO().save_all(['^VXV'])
+    YahooEquityDAO().save_all(['^VXV'])
     # print YahooEquityDAO().get_latest_price('SPY')
     # print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
     # print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])
     # print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
     # print YahooEquityDAO().get_last_trade_day_symbols()
-    print YahooEquityDAO().get_start_data_by_symbols()
+    # print YahooEquityDAO().get_start_data_by_symbols()

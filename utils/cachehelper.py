@@ -23,7 +23,7 @@ class CacheMan(object):
         self.cache = CacheRepository.get_cache(cache_name)
         self.expiration_minutes = expiration_minutes
         today_str = datetime.date.today().strftime('%Y%m%d')
-        if CacheRepository.DATE  != today_str:
+        if CacheRepository.DATE != today_str:
             if CacheMan.clearing:
                 pass
             else:

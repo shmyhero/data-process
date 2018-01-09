@@ -1,0 +1,34 @@
+$def with (records, last_trade_date, error)
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name=viewport content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Title</title>
+</head>
+<body>
+
+</br>
+</br>
+$if error:
+    <label style = "font-size:50px; color:red; text-align:center;">Data missing, please check...</label>
+
+<table border="1" cellspacing="0" >
+
+    <tr style = "font-size:37px;">
+        <th>Symbol</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+    </tr>
+    $for record in records:
+        $if record[2] < last_trade_date:
+            <tr style="background-color:red" >
+        $else:
+            <tr>
+        $for value in record:
+            <td ><font size="7" >$value</font></td>
+        </tr>
+</table>
+
+</body>
+</html>

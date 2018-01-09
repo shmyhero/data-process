@@ -468,14 +468,21 @@ class Others(object):
     def GET(self):
         return render.others()
 
-class StartDate(object):
+
+class StartEndDate(object):
 
     def __init__(self):
         pass
 
     def GET(self):
-        records = YahooEquityDAO().get_start_data_by_symbols()
-        return render.start_date(records)
+        records = YahooEquityDAO().get_start_end_date_by_symbols()
+        last_trade_date = TradeTime.get_latest_trade_date()
+        error = False
+        for record in records:
+            if record[2] < last_trade_date:
+                error = True
+        return render.start_end_date(records, last_trade_date, error)
+
 
 def run_web_app():
     urls = ('/', 'Index',
@@ -492,7 +499,7 @@ def run_web_app():
             '/optionsforbacktest', 'OptionsForBackTest',
             '/optionbacktest', 'OptionBackTestDiagram',
             '/processstatus', 'ProcessStatus',
-            '/startdate', 'StartDate',
+            '/startenddate', 'StartEndDate',
             '/others', 'Others')
 
     app = web.application(urls, globals())

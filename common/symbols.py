@@ -1,4 +1,5 @@
 from utils.listhelper import flatten
+from utils.listhelper import hash_to_list, list_to_hash
 
 
 class Symbols(object):
@@ -50,13 +51,21 @@ class Symbols(object):
     YahooSymbolMapping = {'SPX': '^GSPC', 'INDU': '^DJI', 'VIX': '^VIX', 'VXV': '^VXV', 'VVIX': '^VVIX', 'RUT': '^RUT', 'NDX': '^NDX'}
 
     @staticmethod
-    def get_mapped_symbol(symbol, mapping_dic):
+    def get_mapped_symbol(symbol, mapping_dic = YahooSymbolMapping):
         if symbol in mapping_dic.keys():
             return mapping_dic[symbol]
         else:
             return symbol
 
+    @staticmethod
+    def get_reversed_yahoo_symbol_mapping():
+        lst = hash_to_list(Symbols.YahooSymbolMapping)
+        reversed_lst = map(lambda x: [x[1], x[0]], lst)
+        dic = list_to_hash(reversed_lst)
+        return dic
 
+if __name__ == '__main__':
+    Symbols.yahoo_symbol_to_quantopian_symbol('^GSPC')
 
 
 
