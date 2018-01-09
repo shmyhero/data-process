@@ -33,7 +33,7 @@ class AGGSPYVIXHedge(object):
 
         from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(50)
         self.vix_index_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
-        (records_f1, records_f2) = VIXDAO().get_following_vix(from_date)
+        (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         self.vixf1_records = records_f1
         self.vix_delta_records = map(lambda x, y: [x[0], y[1]-x[1]], self.vix_index_records, self.vixf1_records)
         self.hv_vix = list(self.calculate_f1_volatilities())

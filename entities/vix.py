@@ -86,6 +86,14 @@ class VIX(BaseEntity):
             return VIX.get_symbol_by_year_index(year, index+1)
 
     @staticmethod
+    def get_f3_by_date(date):
+        (year, index) = VIX.get_following_year_index(date)
+        if index >= 10:
+            return VIX.get_symbol_by_year_index(year + 1, index + 2 - 12)
+        else:
+            return VIX.get_symbol_by_year_index(year, index + 2)
+
+    @staticmethod
     def get_vix_symbol_list(from_date, to_date = None, fx=1):
         to_date = to_date or TradeTime.get_latest_trade_date()
         for (year, index) in VIX.get_year_index_list(from_date, to_date, fx):
@@ -132,5 +140,6 @@ if __name__ == '__main__':
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 15))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 19))
     print VIX.get_f2_by_date(datetime.datetime(2017, 11, 15))
+    print VIX.get_f3_by_date(datetime.datetime(2017, 10, 19))
     print VIX.get_following_expiration_date(datetime.datetime(2017, 12, 25))
     print list(VIX.get_vix_symbol_list(datetime.datetime(2017, 8, 10), datetime.datetime(2017, 9, 20), 2))

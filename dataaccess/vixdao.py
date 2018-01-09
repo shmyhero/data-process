@@ -111,7 +111,7 @@ class VIXDAO(BaseDAO):
         from_date = from_date or TradeTime.get_latest_trade_date() - datetime.timedelta(30)
         to_date = to_date or TradeTime.get_latest_trade_date()
         #self.logger.info('today=%s, from_date=%s, to_date=%s'%(datetime.datetime.today(), from_date, to_date))
-        symbols = VIX.get_vix_symbol_list(from_date, to_date, 2)
+        symbols = VIX.get_vix_symbol_list(from_date, to_date, 3)
         #records_index = self.get_vix_price_by_symbol('VIY00')
         symbol_dic = {}
         for symbol in symbols:
@@ -119,15 +119,18 @@ class VIXDAO(BaseDAO):
         days = (to_date - from_date).days+1
         records_f1 = []
         records_f2 = []
+        records_f3 = []
         for i in range(days):
             date = from_date + datetime.timedelta(days=i)
             if TradeTime.is_trade_day(date):
                 symbol_f1 = VIX.get_f1_by_date(date)
                 symbol_f2 = VIX.get_f2_by_date(date)
+                symbol_f3 = VIX.get_f3_by_date(date)
                 records_f1.append([date, symbol_dic[symbol_f1].get(date), symbol_f1])
                 records_f2.append([date, symbol_dic[symbol_f2].get(date), symbol_f2])
-        #self.logger.info([records_f1[-1], records_f2[-1]])
-        return (records_f1, records_f2)
+                records_f3.append([date, symbol_dic[symbol_f3].get(date), symbol_f3])
+        # self.logger.info([records_f1[-1], records_f2[-1]], records_f3[-1]])
+        return (records_f1, records_f2, records_f3)
 
     def get3vix(self, date_str=None):
         date_str = date_str or TradeTime.get_latest_trade_date().strftime('%Y-%m-%d')
