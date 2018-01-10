@@ -86,7 +86,7 @@ def data_validation():
 
 def catch_up_missing_data():
     logger.info('run catch up missing_data')
-    retry_count = 10
+    retry_count = 30  # retry for 5 hours
     for i in range(retry_count):
         symbols = YahooEquityDAO().get_missing_records_symbols()
         if len(symbols) == 0:
@@ -95,7 +95,7 @@ def catch_up_missing_data():
             if i == retry_count-1:
                 raise Exception('Unable to ingest missing data from yahoo website for %s times..'% retry_count)
             else:
-                time.sleep(300) # sleep 5 minutes, then retry
+                time.sleep(600) # sleep 10 minutes, then retry
                 YahooScraper.ingest_recently_historyical_etf(symbols=symbols)
                 YahooEquityDAO().save_all(symbols)
     logger.info('completed')
