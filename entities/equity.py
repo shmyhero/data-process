@@ -25,4 +25,7 @@ class Equity(BaseEntity):
         BaseEntity.parse_for_entity(BaseEntity.parse_date, equity, ['tradeTime'])
         return equity
 
+    def __str__(self):
+        return BaseEntity.to_json(self)
+
 
