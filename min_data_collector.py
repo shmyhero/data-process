@@ -11,7 +11,7 @@ from common.tradetime import TradeTime
 class MinDataCollector(object):
 
     def __init__(self):
-        self.logger = Logger(__name__, PathMgr.get_log_path())
+        self.logger = Logger(__name__, PathMgr.get_log_path('minutes'))
         self.alpha_vantage = AlphaVantage()
         self.equity_min_dao = EquityMinDAO()
         self.symbols = ['SPX', 'XIV', 'VIX', 'SVXY', 'UVXY']

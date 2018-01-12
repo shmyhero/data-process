@@ -8,7 +8,7 @@ from entities.equity import Equity
 class AlphaVantage(object):
 
     def __init__(self, apikey='JW72YXW7G33OWE5S'):
-        self.logger = Logger(__name__, PathMgr.get_log_path())
+        self.logger = Logger(__name__, PathMgr.get_log_path('minutes'))
         self.apikey = apikey
 
     def parse_record(self, content, symbol):
