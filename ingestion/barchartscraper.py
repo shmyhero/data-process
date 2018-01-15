@@ -65,7 +65,7 @@ class BarchartScraper(object):
             for record in json_data['results']:
                 yield [record['open'], record['close'], record['high'], record['low'], record['volume'],
                        #TODO: verify real time... u'2018-01-08T18:55:00-06:00'
-                       datetime.strptime(record['tradeTimestamp'][0:19], '%Y-%m-%dT%H:%M:%S')]
+                       datetime.datetime.strptime(record['tradeTimestamp'][0:19], '%Y-%m-%dT%H:%M:%S')]
         except Exception as e:
             logger.error('Trace: ' + traceback.format_exc(), False)
             logger.error('Error: get action arguments failed:' + str(e))
@@ -91,8 +91,9 @@ if __name__ == '__main__':
     #print WebScraper.get_expiration_dates('SPY')
     #print WebScraper.get_equity_data('SPY')
     #print WebScraper.get_option_data('SPY', '2017-07-21')
-    print BarchartScraper.get_vix_data()
+    # print BarchartScraper.get_vix_data()
     #import datetime
     #print type(datetime.date.today())
+    print BarchartScraper.get_current_data(['XIV', 'SVXY'])
 
 

@@ -38,4 +38,5 @@ class MinDataCollector(object):
 
 
 if __name__ == '__main__':
-    MinDataCollector().run()
+    # MinDataCollector().run()
+    MinDataCollector().collect_data()
