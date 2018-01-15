@@ -123,7 +123,7 @@ class TradeTime(object):
 if __name__ == '__main__':
     print TradeTime.get_trading_close_holidays(2017)
     print TradeTime.get_half_trade_dates(2015)
-    print TradeTime.is_trade_day(datetime.date(2018, 1, 12))
+    print TradeTime.is_trade_day(datetime.date(2018, 1, 15))
     print TradeTime.is_trade_day(datetime.date(2017, 9, 1))
     print TradeTime.is_trade_day(datetime.date(2017, 9, 4))
     print TradeTime.is_half_trade_day(datetime.date(2017, 7, 3))

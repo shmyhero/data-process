@@ -1,6 +1,7 @@
 import traceback
 import time
 import datetime
+import pytz
 from utils.logger import Logger
 from common.pathmgr import PathMgr
 from entities.equity import Equity
@@ -24,25 +25,28 @@ class RealTimeDataCollector(object):
         self.equity_realtime_dao.insert(equities)
 
     def run(self):
-        self.logger.info("start...")
-        market_close_retry_count = 0
-        while True:
-            if TradeTime.is_market_open():
-                try:
-                    self.collect_data()
-                except Exception as e:
-                    self.logger.error('Trace: ' + traceback.format_exc())
-                    self.logger.error(str(e))
-            else:
-                # self.logger.info('market not open sleep 1 second')
-                time.sleep(1)
-                market_close_retry_count = market_close_retry_count + 1
-                if market_close_retry_count >= 3720: # if day light saving...
-                    self.logger.info('market not open, quit...')
-                    break
+        if TradeTime.is_trade_day(datetime.datetime.now(tz=pytz.timezone('US/Eastern')).date()):
+            self.logger.info("start...")
+            market_close_retry_count = 0
+            while True:
+                if TradeTime.is_market_open():
+                    try:
+                        self.collect_data()
+                    except Exception as e:
+                        self.logger.error('Trace: ' + traceback.format_exc())
+                        self.logger.error(str(e))
+                else:
+                    # self.logger.info('market not open sleep 1 second')
+                    time.sleep(1)
+                    market_close_retry_count = market_close_retry_count + 1
+                    if market_close_retry_count >= 3720: # if day light saving...
+                        self.logger.info('market not open, quit...')
+                        break
+        else:
+            self.logger.info('not trade date, quit...')
 
 
 if __name__ == '__main__':
     # MinDataCollector().run()
     # RealTimeDataCollector().run()
-    RealTimeDataCollector().collect_data()
+    RealTimeDataCollector().run()
