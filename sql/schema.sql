@@ -50,11 +50,7 @@ create table equity_realtime (
     id int not null auto_increment primary key,
     symbol varchar (32) not null,
     tradeTime datetime not null,
-    openPrice float null,
-    highPrice float null,
-	lowPrice float null,
-	closePrice float null,
-	volume float null,
+    price float not null,
 	unique index equity_realtime_index (symbol, tradeTime)
 );
 

@@ -60,3 +60,20 @@ class Logger:
             sys.stderr.write('%s\n'%content)
         if self.log_path:
             self.logger.exception(content)
+
+
+class LoggerFactory(object):
+
+    _logger_dict = {}
+
+    _current_date = datetime.date.today()
+
+    @staticmethod
+    def create_daily_logger(name, log_path, console=True):
+        key = '{}_{}'.format(name, log_path)
+        if key not in LoggerFactory._logger_dict.keys() or LoggerFactory._current_date != datetime.date.today():
+            LoggerFactory._logger_dict[key] = Logger(name, log_path, console)
+            LoggerFactory._current_date = datetime.date.today()
+            return LoggerFactory._logger_dict[key]
+        else:
+            return LoggerFactory._logger_dict[key]
