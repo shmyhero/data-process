@@ -26,25 +26,17 @@ class RealTimeDataCollector(object):
         self.equity_realtime_dao.insert(self.symbol, us_dt, price)
 
     def run(self):
-        if TradeTime.is_trade_day(datetime.datetime.now(tz=pytz.timezone('US/Eastern')).date()):
-            self.logger.info("start...")
-            market_close_retry_count = 0
-            while True:
-                if TradeTime.is_market_open():
-                    try:
-                        self.collect_data()
-                    except Exception as e:
-                        self.logger.error('Trace: ' + traceback.format_exc())
-                        self.logger.error(str(e))
-                else:
-                    # self.logger.info('market not open sleep 10 second')
-                    time.sleep(10)
-                    market_close_retry_count = market_close_retry_count + 1
-                    if market_close_retry_count >= 372: # if day light saving...
-                        self.logger.info('market not open, quit...')
-                        break
-        else:
-            self.logger.info('not trade date, quit...')
+        self.logger.info("start...")
+        while True:
+            if TradeTime.is_market_open():
+                try:
+                    self.collect_data()
+                except Exception as e:
+                    self.logger.error('Trace: ' + traceback.format_exc())
+                    self.logger.error(str(e))
+            else:
+                self.logger.info('market not open...')
+            time.sleep(10)
 
 
 if __name__ == '__main__':
