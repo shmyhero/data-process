@@ -164,8 +164,8 @@ class VolBase(object):
         first_tradetime = option_iv_records[0][0]
         circle = 30
         equity_start_date = first_tradetime - datetime.timedelta(circle)
-        trade_day_circle = len(filter(lambda x: x[0] >= equity_start_date and x[0] < first_tradetime, equity_records))
-        hv_records = OptionCalculater.get_year_history_volatility_list(filter(lambda x: x[0] >= equity_start_date, equity_records), trade_day_circle)
+        # trade_day_circle = len(filter(lambda x: x[0] >= equity_start_date and x[0] < first_tradetime, equity_records))
+        hv_records = OptionCalculater.get_year_history_volatility_list(filter(lambda x: x[0] >= equity_start_date, equity_records), circle)
         self.equity_records = filter(lambda x: x[0] >= first_tradetime, equity_records)
         self.hv_records = hv_records
         self.iv_records = option_iv_records
@@ -192,12 +192,12 @@ class VolHvsI(VolBase):
             self.init_data(symbol)
         else:
             self.init_with_cache(symbol)
-        dates = map(lambda x: x[0], self.equity_records)
+        dates = map(lambda x: x[0], self.hv_records)
         hv = map(lambda x: x[1] * 100.0, self.hv_records)
         if all_number_p(symbol):
-            iv = map(lambda x: x[1] * 100.0, self.iv_records)
+            iv = map(lambda x: x[1] * 100.0, self.iv_records[-len(dates):])
         else:
-            iv = map(lambda x: x[1], self.iv_records)
+            iv = map(lambda x: x[1], self.iv_records[-len(dates):])
         fig = Figure(figsize=[12, 6])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(dates, hv, label='historical volatility')
