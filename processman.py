@@ -1,5 +1,6 @@
 import traceback
 import time
+import pytz
 from datetime import datetime
 from utils.logger import Logger
 from utils.listhelper import list_to_hash
@@ -21,16 +22,16 @@ class ProcessesInfo(object):
         self.processes_dict[process] = status
 
     def start_process(self, process):
-        self.processes_dict[process] = [False, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), None]
+        self.processes_dict[process] = [False, datetime.now(tz=pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')[0:19], None]
         self.update_process_fn(self)
 
     def complete_process(self, process):
-        new_value = [True, self.processes_dict[process][1], datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
+        new_value = [True, self.processes_dict[process][1], datetime.now(tz=pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')[0:19]]
         self.processes_dict[process] = new_value
         self.update_process_fn(self)
 
     def failed_process(self, process):
-        new_value = [False, self.processes_dict[process][1], datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
+        new_value = [False, self.processes_dict[process][1], datetime.now(tz=pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')[0:19]]
         self.processes_dict[process] = new_value
         self.update_process_fn(self)
 
@@ -63,7 +64,7 @@ class ProcessMan(object):
         self.processDao.update(self.process_type, self.start_time, str(self.processes_info))
 
     def run_all(self):
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(tz=pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')[0:19]
         self.processDao.insert(self.process_type, self.start_time, str(self.processes_info))
         succeed = True
         for process in self.processes_info.get_processes():
