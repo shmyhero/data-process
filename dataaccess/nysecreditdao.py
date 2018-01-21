@@ -1,5 +1,6 @@
 import pandas as pd
-from entities.nysecredit import Credit
+from utils.logger import LoggerFactory
+from common.pathmgr import PathMgr
 from dataaccess.basedao import BaseDAO
 
 
@@ -8,6 +9,7 @@ class NYSECreditDAO(BaseDAO):
     def __init__(self):
         # BaseDAO.__init__(self)
         super(BaseDAO, self).__init__()
+        self.logger = LoggerFactory.create_daily_logger(self.__name__, PathMgr.get_log_path())
 
     def save(self, credits):
         query_template = """insert into nyse_credit (lastDate,the_year,the_month,margin_debt,cash_accounts,credit_balance) values
