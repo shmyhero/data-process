@@ -9,7 +9,7 @@ from common.configmgr import ConfigMgr
 class BaseDAO(object):
 
     def __init__(self):
-        self.logger = Logger(self.__class__.__name__, PathMgr.get_log_path())
+        self.logger = Logger(self.__name__, PathMgr.get_log_path())
 
     @staticmethod
     def get_connection():
