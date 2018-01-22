@@ -18,3 +18,12 @@ class EquityMinDAO(BaseDAO):
             self.execute_query(query, cursor)
         conn.commit()
         conn.close()
+
+    def get_time_and_price(self, start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
+        query = """select tradeTime, closePrice from equity_min where tradeTime > '{}' and tradeTime < '{}' and symbol = 'XIV' order by tradeTime""".format(start_time, end_time)
+        return self.select(query)
+
+if __name__ == '__main__':
+    rows = EquityMinDAO().get_time_and_price(datetime.datetime(2018, 1, 19, 9, 30, 0))
+    for row in rows:
+        print row
