@@ -3,6 +3,9 @@ from dataaccess.basedao import BaseDAO
 
 class ProcessDAO(BaseDAO):
 
+    def __init__(self):
+        BaseDAO.__init__(self)
+
     def insert(self, process_type, start_time, processes_info):
         sql_template = """insert into process (type, start_time, processes_info) values('{}', '{}', '{}')"""
         sql = sql_template.format(process_type, start_time, processes_info.replace('\'', '\\\''))

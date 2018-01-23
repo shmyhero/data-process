@@ -5,8 +5,8 @@ from dataaccess.equitymindao import EquityMinDAO
 
 
 def plot_yahoo_equity_line():
-    real_data = EquityRealTimeDAO().get_min_time_and_price(datetime.datetime(2018, 1, 19, 9, 30, 0))
-    min_data = EquityMinDAO().get_time_and_price(datetime.datetime(2018, 1, 19, 9, 30, 0))
+    real_data = EquityRealTimeDAO().get_min_time_and_price(datetime.datetime(2018, 1, 19, 9, 30, 0), datetime.datetime(2018, 1, 19, 16, 29, 59))
+    min_data = EquityMinDAO().get_time_and_price(datetime.datetime(2018, 1, 19, 9, 31, 0), datetime.datetime(2018, 1, 19, 16, 29, 59))
     time = map(lambda x: x[0], real_data)
     real_values = map(lambda x: x[1], real_data)
     min_values = map(lambda x: x[1], min_data)

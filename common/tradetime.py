@@ -119,6 +119,17 @@ class TradeTime(object):
             if TradeTime.is_trade_day(current_date):
                 count +=1
 
+    @staticmethod
+    def get_all_trade_min(date):
+        if TradeTime.is_trade_day(date):
+            start_time = datetime.datetime(date.year, date.month, date.day, 9, 30)
+            if TradeTime.is_half_trade_day(date):
+                return map(lambda x: start_time + datetime.timedelta(minutes=x), range(211))
+            else:
+                return map(lambda x: start_time + datetime.timedelta(minutes=x), range(391))
+        else:
+            return []
+
 
 if __name__ == '__main__':
     print TradeTime.get_trading_close_holidays(2017)
@@ -129,3 +140,5 @@ if __name__ == '__main__':
     print TradeTime.is_half_trade_day(datetime.date(2017, 7, 3))
     print TradeTime.is_market_open()
     print TradeTime.get_latest_trade_date()
+    print TradeTime.get_all_trade_min(datetime.date(2018, 1, 19))
+    print TradeTime.get_all_trade_min(datetime.date(2017, 7, 3))

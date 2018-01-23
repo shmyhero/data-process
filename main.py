@@ -9,7 +9,8 @@ from ingestion.nyseingestor import NYSEIngestor
 from ingestion.bigchartsingestor import BigChartsScraper
 from dataaccess.rawfilemgr import RawFileMgr
 from dataaccess.raw2db import RawToDB
-from dataaccess.dataexporter import DataExporter
+from dataaccess.equitymindao import EquityMinDAO
+from dataaccess.equityrealtimedao import EquityRealTimeDAO
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.nysecreditdao import NYSECreditDAO
 from dataaccess.yahoooptionparser import YahooOptionParser
@@ -101,8 +102,17 @@ def catch_up_missing_data():
     logger.info('completed')
 
 
+def fill_missing_minute_record():
+    logger.info('Fill missing minute record')
+    count1 = EquityMinDAO().add_missing_data()
+    count2 = EquityMinDAO().add_missing_data()
+    if count1 > 10 or count2 > 10:
+        raise Exception('Too many missing data, [%s, %s]' %(count1, count2))
+
+
 def run():
-    processes = [process_for_ingesting_barchart_data,
+    processes = [fill_missing_minute_record,
+                 process_for_ingesting_barchart_data,
                  process_for_ingesting_yahoo_option_data,
                  process_for_ingesting_bigcharts_option_data,
                  process_for_updating_option_delta,
