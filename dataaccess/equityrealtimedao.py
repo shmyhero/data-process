@@ -50,6 +50,9 @@ class EquityRealTimeDAO(BaseDAO):
                 self.insert(*record)
         return len(missing_records)
 
+    # TODO: complete this...
+    def add_missing_data_in_real_time(self):
+        pass
 
 if __name__ == '__main__':
     # rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))

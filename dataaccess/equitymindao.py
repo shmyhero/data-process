@@ -45,6 +45,9 @@ class EquityMinDAO(BaseDAO):
             self.insert(missing_records)
         return len(missing_records)
 
+    # TODO: complete this...
+    def add_missing_data_in_real_time(self):
+        pass
 
 if __name__ == '__main__':
     # EquityMinDAO().add_missing_data()

@@ -2,6 +2,8 @@ import datetime
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
 from dataaccess.vixdao import VIXDAO
+from dataaccess.equitymindao import EquityMinDAO
+from dataaccess.equityrealtimedao import EquityRealTimeDAO
 
 
 class DataCleanDAO(BaseDAO):
@@ -38,11 +40,20 @@ class DataCleanDAO(BaseDAO):
         query = query_template.format(str(date))
         self.execute_query(query)
 
+    def add_missing_data_to_realtime_from_min(self, date):
+        start_time = datetime.datetime.fromordinal(date.toordinal())
+        end_time = start_time + datetime.timedelta(days=1)
+        rows = EquityMinDAO().get_time_and_price(start_time=start_time, end_time=end_time)
+        for row in rows:
+            EquityRealTimeDAO().insert('XIV', row[0], row[1])
+
+
 if __name__ == '__main__':
     #DataCleanDAO().add_missing_data_for_vix()
     #DataCleanDAO().fix_option_date_error1()
     #DataCleanDAO().delete_option('VIX')
     #DataCleanDAO().remove_invalid_records(datetime.date(2017, 9, 23))
     #DataCleanDAO().fix_option_date_error2()
-    DataCleanDAO().clean_equity_data()
+    # DataCleanDAO().clean_equity_data()
+    DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 1, 23))
 
