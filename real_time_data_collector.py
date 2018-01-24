@@ -2,7 +2,7 @@ import traceback
 import time
 import datetime
 import pytz
-from utils.logger import Logger
+from utils.logger import LoggerFactory
 from common.pathmgr import PathMgr
 from entities.equity import Equity
 from ingestion.webscraper import YahooScraper
@@ -13,7 +13,7 @@ from dataaccess.equityrealtimedao import EquityRealTimeDAO
 class RealTimeDataCollector(object):
 
     def __init__(self):
-        self.logger = Logger(__name__, PathMgr.get_log_path('realtime'))
+        self.logger = LoggerFactory.create_daily_logger(__name__, PathMgr.get_log_path('realtime'))
         self.symbol = 'XIV'  # , 'VIX', 'SVXY', 'UVXY']
         self.equity_realtime_dao = EquityRealTimeDAO()
         self.webScraper = YahooScraper()
