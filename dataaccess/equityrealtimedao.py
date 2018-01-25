@@ -74,12 +74,16 @@ class EquityRealTimeDAO(BaseDAO):
                     # print rows
                     j = 0
                     missing_records = []
+                    # self.logger.info('rows = %s, \n trade_minutes = %s' %(rows[-2:], trade_minutes[-2:]))
                     for i, time in enumerate(trade_minutes):
-                        if rows[j][0] > time:
+                        if j >= len(rows):
+                            break # rows length may less than trade_minutes for 1 elements.
+                        if rows[j][0].minute > time.minute:
                             if j > 0:
                                 price = rows[j - 1][1]
                             else:
                                 price = rows[0][1]
+                            # self.logger.info('missing record: j = %s, time=%s'%(j, time))
                             missing_records.append((symbol, time, price))
                         else:
                             j = j + 1
