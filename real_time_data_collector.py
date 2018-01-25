@@ -31,6 +31,10 @@ class RealTimeDataCollector(object):
             if TradeTime.is_market_open():
                 try:
                     self.collect_data()
+                    self.logger.info('Check missing data...')
+                    count = self.equity_realtime_dao.add_missing_data_in_real_time()
+                    if count is not None and count > 0:
+                        self.logger.info('Filled {} records...'.format(count))
                 except Exception as e:
                     self.logger.error('Trace: ' + traceback.format_exc())
                     self.logger.error(str(e))
