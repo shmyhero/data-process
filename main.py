@@ -102,16 +102,23 @@ def catch_up_missing_data():
     logger.info('completed')
 
 
-def fill_missing_minute_record():
-    logger.info('Fill missing minute record')
-    count1 = EquityMinDAO().add_missing_data()
-    count2 = EquityMinDAO().add_missing_data()
-    if count1 > 10 or count2 > 10:
-        raise Exception('Too many missing data, [%s, %s]' %(count1, count2))
+def add_missing_data():
+    logger.info('Add missing minute data.')
+    EquityMinDAO().add_missing_data()
+    EquityRealTimeDAO().add_missing_data()
+    logger.info('Completed.')
+
+
+def save_minute_data_to_csv():
+    logger.info('Save minute data.')
+    EquityMinDAO().save_to_csv()
+    EquityRealTimeDAO().save_to_csv()
+    logger.info('Completed.')
 
 
 def run():
-    processes = [fill_missing_minute_record,
+    processes = [add_missing_data,
+                 save_minute_data_to_csv,
                  process_for_ingesting_barchart_data,
                  process_for_ingesting_yahoo_option_data,
                  process_for_ingesting_bigcharts_option_data,

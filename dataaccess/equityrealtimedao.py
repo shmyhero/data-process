@@ -1,5 +1,8 @@
 import datetime
+import os
 import pytz
+from utils.iohelper import write_to_file, ensure_dir_exists
+from common.pathmgr import PathMgr
 from common.tradetime import TradeTime
 from dataaccess.basedao import BaseDAO
 
@@ -17,6 +20,23 @@ class EquityRealTimeDAO(BaseDAO):
     def get_time_and_price(self, symbol='XIV', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         query = """select tradeTime, price from equity_realtime where tradeTime >= '{}' and tradeTime <= '{}' and symbol = '{}' order by tradeTime """.format(start_time, end_time, symbol)
         return self.select(query)
+
+    def save_to_csv(self, trade_date=None):
+        if trade_date is None:
+            trade_date = TradeTime.get_latest_trade_date()
+        start_time = datetime.datetime(trade_date.year, trade_date.month, trade_date.day, 9, 30, 0)
+        end_time = datetime.datetime(trade_date.year, trade_date.month, trade_date.day, 16, 0, 0)
+        query = """select * from equity_realtime where tradeTime >= '{}' and tradeTime <= '{}'""".format(start_time, end_time)
+        rows = self.select(query)
+        if rows is not None and len(rows) > 0:
+            records = map(lambda x: ','.join(map(str, x[1:])), rows)
+            content = '\n'.join(records)
+            raw_daily_path = PathMgr.get_raw_data_path(datetime.date.today().strftime('%Y-%m-%d'))
+            realtime_dir = os.path.join(raw_daily_path, 'realtime')
+            ensure_dir_exists(realtime_dir)
+            file_path = os.path.join(realtime_dir, '%s.csv' % trade_date.strftime('%Y-%m-%d'))
+            write_to_file(file_path, content)
+
 
     def get_min_time_and_price(self, symbol='XIV', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         rows = self.get_time_and_price(symbol, start_time, end_time)
@@ -38,8 +58,8 @@ class EquityRealTimeDAO(BaseDAO):
         j = 0
         missing_records = []
         for i, time in enumerate(TradeTime.get_all_trade_min(validate_date)):
-            if i == 390:
-                print time
+            # if i == 390:
+            #     print time
             if j >= len(rows) or rows[j][0].minute > time.minute:
                 if j > 0:
                     price = rows[j-1][1]
@@ -96,6 +116,7 @@ if __name__ == '__main__':
     # rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
     # for row in rows:
     #     print row
-    # EquityRealTimeDAO().add_missing_data()
-    # EquityRealTimeDAO().add_missing_data(validate_date=datetime.date(2018, 1, 19))
-    EquityRealTimeDAO().add_missing_data_in_real_time()
+    EquityRealTimeDAO().add_missing_data()
+    # EquityRealTimeDAO().add_missing_data(validate_date=datetime.date(2018, 1, 25))
+    # EquityRealTimeDAO().add_missing_data_in_real_time()
+    # EquityRealTimeDAO().save_to_csv()

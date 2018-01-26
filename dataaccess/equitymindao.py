@@ -1,5 +1,8 @@
 import datetime
 import pytz
+import os
+from utils.iohelper import write_to_file, ensure_dir_exists
+from common.pathmgr import PathMgr
 from entities.equity import Equity
 from dataaccess.basedao import BaseDAO
 from common.tradetime import TradeTime
@@ -24,6 +27,23 @@ class EquityMinDAO(BaseDAO):
     def get_time_and_price(self, symbol='XIV', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         query = """select tradeTime, closePrice from equity_min where tradeTime >= '{}' and tradeTime <= '{}' and symbol = '{}' order by tradeTime""".format(start_time, end_time, symbol)
         return self.select(query)
+
+    def save_to_csv(self, trade_date=None):
+        if trade_date is None:
+            trade_date = TradeTime.get_latest_trade_date()
+        start_time = datetime.datetime(trade_date.year, trade_date.month, trade_date.day, 9, 30, 0)
+        end_time = datetime.datetime(trade_date.year, trade_date.month, trade_date.day, 16, 0, 0)
+        query = """select * from equity_min where tradeTime >= '{}' and tradeTime <= '{}'""".format(start_time, end_time)
+        rows = self.select(query)
+        if rows is not None and len(rows) > 0:
+            records = map(lambda x: ','.join(map(str, x[1:])), rows)
+            content = '\n'.join(records)
+            raw_daily_path= PathMgr.get_raw_data_path(datetime.date.today().strftime('%Y-%m-%d'))
+            min_dir = os.path.join(raw_daily_path, 'min')
+            ensure_dir_exists(min_dir)
+            file_path = os.path.join(min_dir, '%s.csv' % trade_date.strftime('%Y-%m-%d'))
+            write_to_file(file_path, content)
+
 
     def add_missing_data(self, symbol='XIV', validate_date=None):
         if validate_date is None:
@@ -84,4 +104,5 @@ class EquityMinDAO(BaseDAO):
 if __name__ == '__main__':
     # EquityMinDAO().add_missing_data()
     # EquityMinDAO().add_missing_data(validate_date=datetime.date(2018, 1, 19))
-    EquityMinDAO().add_missing_data_in_real_time('XIV')
+    # EquityMinDAO().add_missing_data_in_real_time('XIV')
+    print EquityMinDAO().save_to_csv()
