@@ -37,7 +37,6 @@ class EquityRealTimeDAO(BaseDAO):
             file_path = os.path.join(realtime_dir, '%s.csv' % trade_date.strftime('%Y-%m-%d'))
             write_to_file(file_path, content)
 
-
     def get_min_time_and_price(self, symbol='XIV', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         rows = self.get_time_and_price(symbol, start_time, end_time)
         new_rows = []
@@ -48,6 +47,13 @@ class EquityRealTimeDAO(BaseDAO):
                 last_min = trade_time.minute
                 new_rows.append(row)
         return new_rows
+
+    def get_nearest_price(self, missing_time, symbol='XIV'):
+        query = """select price from equity_realtime where symbol = '{}' tradeTime <= '{}' order by tradeTime desc limit 1"""\
+            .format(symbol, missing_time)
+        rows = self.select(query)
+        return float(rows[0][0])
+
 
     def add_missing_data(self, symbol='XIV', validate_date=None):
         if validate_date is None:
@@ -62,7 +68,8 @@ class EquityRealTimeDAO(BaseDAO):
             #     print time
             if j >= len(rows) or rows[j][0].minute > time.minute:
                 if j > 0:
-                    price = rows[j-1][1]
+                    # price = rows[j-1][1]
+                    price = self.get_nearest_price(time, symbol)
                 else:
                     price = rows[0][1]
                 missing_records.append((symbol, time, price))
@@ -73,7 +80,7 @@ class EquityRealTimeDAO(BaseDAO):
                 self.insert(*record)
         return len(missing_records)
 
-    # TODO: complete this...
+
     def add_missing_data_in_real_time(self, symbol='XIV', ):
         us_dt = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         now = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, us_dt.hour, us_dt.minute, us_dt.second)
@@ -100,7 +107,8 @@ class EquityRealTimeDAO(BaseDAO):
                             break # rows length may less than trade_minutes for 1 elements.
                         if rows[j][0].minute > time.minute:
                             if j > 0:
-                                price = rows[j - 1][1]
+                                # price = rows[j-1][1]
+                                price = self.get_nearest_price(time, symbol)
                             else:
                                 price = rows[0][1]
                             # self.logger.info('missing record: j = %s, time=%s'%(j, time))
