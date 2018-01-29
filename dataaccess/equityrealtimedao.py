@@ -80,7 +80,6 @@ class EquityRealTimeDAO(BaseDAO):
                 self.insert(*record)
         return len(missing_records)
 
-
     def add_missing_data_in_real_time(self, symbol='XIV', ):
         us_dt = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         now = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, us_dt.hour, us_dt.minute, us_dt.second)

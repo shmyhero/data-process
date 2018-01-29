@@ -35,7 +35,7 @@ class Symbols(object):
 
     non_option_symbols = ['XIV', 'ZIV', 'EDV']
 
-    indexes = ['^DJI', '^GSPC', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX']
+    indexes = ['^DJI', '^GSPC', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX', '^VXMT']
 
     @staticmethod
     def get_option_symbols():
@@ -48,7 +48,7 @@ class Symbols(object):
         symbols.extend(Symbols.indexes)
         return sorted(symbols)
 
-    YahooSymbolMapping = {'SPX': '^GSPC', 'INDU': '^DJI', 'VIX': '^VIX', 'VXV': '^VXV', 'VVIX': '^VVIX', 'RUT': '^RUT', 'NDX': '^NDX'}
+    YahooSymbolMapping = {'SPX': '^GSPC', 'INDU': '^DJI', 'VIX': '^VIX', 'VXV': '^VXV', 'VVIX': '^VVIX', 'RUT': '^RUT', 'NDX': '^NDX', 'VXMT': '^VXMT'}
 
     @staticmethod
     def get_mapped_symbol(symbol, mapping_dic = YahooSymbolMapping):
