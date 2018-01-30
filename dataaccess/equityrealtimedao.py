@@ -49,7 +49,7 @@ class EquityRealTimeDAO(BaseDAO):
         return new_rows
 
     def get_nearest_price(self, missing_time, symbol='XIV'):
-        query = """select price from equity_realtime where symbol = '{}' tradeTime <= '{}' order by tradeTime desc limit 1"""\
+        query = """select price from equity_realtime where symbol = '{}' and tradeTime <= '{}' order by tradeTime desc limit 1"""\
             .format(symbol, missing_time)
         rows = self.select(query)
         return float(rows[0][0])

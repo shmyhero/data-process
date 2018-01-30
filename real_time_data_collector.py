@@ -13,10 +13,13 @@ from dataaccess.equityrealtimedao import EquityRealTimeDAO
 class RealTimeDataCollector(object):
 
     def __init__(self):
-        self.logger = LoggerFactory.create_daily_logger(__name__, PathMgr.get_log_path('realtime'))
         self.symbol = 'XIV'  # , 'VIX', 'SVXY', 'UVXY']
         self.equity_realtime_dao = EquityRealTimeDAO()
         self.webScraper = YahooScraper()
+
+    @property
+    def logger(self):
+        return LoggerFactory.create_daily_logger(__name__, PathMgr.get_log_path('realtime'))
 
     def collect_data(self):
         self.logger.info('ingest data for %s...' % self.symbol)
