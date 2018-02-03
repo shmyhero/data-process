@@ -5,7 +5,7 @@ import pytz
 from utils.logger import LoggerFactory
 from common.pathmgr import PathMgr
 from entities.equity import Equity
-from ingestion.webscraper import YahooScraper
+from ingestion.webscraper import YahooScraper, MarketWatchScraper
 from common.tradetime import TradeTime
 from dataaccess.equityrealtimedao import EquityRealTimeDAO
 
@@ -15,7 +15,6 @@ class RealTimeDataCollector(object):
     def __init__(self):
         self.symbol = 'XIV'  # , 'VIX', 'SVXY', 'UVXY']
         self.equity_realtime_dao = EquityRealTimeDAO()
-        self.webScraper = YahooScraper()
 
     @property
     def logger(self):
@@ -24,9 +23,21 @@ class RealTimeDataCollector(object):
     def collect_data(self):
         self.logger.info('ingest data for %s...' % self.symbol)
         us_dt = datetime.datetime.now(pytz.timezone('US/Eastern'))
-        price = self.webScraper.get_current_data(self.symbol)
-        self.logger.info('save record into database...')
-        self.equity_realtime_dao.insert(self.symbol, us_dt, price)
+        price = None
+        try:
+            price = YahooScraper().get_current_data(self.symbol)
+        except Exception as e:
+            self.logger.exception(str(e))
+        if price is None:
+            try:
+                price = MarketWatchScraper().get_current_data(self.symbol)
+            except Exception as e:
+                self.logger.exception(str(e))
+        if price is not None:
+            self.logger.info('save record into database...')
+            self.equity_realtime_dao.insert(self.symbol, us_dt, price)
+        else:
+            self.logger.info('ingest record failed at %s...' % us_dt)
 
     def run(self):
         self.logger.info("start...")
