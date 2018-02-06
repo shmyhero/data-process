@@ -8,7 +8,7 @@ class NYSECreditDAO(BaseDAO):
 
     def __init__(self):
         # BaseDAO.__init__(self)
-        super(BaseDAO, self).__init__()
+        # super(BaseDAO, self).__init__()
         self.logger = LoggerFactory.create_daily_logger(__name__, PathMgr.get_log_path())
 
     def save(self, credits):
