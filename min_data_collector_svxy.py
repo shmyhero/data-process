@@ -8,7 +8,7 @@ from dataaccess. equitymindao import EquityMinDAO
 from common.tradetime import TradeTime
 
 
-class MinDataCollectorXIV(object):
+class MinDataCollectorSVXY(object):
 
     def __init__(self):
         self.logger = Logger(__name__, PathMgr.get_log_path('minutes'))
@@ -16,7 +16,7 @@ class MinDataCollectorXIV(object):
         self.equity_min_dao = EquityMinDAO()
 
     def collect_data(self):
-        symbol = 'XIV'
+        symbol = 'SVXY'
         self.logger.info('ingest data for %s...'% symbol)
         equities = self.alpha_vantage.get_minutes_equites(symbol)
         self.logger.info('save %s records into database...' % symbol)
@@ -31,4 +31,4 @@ class MinDataCollectorXIV(object):
 
 
 if __name__ == '__main__':
-    MinDataCollectorXIV().run()
+    MinDataCollectorSVXY().run()

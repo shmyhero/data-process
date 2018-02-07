@@ -24,7 +24,7 @@ class EquityMinDAO(BaseDAO):
         conn.commit()
         conn.close()
 
-    def get_time_and_price(self, symbol='XIV', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
+    def get_time_and_price(self, symbol='SVXY', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         query = """select tradeTime, closePrice from equity_min where tradeTime >= '{}' and tradeTime <= '{}' and symbol = '{}' order by tradeTime""".format(start_time, end_time, symbol)
         return self.select(query)
 
@@ -45,7 +45,7 @@ class EquityMinDAO(BaseDAO):
             write_to_file(file_path, content)
 
 
-    def add_missing_data(self, symbol='XIV', validate_date=None):
+    def add_missing_data(self, symbol='SVXY', validate_date=None):
         if validate_date is None:
             validate_date = TradeTime.get_latest_trade_date()
         start_time = datetime.datetime.fromordinal(validate_date.toordinal())
@@ -66,8 +66,7 @@ class EquityMinDAO(BaseDAO):
             self.insert(missing_records)
         return len(missing_records)
 
-    # TODO: complete this...
-    def add_missing_data_in_real_time(self, symbol='XIV', ):
+    def add_missing_data_in_real_time(self, symbol='SVXY', ):
         us_dt = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         now = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, us_dt.hour, us_dt.minute, us_dt.second)
         if TradeTime.is_trade_day(now.date()):

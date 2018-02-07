@@ -37,7 +37,7 @@ class EquityRealTimeDAO(BaseDAO):
             file_path = os.path.join(realtime_dir, '%s.csv' % trade_date.strftime('%Y-%m-%d'))
             write_to_file(file_path, content)
 
-    def get_min_time_and_price(self, symbol='XIV', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
+    def get_min_time_and_price(self, symbol='SVXY', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         rows = self.get_time_and_price(symbol, start_time, end_time)
         new_rows = []
         last_min = -1
@@ -55,7 +55,7 @@ class EquityRealTimeDAO(BaseDAO):
         return float(rows[0][0])
 
 
-    def add_missing_data(self, symbol='XIV', validate_date=None):
+    def add_missing_data(self, symbol='SVXY', validate_date=None):
         if validate_date is None:
             validate_date = TradeTime.get_latest_trade_date()
         start_time = datetime.datetime.fromordinal(validate_date.toordinal())
@@ -80,7 +80,7 @@ class EquityRealTimeDAO(BaseDAO):
                 self.insert(*record)
         return len(missing_records)
 
-    def add_missing_data_in_real_time(self, symbol='XIV', ):
+    def add_missing_data_in_real_time(self, symbol='SVXY', ):
         us_dt = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         now = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, us_dt.hour, us_dt.minute, us_dt.second)
         if TradeTime.is_trade_day(now.date()):
@@ -120,10 +120,10 @@ class EquityRealTimeDAO(BaseDAO):
                     return len(missing_records)
 
 if __name__ == '__main__':
-    # rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
-    # for row in rows:
-    #     print row
-    EquityRealTimeDAO().add_missing_data()
+    rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
+    for row in rows:
+        print row
+    # EquityRealTimeDAO().add_missing_data()
     # EquityRealTimeDAO().add_missing_data(validate_date=datetime.date(2018, 1, 25))
     # EquityRealTimeDAO().add_missing_data_in_real_time()
     # EquityRealTimeDAO().save_to_csv()
