@@ -13,7 +13,7 @@ from dataaccess.equityrealtimedao import EquityRealTimeDAO
 class RealTimeDataCollector(object):
 
     def __init__(self):
-        self.symbol = 'XIV'  # , 'VIX', 'SVXY', 'UVXY']
+        self.symbol = 'SVXY'  # , 'VIX', 'SVXY', 'UVXY']
         self.equity_realtime_dao = EquityRealTimeDAO()
 
     @property

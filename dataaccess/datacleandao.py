@@ -44,9 +44,10 @@ class DataCleanDAO(BaseDAO):
         start_time = datetime.datetime.fromordinal(date.toordinal())
         end_time = start_time + datetime.timedelta(days=1)
         rows = EquityMinDAO().get_time_and_price(start_time=start_time, end_time=end_time)
+        rows = map(list, rows)
         rows[0][0] = rows[0][0] + datetime.timedelta(seconds=1)
         for row in rows:
-            EquityRealTimeDAO().insert('XIV', row[0], row[1])
+            EquityRealTimeDAO().insert('SVXY', row[0], row[1])
 
 
 if __name__ == '__main__':
@@ -56,5 +57,5 @@ if __name__ == '__main__':
     #DataCleanDAO().remove_invalid_records(datetime.date(2017, 9, 23))
     #DataCleanDAO().fix_option_date_error2()
     # DataCleanDAO().clean_equity_data()
-    DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 1, 23))
+    DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 2, 7))
 
