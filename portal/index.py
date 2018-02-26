@@ -440,8 +440,8 @@ class ProcessStatus(object):
     def __init__(self):
         pass
 
-    def GET(self):
-        processes_info = ProcessDAO().get_latest_processes('data-process')
+    @staticmethod
+    def get_display_records(processes_info):
         records = []
         for process_info in processes_info:
             record = process_info
@@ -459,7 +459,15 @@ class ProcessStatus(object):
                 record[1] = 'Not Started'
                 record.append('white')
             records.append(record)
-        return render.process_status(records)
+        return records
+
+
+    def GET(self):
+        yahoo_equity_processes_info = ProcessDAO().get_latest_processes('yahoo-equity-process')
+        yahoo_equity_records = ProcessStatus.get_display_records(yahoo_equity_processes_info)
+        barchart_option_processes_info = ProcessDAO().get_latest_processes('barchart-option-process')
+        barchart_option_records = ProcessStatus.get_display_records(barchart_option_processes_info)
+        return render.process_status(yahoo_equity_records, barchart_option_records)
 
 
 class Others(object):

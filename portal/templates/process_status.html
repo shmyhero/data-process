@@ -1,4 +1,4 @@
-$def with (records)
+$def with (yahoo_equity_records, barchart_option_records)
 
 <html lang="en">
 <head>
@@ -13,6 +13,7 @@ $def with (records)
 
 </br>
 </br>
+<h3>Process status for yahoo equities:</h3>
 <table border="1" cellspacing="0" >
 
     <tr style = "font-size:18px;">
@@ -21,7 +22,26 @@ $def with (records)
         <th>Start time</th>
         <th>End time</th>
     </tr>
-    $for record in records:
+    $for record in yahoo_equity_records:
+        <tr style="background-color:$record[4]">
+            $for i in range(len(record)-1):
+                <td ><font size="5" >$record[i]</font></td>
+        </tr>
+</table>
+
+</br>
+</br>
+</br>
+<h3>Process status for Barchart data, include equity, option and vix related data.</h3>
+<table border="1" cellspacing="0" >
+
+    <tr style = "font-size:18px;">
+        <th>Process name</th>
+        <th>Status</th>
+        <th>Start time</th>
+        <th>End time</th>
+    </tr>
+    $for record in barchart_option_records:
         <tr style="background-color:$record[4]">
             $for i in range(len(record)-1):
                 <td ><font size="5" >$record[i]</font></td>
