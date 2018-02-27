@@ -1,0 +1,28 @@
+$def with (integrity_p, results)
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minutes data</title>
+</head>
+<body>
+$if integrity_p:
+    <font size="7" color="green">Minutes data is ok</font>
+$else:
+    <font size="7" color="red">Minutes data missing...</font>
+
+<br/>
+<br/>
+<table border="1" cellspacing="0" >
+
+    <tr style = "font-size:37px;">
+        <th>Time</th>
+        <th>Price</th>
+    </tr>
+$for record in reversed(results):
+    <tr>
+    $for value in record:
+        <td ><font size="7" >$value</font></td>
+    </tr>
+</table>
+</body>
+</html>

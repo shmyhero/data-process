@@ -73,7 +73,7 @@ def catch_up_missing_data():
     logger.info('completed')
 
 
-def add_missing_data():
+def add_missing_min_data():
     logger.info('Add missing minute data.')
     EquityMinDAO().add_missing_data()
     EquityRealTimeDAO().add_missing_data()
@@ -89,7 +89,7 @@ def save_minute_data_to_csv():
 
 def run():
     processes = [
-                 add_missing_data,
+                 add_missing_min_data,
                  save_minute_data_to_csv,
                  process_for_ingesting_nyse_credit,
                  process_for_yahoo_historical_data,

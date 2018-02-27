@@ -119,11 +119,39 @@ class EquityRealTimeDAO(BaseDAO):
                             self.insert(*record)
                     return len(missing_records)
 
+    def validate_integrity_for_real_time_data(self, symbol='SVXY', ):
+        us_dt = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        now = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, us_dt.hour, us_dt.minute, us_dt.second)
+        integrity_p = True
+        latest_date = TradeTime.get_latest_trade_date()
+        start_time = datetime.datetime(latest_date.year, latest_date.month, latest_date.day, 9, 30, 0)
+        if TradeTime.is_half_trade_day(latest_date):
+            default_end_time = datetime.datetime(latest_date.year, latest_date.month, latest_date.day, 13, 0, 0)
+        else:
+            default_end_time = datetime.datetime(latest_date.year, latest_date.month, latest_date.day, 16, 0, 0)
+        end_time = min(now, default_end_time)
+        minutes_count = range((end_time - start_time).seconds / 60 + 1)
+        trade_minutes = map(lambda x: start_time + datetime.timedelta(minutes=x), minutes_count)
+        # print trade_minutes
+        rows = self.get_min_time_and_price(symbol, start_time, end_time)
+        # print rows
+        j = 0
+        # self.logger.info('rows = %s, \n trade_minutes = %s' %(rows[-2:], trade_minutes[-2:]))
+        for i, time in enumerate(trade_minutes):
+            if j >= len(rows):
+                break  # rows length may less than trade_minutes for 1 elements.
+            if rows[j][0].minute > time.minute:
+                integrity_p = False
+            else:
+                j = j + 1
+        return integrity_p, rows
+
 if __name__ == '__main__':
-    rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
-    for row in rows:
-        print row
+    # rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
+    # for row in rows:
+    #     print row
     # EquityRealTimeDAO().add_missing_data()
     # EquityRealTimeDAO().add_missing_data(validate_date=datetime.date(2018, 1, 25))
     # EquityRealTimeDAO().add_missing_data_in_real_time()
     # EquityRealTimeDAO().save_to_csv()
+    print EquityRealTimeDAO().validate_integrity_for_real_time_data()
