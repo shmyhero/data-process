@@ -462,13 +462,15 @@ class ProcessStatus(object):
             records.append(record)
         return records
 
-
     def GET(self):
-        yahoo_equity_processes_info = ProcessDAO().get_latest_processes('yahoo-equity-process')
-        yahoo_equity_records = ProcessStatus.get_display_records(yahoo_equity_processes_info)
-        barchart_option_processes_info = ProcessDAO().get_latest_processes('barchart-option-process')
-        barchart_option_records = ProcessStatus.get_display_records(barchart_option_processes_info)
-        return render.process_status(yahoo_equity_records, barchart_option_records)
+        # yahoo_equity_processes_info = ProcessDAO().get_latest_processes('yahoo-equity-process')
+        # yahoo_equity_records = ProcessStatus.get_display_records(yahoo_equity_processes_info)
+        # barchart_option_processes_info = ProcessDAO().get_latest_processes('barchart-option-process')
+        # barchart_option_records = ProcessStatus.get_display_records(barchart_option_processes_info)
+        # return render.process_status(yahoo_equity_records, barchart_option_records)
+        data_processes_info = ProcessDAO().get_latest_processes('data-process')
+        records = ProcessStatus.get_display_records(data_processes_info)
+        return render.process_status(records)
 
 
 class Others(object):
