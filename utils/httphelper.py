@@ -9,14 +9,14 @@ class HttpHelper:
     @staticmethod
     def http_get_with_time_out(url, headers=None):
         if headers:
-            f = urllib2.urlopen(urllib2.Request(url=url, headers=headers), timeout=6)
+            f = urllib2.urlopen(urllib2.Request(url=url, headers=headers), timeout=10)
         else:
-            f = urllib2.urlopen(url, timeout=6)
+            f = urllib2.urlopen(url, timeout=10)
         s = f.read()
         return s
 
     @staticmethod
-    def http_get(url, headers=None, retry=3):
+    def http_get(url, headers=None, retry=5):
         for i in range(retry):
             try:
                 content = HttpHelper.http_get_with_time_out(url, headers)
