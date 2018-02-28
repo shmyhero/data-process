@@ -12,16 +12,18 @@ class BarchartScraper(object):
         pass
 
     @staticmethod
-    def http_get_with_retry(url, times = 3):
-        try:
-            return HttpHelper.http_get(url)
-        except Exception:
-            if times > 0:
-                time.sleep(1)
-                url = url.replace('bidDate,', '')  # sometime the bidDate field is unavailable..
-                return BarchartScraper.http_get_with_retry(url, times - 1)
-            else:
-                raise Exception('Failed to get data from %s'%url, )
+    def http_get_with_retry(url, times=3):
+        for i in range(times):
+            try:
+                if i == 0:
+                    return HttpHelper.http_get(url)
+                else:
+                    time.sleep(1)
+                    url = url.replace('bidDate,', '')  # sometime the bidDate field is unavailable..
+                    return HttpHelper.http_get(url)
+            except Exception as e:
+                print str(e)
+        raise Exception('Failed to get data from %s'%url, )
 
     @staticmethod
     def get_expiration_dates(symbol):
