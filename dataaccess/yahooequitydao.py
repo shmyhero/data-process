@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # YahooEquityDAO().save_all(['^VXV'])
     # YahooEquityDAO().save_all(['^VXMT'])
     # YahooEquityDAO().save_all(['XIV'])
-    YahooEquityDAO().save_all(['VXX'])
+    YahooEquityDAO().save_all(['AAPL'])
     # print YahooEquityDAO().get_latest_price('SPY')
     # print YahooEquityDAO().get_equity_price_by_date('SPY', '2017-08-05')
     # print YahooEquityDAO().get_equity_monthly_by_symbol('SPY', ['symbol', 'lastdate', 'closeprice', 'adjcloseprice', 'tradeyear', 'trademonth'])

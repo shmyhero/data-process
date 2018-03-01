@@ -1,5 +1,6 @@
 import traceback
 import time
+import datetime
 from utils.logger import Logger
 from common.pathmgr import PathMgr
 from common.notification import notify
@@ -69,7 +70,10 @@ def backup_daily_data():
 
 def process_for_yahoo_historical_data():
     logger.info('process for yahoo historical data...')
-    YahooScraper.ingest_recently_historyical_etf()
+    if datetime.date.today().weekday() == 6:
+        YahooScraper.ingest_all_historical_etf()
+    else:
+        YahooScraper.ingest_recently_historyical_etf()
     YahooEquityDAO().save_all()
 
 
