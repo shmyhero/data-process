@@ -66,7 +66,7 @@ class EquityRealTimeDAO(BaseDAO):
         for i, time in enumerate(TradeTime.get_all_trade_min(validate_date)):
             # if i == 390:
             #     print time
-            if j >= len(rows) or rows[j][0].minute > time.minute:
+            if j >= len(rows) or rows[j][0].minute > time.minute or rows[j][0].hour > time.hour:
                 if j > 0:
                     # price = rows[j-1][1]
                     price = self.get_nearest_price(time, symbol)
@@ -104,7 +104,7 @@ class EquityRealTimeDAO(BaseDAO):
                     for i, time in enumerate(trade_minutes):
                         if j >= len(rows):
                             break # rows length may less than trade_minutes for 1 elements.
-                        if rows[j][0].minute > time.minute:
+                        if rows[j][0].minute > time.minute or rows[j][0].hour > time.hour:
                             if j > 0:
                                 # price = rows[j-1][1]
                                 price = self.get_nearest_price(time, symbol)
@@ -140,7 +140,7 @@ class EquityRealTimeDAO(BaseDAO):
         for i, time in enumerate(trade_minutes):
             if j >= len(rows):
                 break  # rows length may less than trade_minutes for 1 elements.
-            if rows[j][0].minute > time.minute:
+            if rows[j][0].minute > time.minute or rows[j][0].hour > time.hour:
                 integrity_p = False
             else:
                 j = j + 1
@@ -150,8 +150,8 @@ if __name__ == '__main__':
     # rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
     # for row in rows:
     #     print row
-    # EquityRealTimeDAO().add_missing_data()
+    EquityRealTimeDAO().add_missing_data()
     # EquityRealTimeDAO().add_missing_data(validate_date=datetime.date(2018, 1, 25))
     # EquityRealTimeDAO().add_missing_data_in_real_time()
     # EquityRealTimeDAO().save_to_csv()
-    print EquityRealTimeDAO().validate_integrity_for_real_time_data()
+    # print EquityRealTimeDAO().validate_integrity_for_real_time_data()
