@@ -25,7 +25,8 @@ $if error:
             <tr style="background-color:red" >
         $else:
             <tr>
-        $for value in record:
+        <td><font size="7"><a href='https://finance.yahoo.com/quote/$record[0]'>$record[0]</a></font></td>
+        $for value in record[1:]:
             <td ><font size="7" >$value</font></td>
         </tr>
 </table>
