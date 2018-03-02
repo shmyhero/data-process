@@ -38,12 +38,16 @@ class VIX(BaseEntity):
         if delta < 0:
             delta += 7
         expiration_day = 1 + 2 * 7 + delta
+        # for special expiration day:
+        if [current_date.year, month] in [[2018, 2]]:
+            expiration_day -= 7
         year = current_date.year
         if day >= expiration_day:
             month += 1
             if month > 12:
                 month -= 12
                 year += 1
+            return VIX.get_following_expiration_date(datetime.date(year, month, 1))
         return datetime.date(year, month, expiration_day)
 
 
@@ -139,7 +143,12 @@ if __name__ == '__main__':
     print VIX.get_f1_by_date(datetime.datetime(2017, 11, 16))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 15))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 19))
+    print VIX.get_f1_by_date(datetime.datetime(2018, 2, 15))
     print VIX.get_f2_by_date(datetime.datetime(2017, 11, 15))
     print VIX.get_f3_by_date(datetime.datetime(2017, 10, 19))
-    print VIX.get_following_expiration_date(datetime.datetime(2017, 12, 25))
+    print VIX.get_following_expiration_date(datetime.datetime(2017, 12, 31))
+    print VIX.get_following_expiration_date(datetime.datetime(2018, 1, 3))
+    print VIX.get_following_expiration_date(datetime.datetime(2018, 2, 1))
+    print VIX.get_following_expiration_date(datetime.datetime(2018, 3, 1))
+    print VIX.get_following_expiration_date(datetime.datetime(2018, 4, 1))
     print list(VIX.get_vix_symbol_list(datetime.datetime(2017, 8, 10), datetime.datetime(2017, 9, 20), 2))
