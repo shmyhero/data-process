@@ -111,8 +111,8 @@ def run():
                  process_for_ingesting_bigcharts_option_data,
                  process_for_updating_option_delta,
                  aggregation_for_spy_vix_hedge_table,
-                 backup_daily_data,
-                 clean_obsoleted_data
+                 # backup_daily_data,
+                 # clean_obsoleted_data
                  ]
     return ProcessMan('barchart-option-process', processes).run_all()
 

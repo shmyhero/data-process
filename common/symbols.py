@@ -30,10 +30,10 @@ class Symbols(object):
        'Precious Metals Miners':['SIL','GDX','GDXJ'],
        'Volatility'            :['VXX', 'VXZ', 'UVXY','SVXY'], #, 'XIV', 'ZIV'] # no options for XIV and ZIV
        'Others'                :['DIA', 'EFA', 'EWJ', 'SSO', 'QLD', 'TQQQ', 'TLH', 'HYG', 'UBT', 'TMF', 'VWO', 'GSG'],
-       'Stocks'                :['LMT', 'MO', 'CME', 'MA', 'V', 'BRK-B', 'RHS', 'AAPL']
+       'Stocks'                :['LMT', 'MO', 'CME', 'MA', 'V', 'AAPL']
         }
 
-    non_option_symbols = ['ZIV', 'EDV']
+    non_option_symbols = ['ZIV', 'EDV', 'BRK-B', 'RHS']
 
     indexes = ['^DJI', '^GSPC', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX', '^VXMT']
 
