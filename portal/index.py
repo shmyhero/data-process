@@ -85,7 +85,7 @@ class Credit:
         return data
 
 
-class VIX3in1(object):
+class VIXFutures(object):
 
     def __init__(self):
         pass
@@ -112,6 +112,37 @@ class VIX3in1(object):
         canvas.print_png(buf)
         data = buf.getvalue()
         return data
+
+
+class VIX3in1(object):
+
+    def GET(self):
+        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30)
+        vix_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        dates = map(lambda x: x[0], vix_records)
+        vix_prices = map(lambda x: x[1], vix_records)
+        vxv_records = YahooEquityDAO().get_all_equity_price_by_symbol('^VXV', from_date_str=from_date.strftime('%Y-%m-%d'))
+        vxmt_records = YahooEquityDAO().get_all_equity_price_by_symbol('^VXMT', from_date_str=from_date.strftime('%Y-%m-%d'))
+        vxv_prices = map(lambda x: x[1], vxv_records)
+        vxmt_prices = map(lambda x: x[1], vxmt_records)
+        fig = Figure(figsize=[12, 8])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, vix_prices, label='vix')
+        ax.plot(dates, vxv_prices, label='vxv')
+        ax.plot(dates, vxmt_prices, label='vxmt')
+        ax.legend(loc='upper left')
+        ax.grid()
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
+class VIX(object):
+
+    def GET(self):
+        return render.vix()
 
 
 class SPYVIXHedge(object):
@@ -510,7 +541,9 @@ class MinDataStatus(object):
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
+            '/vixfutures', 'VIXFutures',
             '/vix3in1', 'VIX3in1',
+            '/vix', 'VIX',
             '/spyvixhedge', 'SPYVIXHedge',
             '/volatility/(.*)', 'Volatility',
             '/volhvsi/(.*)', 'VolHvsI',

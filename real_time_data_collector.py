@@ -23,6 +23,8 @@ class RealTimeDataCollector(object):
     def collect_data(self):
         self.logger.info('ingest data for %s...' % self.symbol)
         us_dt = datetime.datetime.now(pytz.timezone('US/Eastern'))
+        if us_dt.hour == 9 and us_dt.minute == 30 and us_dt.second == 0:
+            us_dt = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, 9, 30, 1)
         price = None
         try:
             price = YahooScraper().get_current_data(self.symbol)
