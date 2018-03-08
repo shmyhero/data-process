@@ -58,6 +58,17 @@ class Symbols(object):
             return symbol
 
     @staticmethod
+    def get_yahoo_mapping_dic():
+        dic = {}
+        reversed_mapping = Symbols.get_reversed_yahoo_symbol_mapping()
+        for symbol in Symbols.get_all_symbols():
+            if symbol[0] == '^':
+                dic[reversed_mapping[symbol]] = symbol
+            else:
+                dic[symbol] = symbol
+        return dic
+
+    @staticmethod
     def get_reversed_yahoo_symbol_mapping():
         lst = hash_to_list(Symbols.YahooSymbolMapping)
         reversed_lst = map(lambda x: [x[1], x[0]], lst)
@@ -65,8 +76,9 @@ class Symbols(object):
         return dic
 
 if __name__ == '__main__':
-    Symbols.yahoo_symbol_to_quantopian_symbol('^GSPC')
-
+    # Symbols.yahoo_symbol_to_quantopian_symbol('^GSPC')
+    print Symbols.get_yahoo_mapping_dic()
+    # print Symbols.get_reversed_yahoo_symbol_mapping()
 
 
 

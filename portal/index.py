@@ -525,7 +525,8 @@ class StartEndDate(object):
         for record in records:
             if record[2] < last_trade_date:
                 error = True
-        return render.start_end_date(records, last_trade_date, error)
+        dic = Symbols.get_yahoo_mapping_dic()
+        return render.start_end_date(records, last_trade_date, error, dic)
 
 
 class MinDataStatus(object):
