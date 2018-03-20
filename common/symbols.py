@@ -33,7 +33,7 @@ class Symbols(object):
        'Stocks'                :['LMT', 'MO', 'CME', 'MA', 'V', 'AAPL']
         }
 
-    non_option_symbols = ['ZIV', 'EDV', 'BRK-B', 'RHS', 'BIL']
+    non_option_symbols = ['ZIV', 'EDV', 'BRK-B', 'RHS', 'BIL', 'VNM']
 
     indexes = ['^DJI', '^GSPC', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX', '^VXMT']
 
