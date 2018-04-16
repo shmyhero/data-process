@@ -23,7 +23,7 @@ class Symbols(object):
        'Technology'            :['XLK','SMH','HACK','FDN', 'QQQ'],
        'Telecom'               :['IYZ','IXP','VOX'],
        'Utilities'             :['IDU','XLU','VPU'],
-       'Oil | Gas'             :['UNG','BNO','OIL'],
+       'Oil | Gas'             :['UNG','BNO'],
        'Precious Metals'       :['GLD','SLV','IAU'],
        'Bonds'                 :['BND','AGG','JNK','LQD'],
        'T-Bond'                :['TLT','IEF','IEI','SHY'],
@@ -33,7 +33,7 @@ class Symbols(object):
        'Stocks'                :['LMT', 'MO', 'CME', 'MA', 'V', 'AAPL']
         }
 
-    non_option_symbols = ['ZIV', 'EDV', 'BRK-B', 'RHS', 'BIL', 'VNM', 'ITA', 'XAR', 'FNDE', 'DGRW', 'IHI', 'BJK', 'VHT', 'STZ']
+    non_option_symbols = ['ZIV', 'EDV', 'BRK-B', 'RHS', 'BIL', 'VNM', 'ITA', 'XAR', 'FNDE', 'DGRW', 'IHI', 'BJK', 'VHT', 'STZ','OIL']
 
     indexes = ['^DJI', '^GSPC', '^VIX', '^VXV', '^VVIX', '^RUT', '^NDX', '^VXMT']
 

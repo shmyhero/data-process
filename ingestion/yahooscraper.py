@@ -141,10 +141,11 @@ if __name__ == '__main__':
     #print YahooScraper.ingest_recently_historyical_etf()
     #YahooScraper.ingest_all_historical_etf(symbols = ['^SPX'])
     # YahooScraper.ingest_all_historical_etf(symbols=['AAPL'])
-    # YahooScraper.ingest_recently_historyical_etf(symbols=['^VXV'])
+    YahooScraper.ingest_recently_historyical_etf(symbols=['^VXV'])
     # YahooScraper.ingest_all_historical_etf(symbols=['^VXMT'])
     # YahooScraper.ingest_all_historical_etf(symbols=['VNM'])
-    YahooScraper.ingest_all_historical_etf(symbols=['ITA', 'XAR', 'FNDE', 'DGRW', 'IHI', 'BJK', 'VHT', 'CME'])
+    # YahooScraper.ingest_all_historical_etf(symbols=['ITA', 'XAR', 'FNDE', 'DGRW', 'IHI', 'BJK', 'VHT', 'CME'])
+    # YahooScraper.ingest_all_historical_etf(symbols=['STZ'])
     #YahooScraper.ingest_all_historical_etf(symbols=['^GSPC', '^DJI'])
     #print YahooScraper.ingest_all_options(['^IEF'])
 

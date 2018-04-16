@@ -99,6 +99,10 @@ class EquityMinDAO(BaseDAO):
                         self.insert(missing_records)
                     return len(missing_records)
 
+    def remove_market_open_records(self):
+        sql = """delete from equity_min where tradetime like '%9:30:00'"""
+        self.execute_query(sql)
+
 
 if __name__ == '__main__':
     # EquityMinDAO().add_missing_data()

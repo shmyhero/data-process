@@ -49,6 +49,10 @@ class DataCleanDAO(BaseDAO):
         for row in rows:
             EquityRealTimeDAO().insert('SVXY', row[0], row[1])
 
+    def remove_market_open_data_for_min(self):
+        EquityMinDAO().remove_market_open_records()
+
+
 
 if __name__ == '__main__':
     #DataCleanDAO().add_missing_data_for_vix()
