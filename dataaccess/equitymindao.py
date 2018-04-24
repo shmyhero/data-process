@@ -99,6 +99,42 @@ class EquityMinDAO(BaseDAO):
                         self.insert(missing_records)
                     return len(missing_records)
 
+    def validate_integrity_for_min_data(self, symbol):
+        print symbol
+        us_dt = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+        now = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, us_dt.hour, us_dt.minute, us_dt.second)
+        integrity_p = True
+        latest_date = TradeTime.get_latest_trade_date()
+        start_time = datetime.datetime(latest_date.year, latest_date.month, latest_date.day, 9, 30, 0)
+        if TradeTime.is_half_trade_day(latest_date):
+            default_end_time = datetime.datetime(latest_date.year, latest_date.month, latest_date.day, 13, 0, 0)
+        else:
+            default_end_time = datetime.datetime(latest_date.year, latest_date.month, latest_date.day, 16, 0, 0)
+        end_time = min(now, default_end_time)
+        minutes_count = range((end_time - start_time).seconds / 60 + 1)
+        trade_minutes = map(lambda x: start_time + datetime.timedelta(minutes=x), minutes_count)
+        # print trade_minutes
+        rows = self.get_time_and_price(symbol, start_time, end_time)
+        # print rows
+        j = 0
+        missing_time = []
+        for i, time in enumerate(trade_minutes):
+            if i >= len(rows):
+                break
+            if rows[j][0] > time:
+                if j > 0:
+                    price = rows[j - 1][1]
+                else:
+                    price = rows[0][1]
+                if not (time.hour == 9 and time.minute == 30):
+                    missing_time.append(time)
+            else:
+                j = j + 1
+        if len(missing_time) > 0:
+            integrity_p = False
+        return integrity_p, missing_time
+
+
     def remove_market_open_records(self):
         sql = """delete from equity_min where tradetime like '%9:30:00'"""
         self.execute_query(sql)
@@ -108,4 +144,5 @@ if __name__ == '__main__':
     # EquityMinDAO().add_missing_data()
     # EquityMinDAO().add_missing_data(validate_date=datetime.date(2018, 1, 19))
     # EquityMinDAO().add_missing_data_in_real_time('XIV')
-    print EquityMinDAO().save_to_csv()
+    # print EquityMinDAO().save_to_csv()
+    print EquityMinDAO().validate_integrity_for_min_data('UBT')

@@ -22,6 +22,7 @@ from dataaccess.spyvixhedgedao import SPYVIXHedgeDAO
 from dataaccess.optionskewdao import OptionSkewDAO
 from dataaccess.processdao import ProcessDAO
 from dataaccess.equityrealtimedao import EquityRealTimeDAO
+from dataaccess.equitymindao import EquityMinDAO
 from research.optionbacktest import OptionBackTest
 
 
@@ -529,14 +530,26 @@ class StartEndDate(object):
         return render.start_end_date(records, last_trade_date, error, dic)
 
 
-class MinDataStatus(object):
+class RealTimeDataStatus(object):
 
     def __init__(self):
         pass
 
     def GET(self):
         integrity_p, results = EquityRealTimeDAO().validate_integrity_for_real_time_data()
-        return render.min_data_status(integrity_p, results)
+        return render.realtime_data_status(integrity_p, results)
+
+
+class MinDataStatus(object):
+
+    def __init__(self):
+        pass
+
+    def GET(self):
+        symbols = ['SPX', 'VIX', 'SVXY', 'UVXY', 'SPY', 'QQQ', 'QLD', 'SSO', 'TLT', 'UBT']
+        dao = EquityMinDAO()
+        status_list = map(lambda x: [x, dao.validate_integrity_for_min_data(x)], symbols)
+        return render.min_data_status(status_list)
 
 
 def run_web_app():
@@ -557,6 +570,7 @@ def run_web_app():
             '/optionbacktest', 'OptionBackTestDiagram',
             '/processstatus', 'ProcessStatus',
             '/startenddate', 'StartEndDate',
+            '/realtimedatastatus', 'RealTimeDataStatus',
             '/mindatastatus', 'MinDataStatus',
             '/others', 'Others')
 
