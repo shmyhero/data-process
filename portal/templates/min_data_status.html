@@ -3,6 +3,16 @@ $def with (status_list)
 <head>
     <meta charset="UTF-8">
     <title>Minutes data</title>
+    <script lang="javascript">
+        function show_detail(detail_control) {
+            if (detail_control.style.display=="none") {
+                detail_control.style.display="";
+            }
+            else{
+                detail_control.style.display="none";
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -16,7 +26,14 @@ $def with (status_list)
 $for status in reversed(status_list):
     <tr>
         <td ><font size="7" >$status[0]</font></td>
-        <td ><font size="7" >$status[1]</font></td>
+        <td >
+            $if status[1][0]:
+                <font size="7" color="green" >data is ok</font>
+            $else:
+                <div id="div_$status[0]">
+                <div id="status_$status[0]" onclick="show_detail(detail_$status[0])"><font size="7" color="red" >data missing</font></div>
+                <div id="detail_$status[0]" style="display:none" ><font size="7" color="red" >$status[1][1]</font></div>
+        </td>
     </tr>
 </table>
 </body>
