@@ -91,6 +91,19 @@ class VIXFutures(object):
     def __init__(self):
         pass
 
+    def get_historical_volatility(self, symbol):
+        from_date = (datetime.date.today() - datetime.timedelta(150))
+        equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
+        current_quity_price = equity_records[-1][1]
+        option_iv_records = OptionDAO().get_corresponding_implied_volatilities(symbol, current_quity_price)
+        first_tradetime = option_iv_records[0][0]
+        circle = 30
+        equity_start_date = first_tradetime - datetime.timedelta(circle)
+        # trade_day_circle = len(filter(lambda x: x[0] >= equity_start_date and x[0] < first_tradetime, equity_records))
+        hv_records = OptionCalculater.get_year_history_volatility_list(
+            filter(lambda x: x[0] >= equity_start_date, equity_records), circle)
+        return hv_records
+
     def GET(self):
         from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30)
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
@@ -100,12 +113,15 @@ class VIXFutures(object):
         price_f1 = map(lambda x: x[1], records_f1)
         price_f2 = map(lambda x: x[1], records_f2)
         price_f3 = map(lambda x: x[1], records_f3)
+        hv_records = self.get_historical_volatility('SPY')[-len(dates):]
+        hv_prices = map(lambda x: x[1]*100, hv_records)
         fig = Figure(figsize=[12, 8])
         ax = fig.add_axes([.1, .1, .8, .8])
-        ax.plot(dates, price_index, label='vix index')
-        ax.plot(dates, price_f1, label='vix first month')
-        ax.plot(dates, price_f2, label='vix second month')
-        ax.plot(dates, price_f3, label='vix third month')
+        ax.plot(dates, hv_prices, label='historical volatility', color='black')
+        ax.plot(dates, price_index, label='vix index', color='blue')
+        ax.plot(dates, price_f1, label='vix first month', color='lightskyblue')
+        ax.plot(dates, price_f2, label='vix second month', color='greenyellow')
+        ax.plot(dates, price_f3, label='vix third month', color='gold')
         ax.legend(loc='upper left')
         ax.grid()
         canvas = FigureCanvasAgg(fig)
