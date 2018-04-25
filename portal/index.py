@@ -97,7 +97,7 @@ class VIXFutures(object):
         current_quity_price = equity_records[-1][1]
         option_iv_records = OptionDAO().get_corresponding_implied_volatilities(symbol, current_quity_price)
         first_tradetime = option_iv_records[0][0]
-        circle = 30
+        circle = 21
         equity_start_date = first_tradetime - datetime.timedelta(circle)
         # trade_day_circle = len(filter(lambda x: x[0] >= equity_start_date and x[0] < first_tradetime, equity_records))
         hv_records = OptionCalculater.get_year_history_volatility_list(
@@ -105,7 +105,7 @@ class VIXFutures(object):
         return hv_records
 
     def GET(self):
-        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(30)
+        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(63)
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
         dates = map(lambda x: x[0], records_index)
         price_index = map(lambda x: x[1], records_index)
@@ -115,7 +115,7 @@ class VIXFutures(object):
         price_f3 = map(lambda x: x[1], records_f3)
         hv_records = self.get_historical_volatility('SPY')[-len(dates):]
         hv_prices = map(lambda x: x[1]*100, hv_records)
-        fig = Figure(figsize=[12, 8])
+        fig = Figure(figsize=[12, 6])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(dates, hv_prices, label='historical volatility', color='black')
         ax.plot(dates, price_index, label='vix index', color='blue')
