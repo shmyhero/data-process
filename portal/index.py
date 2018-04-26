@@ -131,6 +131,31 @@ class VIXFutures(object):
         return data
 
 
+class EquityPrices(object):
+
+    def GET(self, symbol, days):
+        try:
+            days = int(days)
+        except Exception:
+            days = 63
+        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(days)
+        equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
+        dates = map(lambda x: x[0], equity_records)
+        equity_prices = map(lambda x: x[1], equity_records)
+        fig = Figure(figsize=[12, 6])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, equity_prices, label='price')
+        ax.legend(loc='upper left')
+        ax.grid()
+
+        # conver to canvas
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
 class VIX3in1(object):
 
     def GET(self):
@@ -572,6 +597,7 @@ def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
             '/vixfutures', 'VIXFutures',
+            '/equityprices/(.*)/(.*)', 'EquityPrices',
             '/vix3in1', 'VIX3in1',
             '/vix', 'VIX',
             '/spyvixhedge', 'SPYVIXHedge',
