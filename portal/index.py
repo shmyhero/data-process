@@ -117,7 +117,7 @@ class VIXFutures(object):
         hv_records = self.get_historical_volatility('SPY')[-len(dates):]
         hv_prices = map(lambda x: x[1]*100, hv_records)
         fig = Figure(figsize=[12, 4])
-        ax = fig.add_axes([.1, .1, .9, .9])
+        ax = fig.add_axes([.1, .1, .8, .9])
         ax.plot(dates, hv_prices, label='historical volatility', color='black')
         ax.plot(dates, price_index, label='vix index', color='blue')
         ax.plot(dates, price_f1, label='vix first month', color='lightskyblue')
@@ -144,7 +144,7 @@ class EquityPrices(object):
         dates = map(lambda x: x[0], equity_records)
         equity_prices = map(lambda x: x[1], equity_records)
         fig = Figure(figsize=[12, 4])
-        ax = fig.add_axes([.1, .1, .9, .9])
+        ax = fig.add_axes([.1, .1, .8, .9])
         ax.plot(dates, equity_prices, label='price')
         ax.legend(loc='upper left')
         ax.grid()

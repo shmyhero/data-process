@@ -50,7 +50,7 @@ class DayNightDelta(object):
         delta_of_delta_list = []
         sum = 0
         for i in range(len(self.dates)):
-            sum += self.days_delta[i]-self.night_delta[i]
+            sum += self.night_delta[i]-self.days_delta[i]
             delta_of_delta_list.append(sum)
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
@@ -62,5 +62,5 @@ class DayNightDelta(object):
 
 if __name__ == '__main__':
     # print DayNightDelta().plot_delta()
-    # print DayNightDelta().plot_delta_sum()
-    print DayNightDelta().plot_delta_of_delta_sum()
+    print DayNightDelta().plot_delta_sum()
+    # print DayNightDelta().plot_delta_of_delta_sum()
