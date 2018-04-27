@@ -2,6 +2,7 @@ import web
 import datetime
 import cStringIO
 import sys
+import numpy as np
 from utils.stringhelper import all_number_p
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -115,8 +116,8 @@ class VIXFutures(object):
         price_f3 = map(lambda x: x[1], records_f3)
         hv_records = self.get_historical_volatility('SPY')[-len(dates):]
         hv_prices = map(lambda x: x[1]*100, hv_records)
-        fig = Figure(figsize=[12, 6])
-        ax = fig.add_axes([.1, .1, .8, .8])
+        fig = Figure(figsize=[12, 4])
+        ax = fig.add_axes([.1, .1, .9, .9])
         ax.plot(dates, hv_prices, label='historical volatility', color='black')
         ax.plot(dates, price_index, label='vix index', color='blue')
         ax.plot(dates, price_f1, label='vix first month', color='lightskyblue')
@@ -142,8 +143,8 @@ class EquityPrices(object):
         equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
         dates = map(lambda x: x[0], equity_records)
         equity_prices = map(lambda x: x[1], equity_records)
-        fig = Figure(figsize=[12, 6])
-        ax = fig.add_axes([.1, .1, .8, .8])
+        fig = Figure(figsize=[12, 4])
+        ax = fig.add_axes([.1, .1, .9, .9])
         ax.plot(dates, equity_prices, label='price')
         ax.legend(loc='upper left')
         ax.grid()
@@ -593,6 +594,36 @@ class MinDataStatus(object):
         return render.min_data_status(status_list)
 
 
+class UpperSPY(object):
+
+    def __init__(self):
+        from_date = (datetime.date.today() - datetime.timedelta(1500))
+        self.spy_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
+        # self.vix_records = EquityDAO().get_all_equity_price_by_symbol('VIX', from_date)
+        self.vix_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        self.dates = map(lambda x: x[0], self.spy_records)
+        self.spy_values = map(lambda x: x[1], self.spy_records)
+        self.vix_values = map(lambda x: x[1], self.vix_records)
+
+    def GET(self):
+        low_rate = 1.25 * np.sqrt(21)/100/np.sqrt(252)
+        high_rate = 1.75 * np.sqrt(21)/100/np.sqrt(252)
+        spy_low = map(lambda x, y: x * (1 + low_rate*y), self.spy_values, self.vix_values)
+        spy_high = map(lambda x, y: x * (1 + high_rate*y), self.spy_values, self.vix_values)
+        fig = Figure(figsize=[12, 8])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(self.dates, self.spy_values, label='spy')
+        ax.plot(self.dates, spy_low, label='spy low')
+        ax.plot(self.dates, spy_high, label='spy high')
+        ax.legend(loc='upper left')
+        ax.grid()
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
@@ -614,6 +645,7 @@ def run_web_app():
             '/startenddate', 'StartEndDate',
             '/realtimedatastatus', 'RealTimeDataStatus',
             '/mindatastatus', 'MinDataStatus',
+            '/upperspy', 'UpperSPY',
             '/others', 'Others')
 
     app = web.application(urls, globals())
