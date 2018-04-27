@@ -48,8 +48,6 @@ class TradeTime(object):
         else:
             return True
 
-
-
     @staticmethod
     def get_half_trade_dates(year):
         '''
@@ -86,8 +84,11 @@ class TradeTime(object):
         return nydate in half_trade_dates
 
     @staticmethod
-    def is_market_open():
-        now = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
+    def is_market_open(current_time=None):
+        if current_time:
+            now = current_time
+        else:
+            now = datetime.datetime.now(tz=pytz.timezone('US/Eastern'))
         if TradeTime.is_trade_day(now.date()):
             if TradeTime.is_half_trade_day(now.date()):
                 end_hour = 13
@@ -109,16 +110,69 @@ class TradeTime(object):
                 return trade_date.date()
 
     @staticmethod
-    def get_from_date_by_window(window):
-        current_date = TradeTime.get_latest_trade_date()
+    def get_from_date_by_window(window, current_date=None):
+        if current_date is None:
+            current_date = TradeTime.get_latest_trade_date()
         count = 1
-        for i in range(2*window):
+        for i in range(2*window+7):
             if count >= window:
-                return current_date
-            current_date -= datetime.timedelta(days=1)
-            if TradeTime.is_trade_day(current_date):
-                count +=1
+                break
+            else:
+                current_date -= datetime.timedelta(days=1)
+                if TradeTime.is_trade_day(current_date):
+                    if not TradeTime.is_half_trade_day(current_date):
+                        count +=1
+        return current_date
 
+    @staticmethod
+    def generate_dates(from_date, end_date):
+        dates = []
+        current_date = from_date
+        while current_date <= end_date:
+            if TradeTime.is_trade_day(current_date):
+                start_date = datetime.date(current_date.year, current_date.month, current_date.day)
+                dates.append(start_date)
+            current_date += datetime.timedelta(days=1)
+        return dates
+
+    @staticmethod
+    def generate_trade_dates_by_window(window, end_date):
+        count = 0
+        dates = []
+        current_date = end_date
+        while count < window:
+            if TradeTime.is_trade_day(current_date):
+                dates.append(current_date)
+                count = count+1
+            current_date = current_date - datetime.timedelta(days=1)
+        dates.reverse()
+        return dates
+
+    @staticmethod
+    def generate_datetimes(from_date, end_date):
+        datetimes = []
+        current_date = from_date
+        while current_date <= end_date:
+            if TradeTime.is_trade_day(current_date):
+                start_time = datetime.datetime(current_date.year, current_date.month, current_date.day, 9, 31, 0)
+                if TradeTime.is_half_trade_day(current_date):
+                    count = 180
+                else:
+                    count = 390
+                for i in range(count):
+                    datetimes.append(start_time + datetime.timedelta(minutes=i))
+            current_date += datetime.timedelta(days=1)
+        return datetimes
+
+    @staticmethod
+    def generate_trade_datetimes_by_window(window, end_datetime):
+        end_date = end_datetime.date()
+        date_window = window/390 + 2
+        dates = TradeTime.generate_trade_dates_by_window(date_window, end_date)
+        datetimes = TradeTime.generate_datetimes(dates[0], dates[-1])
+        datetimes = filter(lambda x: x <= end_datetime, datetimes)
+        return datetimes[-window-1:]
+		
     @staticmethod
     def get_all_trade_min(date):
         if TradeTime.is_trade_day(date):

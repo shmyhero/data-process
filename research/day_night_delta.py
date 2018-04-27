@@ -62,5 +62,5 @@ class DayNightDelta(object):
 
 if __name__ == '__main__':
     # print DayNightDelta().plot_delta()
-    print DayNightDelta().plot_delta_sum()
-    # print DayNightDelta().plot_delta_of_delta_sum()
+    # print DayNightDelta().plot_delta_sum()
+    print DayNightDelta().plot_delta_of_delta_sum()
