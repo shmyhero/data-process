@@ -3,6 +3,7 @@ import datetime
 import cStringIO
 import sys
 import numpy as np
+from matplotlib.dates import AutoDateLocator, DateFormatter
 from utils.stringhelper import all_number_p
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -25,6 +26,8 @@ from dataaccess.processdao import ProcessDAO
 from dataaccess.equityrealtimedao import EquityRealTimeDAO
 from dataaccess.equitymindao import EquityMinDAO
 from research.optionbacktest import OptionBackTest
+from ingestion.yahooscraper import YahooScraper
+from ingestion.cboescraper import CBOEScraper
 
 
 render = web.template.render('portal/templates')
@@ -92,29 +95,34 @@ class VIXFutures(object):
     def __init__(self):
         pass
 
-    def get_historical_volatility(self, symbol):
+    def get_historical_volatility(self, new_price):
         from_date = (datetime.date.today() - datetime.timedelta(150))
-        equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
-        current_quity_price = equity_records[-1][1]
-        option_iv_records = OptionDAO().get_corresponding_implied_volatilities(symbol, current_quity_price)
-        first_tradetime = option_iv_records[0][0]
-        circle = 21
-        equity_start_date = first_tradetime - datetime.timedelta(circle)
-        # trade_day_circle = len(filter(lambda x: x[0] >= equity_start_date and x[0] < first_tradetime, equity_records))
-        hv_records = OptionCalculater.get_year_history_volatility_list(
-            filter(lambda x: x[0] >= equity_start_date, equity_records), circle)
+        equity_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
+        if new_price is not None:
+            equity_records.append([datetime.date.today(), new_price])
+        hv_records = OptionCalculater.get_year_history_volatility_list(equity_records, 21)
         return hv_records
 
     def GET(self):
         from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(63)
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
+        new_spy_price = None
+        if datetime.date.today() > TradeTime.get_latest_trade_date():
+            new_spy_price = YahooScraper.get_data_by_symbol('SPY')
+            new_vix_price = YahooScraper.get_data_by_symbol('VIX')
+            new_vix_features = CBOEScraper.get_vix_future()
+            [new_f1, new_f2, new_f3] = [new_vix_features[0][2], new_vix_features[1][2], new_vix_features[2][2]]
+            records_index.append([datetime.date.today(), new_vix_price])
+            records_f1.append([datetime.date.today(), new_f1])
+            records_f2.append([datetime.date.today(), new_f2])
+            records_f3.append([datetime.date.today(), new_f3])
         dates = map(lambda x: x[0], records_index)
         price_index = map(lambda x: x[1], records_index)
-        (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         price_f1 = map(lambda x: x[1], records_f1)
         price_f2 = map(lambda x: x[1], records_f2)
         price_f3 = map(lambda x: x[1], records_f3)
-        hv_records = self.get_historical_volatility('SPY')[-len(dates):]
+        hv_records = self.get_historical_volatility(new_spy_price)[-len(dates):]
         hv_prices = map(lambda x: x[1]*100, hv_records)
         fig = Figure(figsize=[16, 4])
         ax = fig.add_axes([.1, .1, .8, .9])
@@ -125,6 +133,10 @@ class VIXFutures(object):
         ax.plot(dates, price_f3, label='vix third month', color='gold')
         ax.legend(loc='upper left')
         ax.grid()
+        ax.xaxis.set_major_formatter(DateFormatter('%y%m%d'))
+        ax.set_xticks(dates)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(45)
         canvas = FigureCanvasAgg(fig)
         buf = cStringIO.StringIO()
         canvas.print_png(buf)
@@ -141,6 +153,9 @@ class EquityPrices(object):
             days = 63
         from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(days)
         equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
+        if datetime.date.today() > TradeTime.get_latest_trade_date():
+            new_spy_price = YahooScraper.get_data_by_symbol(symbol)
+            equity_records.append([datetime.date.today(), new_spy_price])
         dates = map(lambda x: x[0], equity_records)
         equity_prices = map(lambda x: x[1], equity_records)
         fig = Figure(figsize=[16, 4])
@@ -148,6 +163,10 @@ class EquityPrices(object):
         ax.plot(dates, equity_prices, label='price')
         ax.legend(loc='upper left')
         ax.grid()
+        ax.xaxis.set_major_formatter(DateFormatter('%y%m%d'))
+        ax.set_xticks(dates)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(45)
 
         # conver to canvas
         canvas = FigureCanvasAgg(fig)
@@ -597,10 +616,14 @@ class MinDataStatus(object):
 class UpperSPY(object):
 
     def __init__(self):
-        from_date = (datetime.date.today() - datetime.timedelta(1500))
+        from_date = (datetime.date.today() - datetime.timedelta(150))
         self.spy_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
-        # self.vix_records = EquityDAO().get_all_equity_price_by_symbol('VIX', from_date)
         self.vix_records = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        if datetime.date.today() > TradeTime.get_latest_trade_date():
+            new_spy_price = YahooScraper.get_data_by_symbol('SPY')
+            new_vix_price = YahooScraper.get_data_by_symbol('VIX')
+            self.spy_records.append([datetime.date.today(), new_spy_price])
+            self.vix_records.append([datetime.date.today(), new_vix_price])
         self.dates = map(lambda x: x[0], self.spy_records)
         self.spy_values = map(lambda x: x[1], self.spy_records)
         self.vix_values = map(lambda x: x[1], self.vix_records)
@@ -614,12 +637,22 @@ class UpperSPY(object):
         shifted_dates = self.dates[21:] + (append_dates[0:21])
         append_spy_values = [self.spy_values[-1]] * 21
         shifted_spy_values = self.spy_values[21:] + append_spy_values
-        fig = Figure(figsize=[12, 8])
+        fig = Figure(figsize=[64, 16])
         ax = fig.add_axes([.1, .1, .8, .8])
-        ax.plot(shifted_dates, shifted_spy_values, label='spy')
-        ax.plot(shifted_dates, spy_low, label='spy low')
-        # line.set_dashes([8, 4, 2, 4, 2, 4])
-        ax.plot(shifted_dates, spy_high, label='spy high')
+        ax.plot(shifted_dates, shifted_spy_values, label='spy', color='black')
+        ax.plot(shifted_dates, spy_low, label='spy low', color='blue')
+        # line1.set_dashes([2, 4])
+        ax.plot(shifted_dates, spy_high, label='spy high', color='skyblue')
+        # line2.set_dashes([8, 4, 2, 4, 2, 4])
+        # autodates = AutoDateLocator()
+        # ax.xaxis.set_major_locator(autodates)
+        yearsFmt = DateFormatter('%Y-%m-%d')
+        ax.xaxis.set_major_formatter(yearsFmt)
+        ax.set_xticks(shifted_dates)
+
+        # ax.xticks(shifted_dates, rotation=90)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(45)
         ax.legend(loc='upper left')
         ax.grid()
         canvas = FigureCanvasAgg(fig)

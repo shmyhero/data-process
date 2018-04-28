@@ -32,8 +32,26 @@ class CBOEScraper(object):
         write_to_file(path, yahoo_content)
 
 
+    @staticmethod
+    def parse_vix_future(item):
+        title = string_fetch(item, 'title=\"', '\"')
+        sub_items = item.split('<span')
+        values = map(lambda x: string_fetch(x, '>', '</span>').strip('\r\n '), sub_items)
+        return [title, datetime.datetime.strptime(values[1], '%m/%d/%Y').date(), float(values[2])]
+
+    @staticmethod
+    def get_vix_future():
+        url = 'http://www.cboe.com/delayedquote/'
+        content = HttpHelper.http_get(url)
+        content = string_fetch(content, 'FutureDataTabs', 'sf_colsIn')
+        items = content.split(' <a href="futures-quotes?')
+        vix_items = filter(lambda x: 'VIX/' in x, items)
+        return map(CBOEScraper.parse_vix_future, vix_items)
+
+
 if __name__ == '__main__':
-    CBOEScraper.get_vxmt_daily()
+    # CBOEScraper.get_vxmt_daily()
     # print CBOEScraper.to_yahoo_format('1/7/2008,,,,24.22')
+    print CBOEScraper.get_vix_future()
 
 

@@ -5,9 +5,10 @@ import datetime
 import time
 from utils.iohelper import write_to_file
 from utils.stringhelper import string_fetch
+from utils.logger import Logger
+from utils.httphelper import HttpHelper
 from common.symbols import Symbols
 from common.pathmgr import PathMgr
-from utils.logger import Logger
 
 
 class YahooScraper(object):
@@ -67,9 +68,9 @@ class YahooScraper(object):
     def ingest_with_retry(symbol, url):
         attempts = 0
         while attempts < 5:
-            crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache(symbol)
-            r = urllib2.Request(url, headers={'Cookie': cookie_str})
             try:
+                crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache(symbol)
+                r = urllib2.Request(url, headers={'Cookie': cookie_str})
                 response = urllib2.urlopen(r)
                 text = response.read()
                 # print "{} downloaded".format(symbol)
@@ -131,6 +132,16 @@ class YahooScraper(object):
                 time.sleep(1)
         logger.info('ingest option data completed..')
 
+    @staticmethod
+    def get_data_by_symbol(symbol):
+        yahoo_symbol = Symbols.get_mapped_symbol(symbol)
+        url = 'https://finance.yahoo.com/quote/%s/' % yahoo_symbol
+        content = HttpHelper.http_get(url)
+        content = string_fetch(content, 'Currency in USD', 'At close:')
+        content = string_fetch(content, 'react-text', 'react-text')
+        value = string_fetch(content, '-->', '<!--')
+        return float(value.replace(',', ''))
+
 
 
 if __name__ == '__main__':
@@ -148,6 +159,7 @@ if __name__ == '__main__':
     # YahooScraper.ingest_all_historical_etf(symbols=['STZ'])
     #YahooScraper.ingest_all_historical_etf(symbols=['^GSPC', '^DJI'])
     #print YahooScraper.ingest_all_options(['^IEF'])
+    # print YahooScraper.get_data_by_symbol('^VIX')
 
 
 
