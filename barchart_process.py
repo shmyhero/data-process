@@ -46,7 +46,7 @@ def process_for_ingesting_yahoo_option_data():
 
 def process_for_ingesting_bigcharts_option_data():
     logger.info('ingest bigcharts option data...')
-    BigChartsScraper.ingest_options('^VIX')
+    BigChartsScraper.ingest_options('VIX')
 
 
 def process_for_updating_option_delta():

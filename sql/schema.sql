@@ -45,6 +45,20 @@ create table equity_min (
 	unique index equity_min_index (symbol, tradeTime)
 );
 
+drop table if exists equity_30min;
+create table equity_30min (
+    id int not null auto_increment primary key,
+    symbol varchar (32) not null,
+    tradeTime datetime not null,
+    openPrice float null,
+    highPrice float null,
+	lowPrice float null,
+	closePrice float null,
+	volume float null,
+	unique index equity_30min_index (symbol, tradeTime)
+);
+
+
 drop table if exists equity_realtime;
 create table equity_realtime (
     id int not null auto_increment primary key,

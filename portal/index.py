@@ -637,7 +637,7 @@ class UpperSPY(object):
         shifted_dates = self.dates[21:] + (append_dates[0:21])
         append_spy_values = [self.spy_values[-1]] * 21
         shifted_spy_values = self.spy_values[21:] + append_spy_values
-        fig = Figure(figsize=[64, 16])
+        fig = Figure(figsize=[60, 10])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(shifted_dates, shifted_spy_values, label='spy', color='black')
         ax.plot(shifted_dates, spy_low, label='spy low', color='blue')
