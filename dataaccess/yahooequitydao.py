@@ -82,6 +82,22 @@ class YahooEquityDAO(BaseDAO):
         conn.commit()
         conn.close()
 
+    def save_from_equities(self, equities):
+        query_template = """insert into yahoo_equity (symbol,tradeDate,openPrice,highPrice,lowPrice,closePrice,adjClosePrice,volume) values 
+                                   ('{}','{}',{},{},{},{},{},{}) on duplicate key update 
+                                   openPrice={},highPrice={},lowPrice={},closePrice={},adjClosePrice={},volume={}"""
+        conn = BaseDAO.get_connection()
+        cursor = conn.cursor()
+
+        for equity in equities:
+            query = BaseDAO.mysql_format(query_template, equity.symbol, equity.tradeTime, equity.openPrice, equity.highPrice,
+                                         equity.lowPrice, equity.lastPrice, equity.lastPrice, equity.volume, equity.openPrice, equity.highPrice,
+                                         equity.lowPrice, equity.lastPrice, equity.lastPrice, equity.volume)
+            self.execute_query(query, cursor)
+        conn.commit()
+        conn.close()
+
+
     def save_all(self, symbols = Symbols.get_all_symbols()):
         for symbol in symbols:
             self.logger.info('save data for %s...' %symbol)

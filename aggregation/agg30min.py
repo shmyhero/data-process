@@ -2,6 +2,7 @@ import datetime
 from entities.equity import Equity
 from dataaccess.equitymindao import EquityMinDAO
 from dataaccess.equity30mindao import Equity30MinDAO
+from dataaccess.yahooequitydao import YahooEquityDAO
 
 
 class AGG30Min(object):
@@ -23,7 +24,6 @@ class AGG30Min(object):
             equity.volume = volume
         return equity
 
-
     @staticmethod
     def agg1to30(symbol, start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
         records = EquityMinDAO().get_records(symbol, start_time, end_time)
@@ -38,8 +38,22 @@ class AGG30Min(object):
                 sub_records = []
         Equity30MinDAO().insert(combined_records)
 
+    @staticmethod
+    def agg1mtodaily(symbol, start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
+        records = EquityMinDAO().get_records(symbol, start_time, end_time)
+        sub_records = []
+        combined_records = []
+        for record in records:
+            sub_records.append(record)
+            if record[0].hour == 15:
+                sub_records.append(record)
+                combined_record = AGG30Min.combine_records(symbol, sub_records)
+                combined_records.append(combined_record)
+                sub_records = []
+        YahooEquityDAO().save_from_equities(combined_records)
 
 if __name__ == '__main__':
     AGG30Min.agg1to30('510050')
-
+    AGG30Min.agg1mtodaily('510050')
+    # AGG30Min.agg1to30('SPY')
 
