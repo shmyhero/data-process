@@ -34,10 +34,11 @@ class MinDataParser(object):
 
     def save_to_db(self, code):
         records = self.load_csv(code)
+        records = filter(lambda x: x is not None and x.tradeTime > datetime.datetime(1999, 11, 8, 0, 0, 0), records)
         count = 390
         for i in range(len(records)/count):
             sub_records = records[i*count: (i+1)*count]
-            sub_records = filter(lambda x: x is not None, sub_records)
+            # sub_records = filter(lambda x: x is not None, sub_records)
             print sub_records[0].tradeTime
             EquityMinDAO().insert(sub_records)
         left_count = len(records)%count
