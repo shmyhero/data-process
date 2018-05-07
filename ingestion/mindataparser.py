@@ -9,13 +9,16 @@ class MinDataParser(object):
 
     def parse_line(self, line, symbol):
         record = line.split(',')
-        time = datetime.datetime.strptime('%s %s' % (record[0], record[1]), '%m/%d/%Y %H:%M')
+        time = datetime.datetime.strptime('%s %s'%(record[0], record[1]), '%m/%d/%Y %H:%M')
         open_price = float(record[2])
         high_price = float(record[3])
         low_price = float(record[4])
         close_price = float(record[5])
         volume = float(record[6])
-        return Equity(symbol, time, open_price, high_price, low_price, close_price, close_price-open_price, volume)
+        if 9.5*60<=time.hour * 60 + time.minute <= 16*60:
+            return Equity(symbol, time, open_price, high_price, low_price, close_price, close_price-open_price, volume)
+        else:
+            return None
 
     def try_parse_line(self, line, symbol):
         try:
@@ -24,6 +27,7 @@ class MinDataParser(object):
             print e
             print 'Error for line: %s' % line
             return None
+
 
     def load_csv(self, symbol):
         path = PathMgr.get_data_path('1mincsv/%s.txt' % symbol)
