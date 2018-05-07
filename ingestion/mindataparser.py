@@ -9,7 +9,7 @@ class MinDataParser(object):
 
     def parse_line(self, line, symbol):
         record = line.split(',')
-        time = datetime.datetime.strptime('%s %s'%(record[0], record[1]), '%m/%d/%Y %H:%M')
+        time = datetime.datetime.strptime('%s %s' % (record[0], record[1]), '%m/%d/%Y %H:%M')
         open_price = float(record[2])
         high_price = float(record[3])
         low_price = float(record[4])
@@ -24,7 +24,6 @@ class MinDataParser(object):
             print e
             print 'Error for line: %s' % line
             return None
-
 
     def load_csv(self, symbol):
         path = PathMgr.get_data_path('1mincsv/%s.txt' % symbol)

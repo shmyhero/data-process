@@ -53,7 +53,12 @@ class AGG30Min(object):
         YahooEquityDAO().save_from_equities(combined_records)
 
 if __name__ == '__main__':
-    AGG30Min.agg1to30('510050')
-    AGG30Min.agg1mtodaily('510050')
-    # AGG30Min.agg1to30('SPY')
+    # AGG30Min.agg1to30('510050')
+    # AGG30Min.agg1mtodaily('510050')
+    from common.tradetime import TradeTime
+    for trade_date in TradeTime.generate_dates(datetime.date(1998, 1, 2), TradeTime.get_latest_trade_date()):
+        from_datetime = datetime.datetime(trade_date.year, trade_date.month, trade_date.day, 0, 0, 0)
+        to_datetime = from_datetime + datetime.timedelta(days=1)
+        print 'Generate 30 min data for %s' % trade_date
+        AGG30Min.agg1to30('SPY', from_datetime, to_datetime)
 
