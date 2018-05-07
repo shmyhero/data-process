@@ -31,9 +31,9 @@ class MinDataParser(object):
         lines = content.split('\n')
         return map(lambda x: self.try_parse_line(x, symbol), lines)
 
-    def save_to_db(self, code):
+    def save_to_db(self, code, from_time=datetime.datetime(1990, 1, 1, 0, 0, 0)):
         records = self.load_csv(code)
-        records = filter(lambda x: x is not None and x.tradeTime > datetime.datetime(1999, 11, 8, 0, 0, 0), records)
+        records = filter(lambda x: x is not None and x.tradeTime > from_time, records)
         count = 390
         for i in range(len(records)/count):
             sub_records = records[i*count: (i+1)*count]
@@ -48,7 +48,7 @@ class MinDataParser(object):
 
 
 if __name__ == '__main__':
-    MinDataParser().save_to_db('SPY')
+    MinDataParser().save_to_db('QQQ', from_time=datetime.datetime(1999, 5, 1, 0, 0, 0))
 
 
 
