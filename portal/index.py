@@ -124,7 +124,7 @@ class VIXFutures(object):
         return shifted_values
 
     def GET(self):
-        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(63)
+        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(85)
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
         (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         new_spy_price = None
@@ -162,7 +162,7 @@ class VIXFutures(object):
         price_f2 = self.shift_values(price_f2)
         price_f3 = self.shift_values(price_f3)
 
-        fig = Figure(figsize=[16, 8])
+        fig = Figure(figsize=[24, 8])
         ax1 = fig.add_axes([.1, .1, .8, .8])
         ax2 = ax1.twinx()
         ax1.plot(dates, hv_prices, label='historical volatility', color='black')
@@ -174,7 +174,7 @@ class VIXFutures(object):
 
         ax2.plot(dates, spy_prices, 'red', label='SPY')
         ax2.plot(dates, spy_low, 'orange', label='spy_low')
-        ax2.plot(dates, spy_high, 'yellow', label='spy_high')
+        # ax2.plot(dates, spy_high, 'yellow', label='spy_high')
         ax2.legend(loc='upper right')
         ax1.grid()
         ax1.xaxis.set_major_formatter(DateFormatter('%y%m%d'))
