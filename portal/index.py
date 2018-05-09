@@ -28,6 +28,7 @@ from dataaccess.equitymindao import EquityMinDAO
 from research.optionbacktest import OptionBackTest
 from ingestion.yahooscraper import YahooScraper
 from ingestion.cboescraper import CBOEScraper
+from ingestion.marketwatchscraper import MarketWatchScraper
 
 
 render = web.template.render('portal/templates')
@@ -110,14 +111,32 @@ class VIXFutures(object):
         equity_prices = map(lambda x: x[1], equity_records)
         return equity_prices
 
+    def get_low_and_upper(self, spy_values, vix_values):
+        low_rate = 1.25 * np.sqrt(21)/100/np.sqrt(252)
+        high_rate = 1.75 * np.sqrt(21)/100/np.sqrt(252)
+        spy_low = map(lambda x, y: x * (1 + low_rate*y), spy_values, vix_values)
+        spy_high = map(lambda x, y: x * (1 + high_rate*y), spy_values, vix_values)
+        return [spy_low, spy_high]
+
+    def shift_values(self, values):
+        append_values = [values[-1]] * 21
+        shifted_values = values[21:] + append_values
+        return shifted_values
+
     def GET(self):
         from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(63)
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
         (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         new_spy_price = None
         if datetime.date.today() > TradeTime.get_latest_trade_date():
-            new_spy_price = YahooScraper.get_data_by_symbol('SPY')
-            new_vix_price = YahooScraper.get_data_by_symbol('VIX')
+            try:
+                new_spy_price = YahooScraper.get_data_by_symbol('SPY')
+            except Exception as e:
+                new_spy_price = MarketWatchScraper.get_data_by_symbol('SPY')
+            try:
+                new_vix_price = YahooScraper.get_data_by_symbol('VIX')
+            except Exception as e:
+                new_vix_price = MarketWatchScraper.get_data_by_symbol('VIX')
             new_vix_features = CBOEScraper.get_vix_future()
             [new_f1, new_f2, new_f3] = [new_vix_features[0][2], new_vix_features[1][2], new_vix_features[2][2]]
             records_index.append([datetime.date.today(), new_vix_price])
@@ -131,6 +150,18 @@ class VIXFutures(object):
         price_f3 = map(lambda x: x[1], records_f3)
         hv_records = self.get_historical_volatility(new_spy_price)[-len(dates):]
         hv_prices = map(lambda x: x[1]*100, hv_records)
+        spy_prices = self.get_equity_prices('SPY', from_date, new_spy_price)
+        [spy_low, spy_high] = self.get_low_and_upper(spy_prices, price_index)
+
+        # shift
+        append_dates = TradeTime.generate_dates(dates[-1], dates[-1] + datetime.timedelta(days=50))
+        dates = dates[21:] + (append_dates[0:21])
+        hv_prices = self.shift_values(hv_prices)
+        price_index = self.shift_values(price_index)
+        price_f1 = self.shift_values(price_f1)
+        price_f2 = self.shift_values(price_f2)
+        price_f3 = self.shift_values(price_f3)
+
         fig = Figure(figsize=[16, 8])
         ax1 = fig.add_axes([.1, .1, .8, .8])
         ax2 = ax1.twinx()
@@ -140,8 +171,10 @@ class VIXFutures(object):
         ax1.plot(dates, price_f2, label='vix second month', color='lightskyblue')
         ax1.plot(dates, price_f3, label='vix third month', color='lightblue')
         ax1.legend(loc='upper left')
-        spy_prices = self.get_equity_prices('SPY', from_date, new_spy_price)
+
         ax2.plot(dates, spy_prices, 'red', label='SPY')
+        ax2.plot(dates, spy_low, 'orange', label='spy_low')
+        ax2.plot(dates, spy_high, 'yellow', label='spy_high')
         ax2.legend(loc='upper right')
         ax1.grid()
         ax1.xaxis.set_major_formatter(DateFormatter('%y%m%d'))
