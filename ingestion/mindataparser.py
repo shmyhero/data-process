@@ -28,7 +28,6 @@ class MinDataParser(object):
             print 'Error for line: %s' % line
             return None
 
-
     def load_csv(self, symbol):
         path = PathMgr.get_data_path('1mincsv/%s.txt' % symbol)
         content = read_file_to_string(path)
@@ -52,7 +51,7 @@ class MinDataParser(object):
 
 
 if __name__ == '__main__':
-    MinDataParser().save_to_db('QQQ', from_time=datetime.datetime(2011, 06, 25, 0, 0, 0))
+    MinDataParser().save_to_db('QQQ', from_time=datetime.datetime(2004, 11, 29, 0, 0, 0))
 
 
 
