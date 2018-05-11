@@ -157,6 +157,7 @@ class VIXFutures(object):
         append_dates = TradeTime.generate_dates(dates[-1], dates[-1] + datetime.timedelta(days=50))
         dates = dates[21:] + (append_dates[0:21])
         hv_prices = self.shift_values(hv_prices)
+        spy_prices = self.shift_values(spy_prices)
         price_index = self.shift_values(price_index)
         price_f1 = self.shift_values(price_f1)
         price_f2 = self.shift_values(price_f2)

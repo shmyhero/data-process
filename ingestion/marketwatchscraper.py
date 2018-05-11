@@ -4,7 +4,7 @@ from utils.stringhelper import string_fetch
 
 class MarketWatchScraper():
 
-	@staticmethod
+    @staticmethod
     def get_data_by_symbol(symbol):
         url = 'https://www.marketwatch.com/investing/fund/%s' % symbol
         content = HttpHelper.http_get(url)
