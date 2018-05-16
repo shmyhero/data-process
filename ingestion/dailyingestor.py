@@ -31,7 +31,10 @@ class DailyIngestor(object):
         content = BarchartScraper.get_expiration_dates(symbol)
         write_to_file(file_path, content)
         data = json.loads(content)
-        return data['meta']['expirations']
+        try:
+            return data['meta']['expirations']
+        except Exception:
+            return []
 
     def gen_equity_data(self, symbol):
         file_path = os.path.join(self.equity_dir, '{}.json'.format(symbol))
@@ -71,7 +74,10 @@ class DailyIngestor(object):
             expiration_file_path = os.path.join(self.expiration_date_dir, '{}.json'.format(symbol))
             with open(expiration_file_path) as fs:
                 json_data = json.load(fs)
-                expirations = json_data['meta']['expirations']
+                try:
+                    expirations = json_data['meta']['expirations']
+                except Exception:
+                    expirations = []
                 for expiration in expirations:
                     option_file_path = os.path.join(self.option_data_dir, '{}{}.json'.format(symbol, expiration))
                     if not os.path.exists(option_file_path):
