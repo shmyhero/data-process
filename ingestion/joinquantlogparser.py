@@ -13,7 +13,7 @@ class JoinQuantLogParser(object):
         return Equity(code, time, price, price, price, price, price, None)
 
     def load_log(self, code):
-        path = PathMgr.get_data_path('joinquant_min/%s_2013.log'%code)
+        path = PathMgr.get_data_path('joinquant_min/%s_2018.log'%code)
         content = read_file_to_string(path)
         lines = content.split('\n')
         filtered_lines = filter(lambda x: 'INFO' not in x and x != '', lines)

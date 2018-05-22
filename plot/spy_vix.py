@@ -1,20 +1,24 @@
 import datetime
 import pandas as pd
+from utils.indicator import MACD
 from dataaccess.yahooequitydao import YahooEquityDAO
 from dataaccess.vixdao import VIXDAO
 import matplotlib.pyplot as plt
 
 
-def spy_vs_vix (from_date, ma_window_short=4, ma_window_long=17):
+def spy_vs_vix (from_date, ma_window_short=5, ma_window_long=21):
     spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date.strftime('%Y-%m-%d'))
     vix_records = YahooEquityDAO().get_all_equity_price_by_symbol('^VIX', from_date.strftime('%Y-%m-%d'))
     dates = map(lambda x: x[0], spy_records)[ma_window_long:]
     spy_values = map(lambda x: x[1], spy_records)[ma_window_long:]
     vix_values = map(lambda x: x[1], vix_records)
-    vix_values1 = pd.Series(vix_values).rolling(window=ma_window_short).mean().tolist()[ma_window_long:]
-    vix_values_mean = pd.Series(vix_values).rolling(window=ma_window_long).mean().tolist()[ma_window_long:]
-    value = 13
-    buy_or_hold = map(lambda x,y: 0 if x>value or y > value else 1, vix_values1, vix_values_mean)
+    vix_values_short = MACD.get_all_ema(vix_values, ma_window_short)[ma_window_long:]
+    vix_values_long = MACD.get_all_ema(vix_values, ma_window_long)[ma_window_long:]
+    # vix_values1 = pd.Series(vix_values).rolling(window=ma_window_short).mean().tolist()[ma_window_long:]
+    # vix_values_mean = pd.Series(vix_values).rolling(window=ma_window_long).mean().tolist()[ma_window_long:]
+    value =25
+    # buy_or_hold = map(lambda x,y: 0 if x>value or y > value else 1, vix_values1, vix_values_mean)
+    buy_or_hold = map(lambda x,y: 0 if x>value or y > value else 1, vix_values_short, vix_values_long)
     bull_regime = []
     signal = -1
     for i in range(len(buy_or_hold)):

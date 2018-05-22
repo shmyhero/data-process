@@ -1,3 +1,4 @@
+import datetime
 from dataaccess.basedao import BaseDAO
 
 
@@ -20,3 +21,12 @@ class Equity30MinDAO(BaseDAO):
             self.execute_query(query, cursor)
         conn.commit()
         conn.close()
+
+    def get_time_and_price(self, symbol='SPY', start_time=datetime.datetime(1971, 1, 1, 0, 0, 0), end_time=datetime.datetime(9999, 1, 1, 0, 0, 0)):
+        query = """select tradeTime, closePrice from equity_30min where tradeTime >= '{}' and tradeTime <= '{}' and symbol = '{}' and tradeTime not like '%09:30:00' order by tradeTime""".format(start_time, end_time, symbol)
+        return self.select(query)
+
+
+if __name__ == '__main__':
+    records = Equity30MinDAO().get_time_and_price(start_time=datetime.datetime(2018, 1, 1, 0, 0, 0))
+    print records
