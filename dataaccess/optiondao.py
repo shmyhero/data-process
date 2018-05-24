@@ -210,8 +210,8 @@ if __name__ == '__main__':
     #print OptionDAO().get_corresponding_implied_volatilities('SPY', 245.38)
     #print OptionDAO().get_spike_prices_by('SPY', '2017-09-15')
     #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
-    print OptionDAO().get_option_by_symbol('SPY170915C00245000')
-
+    # print OptionDAO().get_option_by_symbol('SPY170915C00245000')
+    OptionDAO().find_symbol('SPY',  datetime.date(2018, 6, 15), 271.33, current_date=datetime.date(2018, 5, 18), days_to_current_date=10)
 
 
 

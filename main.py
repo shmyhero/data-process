@@ -50,18 +50,18 @@ def process_for_ingesting_nyse_credit():
 def process_for_ingesting_yahoo_option_data():
     logger.info('ingest yahoo option data...')
     YahooScraper.ingest_all_options(['^VIX'])
-    YahooScraper.ingest_all_options(['SPY'])
-    YahooScraper.ingest_all_options(['QQQ'])
-    YahooScraper.ingest_all_options(['^VXX'])
+    # YahooScraper.ingest_all_options(['SPY'])
+    # YahooScraper.ingest_all_options(['QQQ'])
+    # YahooScraper.ingest_all_options(['^VXX'])
     YahooOptionParser.save_to_db()
 
 
 def process_for_ingesting_bigcharts_option_data():
     logger.info('ingest bigcharts option data...')
     BigChartsScraper.ingest_options('VIX')
-    BigChartsScraper.ingest_options('SPY')
-    BigChartsScraper.ingest_options('QQQ')
-    BigChartsScraper.ingest_options('VXX')
+    # BigChartsScraper.ingest_options('SPY')
+    # BigChartsScraper.ingest_options('QQQ')
+    # BigChartsScraper.ingest_options('VXX')
 
 
 def process_for_updating_option_delta():

@@ -4,6 +4,7 @@ from dataaccess.basedao import BaseDAO
 from dataaccess.vixdao import VIXDAO
 from dataaccess.equitymindao import EquityMinDAO
 from dataaccess.equityrealtimedao import EquityRealTimeDAO
+from dataaccess.optiondao import OptionDAO
 
 
 class DataCleanDAO(BaseDAO):
@@ -52,6 +53,28 @@ class DataCleanDAO(BaseDAO):
     def remove_market_open_data_for_min(self):
         EquityMinDAO().remove_market_open_records()
 
+    def add_missing_date_for_option(self, from_date, to_date):
+        query_template = """select underlingSymbol, tradeTime, symbol, expirationDate, the_date,  daysToExpiration, optionType, strikePrice, lastPrice, volatility, delta, gamma, rho, theta, vega 
+                            from option_data 
+                            where underlingSymbol = 'VXX' and tradeTime = '{}'
+                          """
+        query = query_template.format(from_date)
+        rows = self.select(query)
+        insert_template = """insert into option_data (underlingSymbol, tradeTime, symbol, expirationDate,the_date, daysToExpiration, optionType,strikePrice,lastPrice,volatility,delta,gamma,rho,theta,vega)
+        values ('{}','{}','{}','{}','{}',{},'{}',{},{},{},{},{},{},{},{})         
+        """
+        for row in rows:
+            (underlingSymbol, tradeTime, symbol, expirationDate, the_date, daysToExpiration, optionType, strikePrice,
+             lastPrice, volatility, delta, gamma, rho, theta, vega) = row
+            tradeTime = to_date
+            daysToExpiration += (from_date - to_date).days
+            insert_query = insert_template.format(underlingSymbol, tradeTime, symbol, expirationDate, the_date, daysToExpiration, optionType, strikePrice,
+             lastPrice, volatility, delta, gamma, rho, theta, vega)
+            insert_query = insert_query.replace('None', 'null')
+            print insert_query
+            self.execute_query(insert_query)
+
+
 
 
 if __name__ == '__main__':
@@ -61,5 +84,6 @@ if __name__ == '__main__':
     #DataCleanDAO().remove_invalid_records(datetime.date(2017, 9, 23))
     #DataCleanDAO().fix_option_date_error2()
     # DataCleanDAO().clean_equity_data()
-    DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 3, 5))
-
+    # DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 3, 5))
+    # DataCleanDAO().add_missing_date_for_option(datetime.date(2018, 5, 18), datetime.date(2018, 5, 17))
+    pass
