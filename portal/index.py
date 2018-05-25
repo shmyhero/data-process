@@ -96,8 +96,11 @@ class VIXFutures(object):
     def __init__(self):
         pass
 
-    def get_historical_volatility(self, new_price):
-        from_date = (datetime.date.today() - datetime.timedelta(150))
+    def get_historical_volatility(self, new_price, from_date=None):
+        if from_date is None:
+            from_date = (datetime.date.today() - datetime.timedelta(150))
+        else:
+            from_date = from_date - datetime.timedelta(37) # ensure more than 21 days
         equity_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
         if new_price is not None:
             equity_records.append([datetime.date.today(), new_price])
@@ -154,7 +157,7 @@ class VIXFutures(object):
         price_f1 = map(lambda x: x[1], records_f1)
         price_f2 = map(lambda x: x[1], records_f2)
         price_f3 = map(lambda x: x[1], records_f3)
-        hv_records = self.get_historical_volatility(new_spy_price)[-len(dates):]
+        hv_records = self.get_historical_volatility(new_spy_price, from_date)[-len(dates):]
         hv_prices = map(lambda x: x[1]*100, hv_records)
         spy_prices = self.get_equity_prices('SPY', from_date, new_spy_price)
         [spy_low, spy_high] = self.get_low_and_upper(spy_prices, price_index)
