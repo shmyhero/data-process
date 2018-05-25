@@ -29,4 +29,4 @@ def spy_vs_macd (start_time=datetime.datetime(2007, 1, 1, 0, 0), end_time = date
 
 
 if __name__ == '__main__':
-    spy_vs_macd(datetime.datetime(2011, 1, 1, 0, 0, 0), datetime.datetime(2012, 1, 1, 0, 0, 0))
+    spy_vs_macd(datetime.datetime(2007, 1, 1, 0, 0, 0), datetime.datetime(2008, 1, 1, 0, 0, 0))

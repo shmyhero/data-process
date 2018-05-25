@@ -27,6 +27,6 @@ class RawToDB(object):
 
 
 if __name__ == '__main__':
-    #RawToDB(PathMgr.get_data_path()).push_to_db()
-    #RawToDB(PathMgr.get_data_path('2017-07-25')).push_to_db()
-    pass
+    #RawToDB(PathMgr.get_raw_data_path()).push_to_db()
+    #RawToDB(PathMgr.get_raw_data_path('2017-07-25')).push_to_db()
+    RawToDB(PathMgr.get_raw_data_path('2018-05-24')).push_to_db()

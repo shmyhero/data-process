@@ -123,8 +123,14 @@ class VIXFutures(object):
         shifted_values = values[21:] + append_values
         return shifted_values
 
-    def GET(self):
-        from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(85)
+    def GET(self, from_date_str=None):
+        if from_date_str is None or from_date_str == '':
+            from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(85)
+        else:
+            try:
+                from_date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d').date()
+            except Exception:
+                from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(85)
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
         (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         new_spy_price = None
@@ -710,7 +716,7 @@ class UpperSPY(object):
 def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
-            '/vixfutures', 'VIXFutures',
+            '/vixfutures/(.*)', 'VIXFutures',
             '/equityprices/(.*)/(.*)', 'EquityPrices',
             '/vix3in1', 'VIX3in1',
             '/vix', 'VIX',

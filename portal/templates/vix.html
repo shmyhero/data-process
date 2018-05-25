@@ -5,12 +5,27 @@
     <style>
         body{font-size:50px}
     </style>
+    <script>
+        function date_onchange(){
+            control = document.getElementById('input_start_date');
+            src = "/vixfutures/" + control.value
+            //alert(src)
+            image = document.getElementById('viximage')
+            image.src = src
+        }
+    </script>
 </head>
 <body>
     <br/>
-    VIX Historical volatility and Futures
+    <h2>VIX Historical volatility and Futures</h2>
+
+    <br/>
+    Start date:
+    <input id = "input_start_date" type="date" style="height:50px; width:300px; font-size:30px" onchange="date_onchange()"/>
+    <br/>
+
     <div id = "div1" >
-            <img style="-webkit-user-select: none;" src="/vixfutures">
+            <img id = "viximage" style="-webkit-user-select: none;" src="/vixfutures/">
     </div>
 
     <!--

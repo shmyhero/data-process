@@ -11,7 +11,7 @@ from dataaccess.vixdao import VIXDAO
 from dataaccess.spyvixhedgedao import SPYVIXHedgeDAO
 
 # ratio = (V1 * P1 * D1) / (V2 * P2 * D2)
-# V: 20 days historical volatility, v1: spy etf hv, p2: vix fist month hv
+# V: 20 days historical volatility, v1: spy etf hv, v2: vix fist month hv
 # P: price, P1: spy price, P2:VIX first month price
 # D: D1: SPY first month option's delta, D2: VXX fist month option's delta..
 # VIX delta: VIX first month future pirce - VIX index price.
