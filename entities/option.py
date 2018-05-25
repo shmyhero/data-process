@@ -41,7 +41,10 @@ class Option(BaseEntity):
             setattr(option, k, BaseEntity.fix_na(v))
         BaseEntity.parse_for_entity(BaseEntity.parse_float, option, ['strikePrice', 'askPrice', 'bidPrice', 'openPrice', 'highPrice', 'lowPrice', 'lastPrice', 'priceChange', 'theoretical', 'delta', 'gamma', 'rho', 'theta', 'vega', 'openInterest', 'volume'])
         BaseEntity.parse_for_entity(BaseEntity.parse_date, option, ['tradeTime', 'expirationDate', 'date', 'bidDate'])
-        option.volatility = BaseEntity.parse_float(option.volatility.replace('%', ''))
+        if option.volatility is not None:
+            option.volatility = BaseEntity.parse_float(option.volatility.replace('%', ''))
+        # else:
+            # print option
         return option
 
 
