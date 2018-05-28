@@ -127,13 +127,15 @@ class VIXFutures(object):
         return shifted_values
 
     def GET(self, from_date_str=None):
+        default_from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(60)
         if from_date_str is None or from_date_str == '':
-            from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(85)
+            from_date = default_from_date
         else:
             try:
-                from_date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d').date()
+                input_from_date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d').date()
+                from_date = TradeTime.get_from_date_by_window(22, input_from_date)
             except Exception:
-                from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(85)
+                from_date = default_from_date
         records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
         (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         new_spy_price = None
@@ -164,6 +166,7 @@ class VIXFutures(object):
 
         # shift
         append_dates = TradeTime.generate_dates(dates[-1], dates[-1] + datetime.timedelta(days=50))
+
         dates = dates[21:] + (append_dates[0:21])
         hv_prices = self.shift_values(hv_prices)
         spy_prices = self.shift_values(spy_prices)
@@ -171,6 +174,17 @@ class VIXFutures(object):
         price_f1 = self.shift_values(price_f1)
         price_f2 = self.shift_values(price_f2)
         price_f3 = self.shift_values(price_f3)
+
+        if from_date < default_from_date:
+            dates = dates[:42]
+            hv_prices = hv_prices[:42]
+            spy_prices = spy_prices[:42]
+            spy_low = spy_low[:42]
+            price_index = price_index[:42]
+            price_f1 = price_f1[:42]
+            price_f2 = price_f2[:42]
+            price_f3 = price_f3[:42]
+
 
         fig = Figure(figsize=[24, 8])
         ax1 = fig.add_axes([.1, .1, .8, .8])
