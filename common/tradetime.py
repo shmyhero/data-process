@@ -209,3 +209,4 @@ if __name__ == '__main__':
     print TradeTime.get_latest_trade_date()
     print TradeTime.get_all_trade_min(datetime.date(2018, 1, 19))
     print TradeTime.get_all_trade_min(datetime.date(2017, 7, 3))
+    print TradeTime.get_from_date_by_window(180)
