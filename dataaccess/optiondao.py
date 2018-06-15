@@ -125,6 +125,8 @@ class OptionDAO(BaseDAO):
         query_template = """select distinct(strikeprice) as strikeprice, min(tradeTime) from  option_data where underlingSymbol = '{}'  and  expirationDate = str_to_date('{}', '%Y-%m-%d') and optionType = '{}' group by strikeprice order by min(tradeTime)"""
         query = query_template.format(equity_symbol, expiration_date.strftime('%Y-%m-%d'), option_type)
         rows = self.select(query, cursor)
+        # print query
+        # print rows
         start_date = max(current_date - datetime.timedelta(days=days_to_current_date), rows[0][1])
         filtered_rows = filter(lambda x: x[1] <= start_date, rows)
         #print filtered_rows

@@ -159,7 +159,7 @@ if __name__ == '__main__':
     #YahooScraper.ingest_all_historical_etf(symbols = ['^SPX'])
     # YahooScraper.ingest_all_historical_etf(symbols=['AAPL'])
     # YahooScraper.ingest_recently_historyical_etf(symbols=['^VXV'])
-    YahooScraper.ingest_all_historical_etf(symbols=['^VXX'])
+    # YahooScraper.ingest_all_historical_etf(symbols=['^VXX'])
     # YahooScraper.ingest_all_historical_etf(symbols=['^VXMT'])
     # YahooScraper.ingest_all_historical_etf(symbols=['VNM'])
     # YahooScraper.ingest_all_historical_etf(symbols=['ITA', 'XAR', 'FNDE', 'DGRW', 'IHI', 'BJK', 'VHT', 'CME'])
@@ -169,6 +169,7 @@ if __name__ == '__main__':
     # print YahooScraper.ingest_all_options(['SPY'])
     # print YahooScraper.ingest_all_options(['^VXX'])
     # print YahooScraper.get_data_by_symbol('^VIX')
+    print YahooScraper.ingest_all_options(['^VIX'])
 
 
 

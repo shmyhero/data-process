@@ -32,6 +32,18 @@ class Credit(object):
                'October': [10, 31],
                'November': [11, 30],
                'December': [12, 31],
+               'Jan': [1, 31],
+               'Feb': [2, 28],
+               'Mar': [3, 31],
+               'Apr': [4, 30],
+               'May': [5, 31],
+               'Jun': [6, 30],
+               'Jul': [7, 31],
+               'Aug': [8, 31],
+               'Sep': [9, 30],
+               'Oct': [10, 31],
+               'Nov': [11, 30],
+               'Dec': [12, 31],
                }
         return dic
 

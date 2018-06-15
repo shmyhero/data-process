@@ -6,7 +6,7 @@ from common.pathmgr import PathMgr
 from common.notification import notify
 from ingestion.dailyingestor import DailyIngestor
 from ingestion.yahooscraper import YahooScraper
-from ingestion.nyseingestor import NYSEIngestor
+from ingestion.nyseingestor import NYSEIngestor2
 from ingestion.bigchartsingestor import BigChartsScraper
 from dataaccess.rawfilemgr import RawFileMgr
 from dataaccess.raw2db import RawToDB
@@ -41,7 +41,7 @@ def process_for_ingesting_barchart_data():
 
 def process_for_ingesting_nyse_credit():
     logger.info('Ingesting credit data...')
-    credits = NYSEIngestor.ingest_credit()
+    credits = NYSEIngestor2.ingest_credit()
     logger.info('Ingesting credit data completed, start to push data into database.')
     NYSECreditDAO().save(credits)
     logger.info('push credit data into database completed.')
@@ -114,8 +114,10 @@ def catch_up_missing_data():
 
 def add_missing_data():
     logger.info('Add missing minute data.')
-    EquityMinDAO().add_missing_data()
-    EquityRealTimeDAO().add_missing_data()
+    EquityMinDAO().add_missing_data('SVXY')
+    EquityRealTimeDAO().add_missing_data('SVXY')
+    EquityMinDAO().add_missing_data('SPY')
+    EquityRealTimeDAO().add_missing_data('SPY')
     logger.info('Completed.')
 
 
@@ -133,7 +135,7 @@ def run():
                  process_for_ingesting_yahoo_option_data,
                  process_for_ingesting_bigcharts_option_data,
                  process_for_updating_option_delta,
-                 aggregation_for_spy_vix_hedge_table,
+                 # aggregation_for_spy_vix_hedge_table,
                  process_for_ingesting_nyse_credit,
                  process_for_yahoo_historical_data,
                  data_validation,

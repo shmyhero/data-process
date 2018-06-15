@@ -51,7 +51,7 @@ class MinDataParser(object):
 
 
 if __name__ == '__main__':
-    MinDataParser().save_to_db('QQQ', from_time=datetime.datetime(2004, 11, 29, 0, 0, 0))
+    MinDataParser().save_to_db('VXX', from_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
 
 
 

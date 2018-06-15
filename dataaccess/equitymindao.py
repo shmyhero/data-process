@@ -150,6 +150,6 @@ if __name__ == '__main__':
     # EquityMinDAO().add_missing_data_in_real_time('XIV')
     # print EquityMinDAO().save_to_csv()
     # print EquityMinDAO().validate_integrity_for_min_data('UBT')
-    for trade_date in TradeTime.generate_dates(datetime.date(2004, 11, 29), TradeTime.get_latest_trade_date()):
+    for trade_date in TradeTime.generate_dates(datetime.date(2009, 1, 30), TradeTime.get_latest_trade_date()):
         print 'Add missing data for %s' % trade_date
-        EquityMinDAO().add_missing_data('QQQ', trade_date)
+        EquityMinDAO().add_missing_data('VXX', trade_date)
