@@ -665,8 +665,9 @@ class RealTimeDataStatus(object):
         pass
 
     def GET(self):
-        integrity_p, results = EquityRealTimeDAO().validate_integrity_for_real_time_data()
-        return render.realtime_data_status(integrity_p, results)
+        svxy_integrity_p, svxy_results = EquityRealTimeDAO().validate_integrity_for_real_time_data('SVXY')
+        spy_integrity_p, spy_results = EquityRealTimeDAO().validate_integrity_for_real_time_data('SPY')
+        return render.realtime_data_status(svxy_integrity_p, svxy_results, spy_integrity_p, spy_results)
 
 
 class MinDataStatus(object):

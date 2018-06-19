@@ -138,7 +138,6 @@ class EquityMinDAO(BaseDAO):
             integrity_p = False
         return integrity_p, missing_time
 
-
     def remove_market_open_records(self):
         sql = """delete from equity_min where tradetime like '%9:30:00'"""
         self.execute_query(sql)
@@ -150,6 +149,8 @@ if __name__ == '__main__':
     # EquityMinDAO().add_missing_data_in_real_time('XIV')
     # print EquityMinDAO().save_to_csv()
     # print EquityMinDAO().validate_integrity_for_min_data('UBT')
-    for trade_date in TradeTime.generate_dates(datetime.date(2009, 1, 30), TradeTime.get_latest_trade_date()):
-        print 'Add missing data for %s' % trade_date
-        EquityMinDAO().add_missing_data('VXX', trade_date)
+    # for trade_date in TradeTime.generate_dates(datetime.date(2009, 1, 30), TradeTime.get_latest_trade_date()):
+    #     print 'Add missing data for %s' % trade_date
+    #     EquityMinDAO().add_missing_data('VXX', trade_date)
+    for trade_date in TradeTime.generate_dates(datetime.date(2018, 5, 30), TradeTime.get_latest_trade_date()):
+        EquityMinDAO().add_missing_data('SPY', trade_date)

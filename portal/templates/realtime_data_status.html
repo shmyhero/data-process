@@ -1,28 +1,56 @@
-$def with (integrity_p, results)
+$def with (svxy_integrity_p, svxy_results, spy_integrity_p, spy_results)
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Minutes data</title>
 </head>
 <body>
-$if integrity_p:
-    <font size="7" color="green">SVXY realtime data is ok</font>
-$else:
-    <font size="7" color="red">SVXY realtime data missing...</font>
 
-<br/>
-<br/>
-<table border="1" cellspacing="0" >
-
-    <tr style = "font-size:37px;">
-        <th>Time</th>
-        <th>Price</th>
-    </tr>
-$for record in reversed(results):
-    <tr>
-    $for value in record:
-        <td ><font size="7" >$value</font></td>
+<table border="0">
+    <>
+        <td>
+            $if svxy_integrity_p:
+                <font size="7" color="green">SVXY realtime data is ok</font>
+            $else:
+                <font size="7" color="red">SVXY realtime data missing...</font>
+            <br/>
+            <br/>
+            <table border="1" cellspacing="0" >
+                <tr style = "font-size:37px;">
+                    <th>Time</th>
+                    <th>Price</th>
+                </tr>
+            $for record in reversed(svxy_results):
+                <tr>
+                $for value in record:
+                    <td ><font size="7" >$value</font></td>
+                </tr>
+            </table>
+        </td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td>
+            $if spy_integrity_p:
+                <font size="7" color="green">SPY realtime data is ok</font>
+            $else:
+                <font size="7" color="red">SPY realtime data missing...</font>
+            <br/>
+            <br/>
+            <table border="1" cellspacing="0" >
+                <tr style = "font-size:37px;">
+                    <th>Time</th>
+                    <th>Price</th>
+                </tr>
+            $for record in reversed(spy_results):
+                <tr>
+                $for value in record:
+                    <td ><font size="7" >$value</font></td>
+                </tr>
+            </table>
+        </td>
     </tr>
 </table>
+
+
+
 </body>
 </html>

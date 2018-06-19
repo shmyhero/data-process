@@ -23,7 +23,7 @@ class YahooScraper(object):
         cookie_regex = r'set-cookie: (.*?); '
         link = crumble_link.format(symbol)
         response = urllib2.urlopen(link)
-        #print response.info()
+        # print response.info()
         match = re.search(cookie_regex, str(response.info()))
         cookie_str = match.group(1)
         text = response.read()
@@ -169,7 +169,8 @@ if __name__ == '__main__':
     # print YahooScraper.ingest_all_options(['SPY'])
     # print YahooScraper.ingest_all_options(['^VXX'])
     # print YahooScraper.get_data_by_symbol('^VIX')
-    print YahooScraper.ingest_all_options(['^VIX'])
+    # print YahooScraper.ingest_all_options(['^VIX'])
+    YahooScraper.ingest_all_historical_etf(symbols=['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
 
 
 
