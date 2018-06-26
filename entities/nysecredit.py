@@ -51,7 +51,7 @@ class Credit(object):
     def get_last_date(year, month):
         dic = Credit.get_month_dic()
         date_str = '%s-%02d-%s' % (year, dic[month][0], dic[month][1])
-        if calendar.isleap(int(year)) and month == 'February':
+        if calendar.isleap(int(year)) and month in ['February', 'Feb']:
             date_str = date_str.replace('28', '29')
         return date_str
 
