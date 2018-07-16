@@ -170,7 +170,9 @@ if __name__ == '__main__':
     # print YahooScraper.ingest_all_options(['^VXX'])
     # print YahooScraper.get_data_by_symbol('^VIX')
     # print YahooScraper.ingest_all_options(['^VIX'])
-    YahooScraper.ingest_all_historical_etf(symbols=['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
+    # YahooScraper.ingest_all_historical_etf(symbols=['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
+    # YahooScraper.ingest_all_historical_etf(symbols=['000001.SS'])
+    YahooScraper.ingest_all_historical_etf(symbols=['AIEQ'])
 
 
 

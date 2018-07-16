@@ -152,7 +152,7 @@ class YahooEquityDAO(BaseDAO):
 if __name__ == '__main__':
     # YahooEquityDAO().save_all(['^GSPC'])
     # YahooEquityDAO().save_all(['^GSPC', '^DJI'])
-    YahooEquityDAO().save_all(['^VXV'])
+    # YahooEquityDAO().save_all(['^VXV'])
     # YahooEquityDAO().save_all(['^VXMT'])
     # YahooEquityDAO().save_all(['VNM'])
     # YahooEquityDAO().save_all(['ITA', 'XAR', 'FNDE', 'DGRW', 'IHI', 'BJK', 'VHT', 'CME'])
@@ -165,3 +165,7 @@ if __name__ == '__main__':
     # print YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date_str='2017-08-01')
     # print YahooEquityDAO().get_last_trade_day_symbols()
     # print YahooEquityDAO().get_start_end_date_by_symbols()
+    # YahooEquityDAO().save_all(['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
+    # YahooEquityDAO().save_all(['000001.SS'])
+    # print YahooEquityDAO().get_equity_monthly_by_symbol('000001.SS', ['closePrice'])
+    YahooEquityDAO().save_all(['AIEQ'])

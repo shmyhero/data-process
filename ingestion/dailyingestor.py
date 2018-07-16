@@ -135,10 +135,20 @@ class DailyIngestor(object):
 if __name__ == '__main__':
     #daily_ingestor = DailyIngestor('/Users/tradehero/python-projects/data-process/data/raw/')
     #daily_ingestor.gen_all()
-    DailyIngestor().gen_vix_data()
+    # DailyIngestor().gen_vix_data()
     #print ETFS.get_all_symbols()
     #daily_ingestor.gen_equity_data('XOP')
     #daily_ingestor.validate()
+    from dataaccess.raw2db import RawToDB
+    daily_ingestor = DailyIngestor()
+    daily_ingestor.gen_all()
+    if daily_ingestor.validate():
+        RawToDB().push_to_db()
+        # exporter = DataExporter()
+        # exporter.export_skew()
+        # exporter.export_vix()
+    else:
+        raise Exception('raw data validation failed...')
 
 
 
