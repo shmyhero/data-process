@@ -3,6 +3,8 @@ from utils.stringhelper import string_fetch
 from utils.httphelper import HttpHelper
 from utils.iohelper import write_to_file
 from common.pathmgr import PathMgr
+from entities.vix import VIX
+from dataaccess.vixdao import VIXDAO
 
 
 class CBOEScraper(object):
@@ -48,10 +50,30 @@ class CBOEScraper(object):
         vix_items = filter(lambda x: 'VIX/' in x, items)
         return map(CBOEScraper.parse_vix_future, vix_items)
 
+    @staticmethod
+    def get_vix_records():
+        futures = CBOEScraper.get_vix_future()
+        records = []
+        for future in futures:
+            record = VIX()
+            symbol = future[0].replace('X/', '')
+            record.symbol = '%s1%s'%(symbol[0:3], symbol[3])
+            # record.dailyDate1dAgo = future[1]
+            record.dailyDate1dAgo = datetime.date.today() - datetime.timedelta(days=1)
+            record.lastPrice = future[2]
+            records.append(record)
+        return records
+
+    @staticmethod
+    def ingest_vix_records():
+        records = CBOEScraper.get_vix_records()
+        VIXDAO().insert(records)
+
+
 
 if __name__ == '__main__':
     # CBOEScraper.get_vxmt_daily()
     # print CBOEScraper.to_yahoo_format('1/7/2008,,,,24.22')
-    print CBOEScraper.get_vix_future()
-
+    # print CBOEScraper.get_vix_future()
+    print CBOEScraper.ingest_vix_records()
 

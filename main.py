@@ -18,6 +18,7 @@ from dataaccess.yahoooptionparser import YahooOptionParser
 from aggregation.agg_spyvixhedge import AGGSPYVIXHedge
 from processman import ProcessMan
 from validation import Validator
+from ingestion.cboescraper import CBOEScraper
 
 logger = Logger(__name__, PathMgr.get_log_path())
 
@@ -37,6 +38,12 @@ def process_for_ingesting_barchart_data():
         #exporter.export_vix()
     else:
         raise Exception('raw data validation failed...')
+
+
+def process_for_ingest_cboe_vix_data():
+    logger.info('Ingest vix data from COBE ...')
+    CBOEScraper.ingest_vix_records()
+    logger.info('Ingest vix data from COBE completed...')
 
 
 def process_for_ingesting_nyse_credit():
@@ -131,7 +138,7 @@ def save_minute_data_to_csv():
 def run():
     processes = [add_missing_data,
                  save_minute_data_to_csv,
-                 process_for_ingesting_barchart_data,
+                 process_for_ingest_cboe_vix_data,
                  process_for_ingesting_yahoo_option_data,
                  process_for_ingesting_bigcharts_option_data,
                  process_for_updating_option_delta,
