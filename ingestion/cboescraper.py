@@ -61,6 +61,7 @@ class CBOEScraper(object):
             # record.dailyDate1dAgo = future[1]
             record.dailyDate1dAgo = datetime.date.today() - datetime.timedelta(days=1)
             record.lastPrice = future[2]
+            record.dailyLastPrice = future[2]
             records.append(record)
         return records
 

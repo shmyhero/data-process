@@ -140,7 +140,7 @@ class VIX(BaseEntity):
 
 
 if __name__ == '__main__':
-    print VIX.get_f1_by_date(datetime.datetime(2017, 11, 16))
+    print VIX.get_f1_by_date(datetime.datetime(2018, 7, 18))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 15))
     print VIX.get_f1_by_date(datetime.datetime(2017, 9, 19))
     print VIX.get_f1_by_date(datetime.datetime(2018, 2, 15))
@@ -150,5 +150,5 @@ if __name__ == '__main__':
     print VIX.get_following_expiration_date(datetime.datetime(2018, 1, 3))
     print VIX.get_following_expiration_date(datetime.datetime(2018, 2, 1))
     print VIX.get_following_expiration_date(datetime.datetime(2018, 3, 1))
-    print VIX.get_following_expiration_date(datetime.datetime(2018, 4, 1))
+    print VIX.get_following_expiration_date(datetime.datetime(2018, 7, 17))
     print list(VIX.get_vix_symbol_list(datetime.datetime(2017, 8, 10), datetime.datetime(2017, 9, 20), 2))

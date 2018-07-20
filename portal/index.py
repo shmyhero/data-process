@@ -101,14 +101,16 @@ class VIXFutures(object):
             from_date = (datetime.date.today() - datetime.timedelta(150))
         else:
             from_date = from_date - datetime.timedelta(37) # ensure more than 21 days
-        equity_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
+        # equity_records = EquityDAO().get_all_equity_price_by_symbol('SPY', from_date)
+        equity_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date.strftime('%Y-%m-%d'), 'Closeprice')
         if new_price is not None:
             equity_records.append([datetime.date.today(), new_price])
         hv_records = OptionCalculater.get_year_history_volatility_list(equity_records, 21)
         return hv_records
 
     def get_equity_prices(self, symbol, from_date, new_price):
-        equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
+        # equity_records = EquityDAO().get_all_equity_price_by_symbol(symbol, from_date)
+        equity_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date.strftime('%Y-%m-%d'),'Closeprice')
         if new_price is not None:
             equity_records.append([datetime.date.today(), new_price])
         equity_prices = map(lambda x: x[1], equity_records)
@@ -136,7 +138,8 @@ class VIXFutures(object):
                 from_date = TradeTime.get_from_date_by_window(22, input_from_date)
             except Exception:
                 from_date = default_from_date
-        records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        # records_index = VIXDAO().get_vix_price_by_symbol_and_date('VIY00', from_date=from_date)
+        records_index = YahooEquityDAO().get_all_equity_price_by_symbol('^VIX', from_date.strftime('%Y-%m-%d'),'Closeprice')
         (records_f1, records_f2, records_f3) = VIXDAO().get_following_vix(from_date)
         new_spy_price = None
         if datetime.date.today() > TradeTime.get_latest_trade_date():
