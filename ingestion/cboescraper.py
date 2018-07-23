@@ -39,7 +39,13 @@ class CBOEScraper(object):
         title = string_fetch(item, 'title=\"', '\"')
         sub_items = item.split('<span')
         values = map(lambda x: string_fetch(x, '>', '</span>').strip('\r\n '), sub_items)
-        return [title, datetime.datetime.strptime(values[1], '%m/%d/%Y').date(), float(values[2])]
+        date = datetime.datetime.strptime(values[1], '%m/%d/%Y').date()
+        price = None
+        try:
+            price = float(values[2])
+        except Exception:
+            pass
+        return [title, date, price]
 
     @staticmethod
     def get_vix_future():
