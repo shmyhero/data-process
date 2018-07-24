@@ -215,6 +215,47 @@ class VIXFutures(object):
         return data
 
 
+class SVXYForVIX(object):
+
+    def GET(self, from_date_str=None):
+        default_from_date = TradeTime.get_latest_trade_date() - datetime.timedelta(60)
+        if from_date_str is None or from_date_str == '':
+            from_date = default_from_date
+        else:
+            try:
+                input_from_date = datetime.datetime.strptime(from_date_str, '%Y-%m-%d').date()
+                from_date = TradeTime.get_from_date_by_window(22, input_from_date)
+            except Exception:
+                from_date = default_from_date
+        records_svxy = YahooEquityDAO().get_all_equity_price_by_symbol('SVXY', from_date.strftime('%Y-%m-%d'), 'Closeprice')
+        dates = map(lambda x: x[0], records_svxy)
+        price_svxy = map(lambda x: x[1], records_svxy)
+
+        # shift
+        append_dates = TradeTime.generate_dates(dates[-1], dates[-1] + datetime.timedelta(days=50))
+        dates = dates[21:] + append_dates[1:22]
+        price_svxy = price_svxy[21:] + [price_svxy[-1]] * 21
+
+        if from_date < default_from_date:
+            dates = dates[:42]
+            price_svxy = price_svxy[:42]
+
+        fig = Figure(figsize=[24, 8])
+        ax = fig.add_axes([.1, .1, .8, .8])
+        ax.plot(dates, price_svxy, label='SVXY')
+        ax.legend(loc='upper left')
+        ax.grid()
+        ax.xaxis.set_major_formatter(DateFormatter('%y%m%d'))
+        ax.set_xticks(dates)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(45)
+        canvas = FigureCanvasAgg(fig)
+        buf = cStringIO.StringIO()
+        canvas.print_png(buf)
+        data = buf.getvalue()
+        return data
+
+
 class EquityPrices(object):
 
     def GET(self, symbol, days):
@@ -738,6 +779,7 @@ def run_web_app():
     urls = ('/', 'Index',
             '/credit', 'Credit',
             '/vixfutures/(.*)', 'VIXFutures',
+            '/svxyforvix/(.*)', 'SVXYForVIX',
             '/equityprices/(.*)/(.*)', 'EquityPrices',
             '/vix3in1', 'VIX3in1',
             '/vix', 'VIX',

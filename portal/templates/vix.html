@@ -8,16 +8,21 @@
     <script>
         function date_onchange(){
             control = document.getElementById('input_start_date');
-            src = "/vixfutures/" + control.value
+            src_vix = "/vixfutures/" + control.value
             //alert(src)
             image = document.getElementById('viximage')
-            image.src = src
+            image.src = src_vix
+
+            src_svxy = "/svxyforvix/" + control.value
+            //alert(src)
+            image = document.getElementById('svxyimage')
+            image.src = src_svxy
         }
     </script>
 </head>
 <body>
     <br/>
-    <h2>VIX Historical volatility and Futures</h2>
+    <h2>VIX Historical volatility and Futures, SVXY</h2>
 
     <br/>
     Start date:
@@ -26,6 +31,10 @@
 
     <div id = "div1" >
             <img id = "viximage" style="-webkit-user-select: none;" src="/vixfutures/">
+    </div>
+
+    <div id = "div2" >
+            <img id = "svxyimage" style="-webkit-user-select: none;" src="/svxyforvix/">
     </div>
 
     <!--
