@@ -240,7 +240,7 @@ class SVXYForVIX(object):
             dates = dates[:42]
             price_svxy = price_svxy[:42]
 
-        fig = Figure(figsize=[24, 8])
+        fig = Figure(figsize=[24, 4])
         ax = fig.add_axes([.1, .1, .8, .8])
         ax.plot(dates, price_svxy, label='SVXY')
         ax.legend(loc='upper left')
