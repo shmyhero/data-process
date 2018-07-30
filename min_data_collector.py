@@ -14,7 +14,7 @@ class MinDataCollector(object):
         self.logger = Logger(__name__, PathMgr.get_log_path('minutes'))
         self.alpha_vantage = AlphaVantage()
         self.equity_min_dao = EquityMinDAO()
-        self.symbols = ['SPX', 'VIX', 'SVXY', 'UVXY', 'SPY', 'QQQ', 'QLD', 'SSO', 'TLT', 'UBT']
+        self.symbols = ['SVXY', 'SPY', 'SPX', 'VIX',  'UVXY',  'QQQ', 'QLD', 'SSO', 'TLT', 'UBT']
 
     def collect_data(self):
         for symbol in self.symbols:
