@@ -11,3 +11,6 @@ class MarketWatchScraper():
         content = string_fetch(content, 'mw-rangeBar precision=', 'Day Low')
         value = string_fetch(content, '\"last-value\">', '</span>')
         return float(value.replace(',', ''))
+
+if __name__ == '__main__':
+    print MarketWatchScraper.get_data_by_symbol('SPY')

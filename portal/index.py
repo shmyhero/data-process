@@ -28,7 +28,7 @@ from dataaccess.equitymindao import EquityMinDAO
 from research.optionbacktest import OptionBackTest
 from ingestion.yahooscraper import YahooScraper
 from ingestion.cboescraper import CBOEScraper
-from ingestion.marketwatchscraper import MarketWatchScraper
+from ingestion.cnbcscraper import CNBCScraper
 
 
 render = web.template.render('portal/templates')
@@ -146,11 +146,11 @@ class VIXFutures(object):
             try:
                 new_spy_price = YahooScraper.get_data_by_symbol('SPY')
             except Exception as e:
-                new_spy_price = MarketWatchScraper.get_data_by_symbol('SPY')
+                new_spy_price = CNBCScraper.get_data_by_symbol('SPY')
             try:
                 new_vix_price = YahooScraper.get_data_by_symbol('VIX')
             except Exception as e:
-                new_vix_price = MarketWatchScraper.get_data_by_symbol('VIX')
+                new_vix_price = CNBCScraper.get_data_by_symbol('VIX')
             new_vix_features = CBOEScraper.get_vix_future()
             [new_f1, new_f2, new_f3] = [new_vix_features[0][2], new_vix_features[1][2], new_vix_features[2][2]]
             records_index.append([datetime.date.today(), new_vix_price])
