@@ -89,7 +89,7 @@ class BigChartsScraper(object):
 
 
 if __name__ == '__main__':
-    # print BigChartsScraper.ingest_options('VIX')
+    print BigChartsScraper.ingest_options('VIX')
     # print BigChartsScraper.ingest_options('VXX')
     print BigChartsScraper.ingest_options('SPY')
     # from utils.iohelper import read_file_to_string, get_sub_files

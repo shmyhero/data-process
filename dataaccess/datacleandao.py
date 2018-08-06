@@ -84,6 +84,6 @@ if __name__ == '__main__':
     #DataCleanDAO().remove_invalid_records(datetime.date(2017, 9, 23))
     #DataCleanDAO().fix_option_date_error2()
     # DataCleanDAO().clean_equity_data()
-    # DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 3, 5))
+    # DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 8, 3))
     # DataCleanDAO().add_missing_date_for_option(datetime.date(2018, 5, 18), datetime.date(2018, 5, 17))
     pass

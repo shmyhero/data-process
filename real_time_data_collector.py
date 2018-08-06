@@ -5,7 +5,7 @@ import pytz
 from utils.logger import LoggerFactory
 from common.pathmgr import PathMgr
 from entities.equity import Equity
-from ingestion.webscraper import YahooScraper, MarketWatchScraper
+from ingestion.webscraper import YahooScraper, MarketWatchScraper, CNBCScraper
 from common.tradetime import TradeTime
 from dataaccess.equityrealtimedao import EquityRealTimeDAO
 
@@ -32,7 +32,8 @@ class RealTimeDataCollector(object):
             self.logger.exception(str(e))
         if price is None:
             try:
-                price = MarketWatchScraper().get_current_data(symbol)
+                # price = MarketWatchScraper().get_current_data(symbol)
+                price = CNBCScraper().get_current_data(symbol)
             except Exception as e:
                 self.logger.exception(str(e))
         if price is not None:
@@ -62,5 +63,5 @@ class RealTimeDataCollector(object):
 
 if __name__ == '__main__':
     # MinDataCollector().run()
-    RealTimeDataCollector().run()
-    # RealTimeDataCollector().collect_data()
+    # RealTimeDataCollector().run()
+    RealTimeDataCollector().collect_data('SVXY')

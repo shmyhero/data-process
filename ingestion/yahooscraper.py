@@ -134,9 +134,10 @@ class YahooScraper(object):
 
     @staticmethod
     def get_data_by_symbol(symbol):
+        logger = Logger(__name__, PathMgr.get_log_path())
         yahoo_symbol = Symbols.get_mapped_symbol(symbol)
         url = 'https://finance.yahoo.com/quote/%s/' % yahoo_symbol
-        get_logger().info('Http request to: %s' % url, False)
+        logger.info('Http request to: %s' % url, False)
         content = HttpHelper.http_get(url)
         try:
             sub_content = string_fetch(content, 'Currency in USD', 'At close:')
@@ -172,7 +173,8 @@ if __name__ == '__main__':
     # print YahooScraper.ingest_all_options(['^VIX'])
     # YahooScraper.ingest_all_historical_etf(symbols=['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
     # YahooScraper.ingest_all_historical_etf(symbols=['000001.SS'])
-    YahooScraper.ingest_all_historical_etf(symbols=['AIEQ'])
+    # YahooScraper.ingest_all_historical_etf(symbols=['AIEQ'])
+    print YahooScraper.get_data_by_symbol('SVXY')
 
 
 
