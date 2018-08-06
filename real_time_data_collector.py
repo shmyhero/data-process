@@ -63,5 +63,5 @@ class RealTimeDataCollector(object):
 
 if __name__ == '__main__':
     # MinDataCollector().run()
-    # RealTimeDataCollector().run()
-    RealTimeDataCollector().collect_data('SVXY')
+    RealTimeDataCollector().run()
+    # RealTimeDataCollector().collect_data('SVXY')

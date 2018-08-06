@@ -62,7 +62,7 @@ class Logger:
             self.logger.exception(content)
 
 
-class DailyLoggerFactory(object):
+class LoggerFactory(object):
 
 	# BUG: below codes has bug which would lead to no log in new created file...
     # _logger_dic = {}
@@ -80,5 +80,5 @@ class DailyLoggerFactory(object):
     #         return DailyLoggerFactory._logger_dic[key]
 
     @staticmethod
-    def get_logger(name, log_path, console=True):
+    def create_daily_logger(name, log_path, console=True):
         return Logger(name, log_path, console)
