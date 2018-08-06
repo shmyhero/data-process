@@ -20,8 +20,8 @@ class AlphaVantage(object):
             high = value['2. high']
             low = value['3. low']
             close = value['4. close']
-            volume = value['5. volume']
-            equity = Equity(symbol, time, open, high, low, close, None, volume)
+            # volume = value['5. volume']
+            equity = Equity(symbol, time, open, high, low, close, None, None)
             yield equity
 
     def get_minutes_equites(self, symbol):
