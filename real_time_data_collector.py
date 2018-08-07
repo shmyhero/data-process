@@ -56,6 +56,7 @@ class RealTimeDataCollector(object):
                 except Exception as e:
                     self.logger.error('Trace: ' + traceback.format_exc())
                     self.logger.error(str(e))
+                time.sleep(1)
             else:
                 self.logger.info('market not open...')
             time.sleep(10)
