@@ -150,7 +150,7 @@ if __name__ == '__main__':
     # rows = EquityRealTimeDAO().get_min_time_and_price(start_time=datetime.datetime(2018, 1, 22, 0, 0, 0))
     # for row in rows:
     #     print row
-    EquityRealTimeDAO().add_missing_data()
+    EquityRealTimeDAO().add_missing_data('SPY')
     # EquityRealTimeDAO().add_missing_data(validate_date=datetime.date(2018, 1, 25))
     # EquityRealTimeDAO().add_missing_data_in_real_time()
     # EquityRealTimeDAO().save_to_csv()

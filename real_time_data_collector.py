@@ -5,7 +5,7 @@ import pytz
 from utils.logger import LoggerFactory
 from common.pathmgr import PathMgr
 from entities.equity import Equity
-from ingestion.webscraper import YahooScraper, MarketWatchScraper, CNBCScraper
+from ingestion.webscraper import YahooScraper, SINAScraper, CNBCScraper
 from common.tradetime import TradeTime
 from dataaccess.equityrealtimedao import EquityRealTimeDAO
 
@@ -27,13 +27,13 @@ class RealTimeDataCollector(object):
             us_dt = datetime.datetime(us_dt.year, us_dt.month, us_dt.day, 9, 30, 1)
         price = None
         try:
-            price = YahooScraper().get_current_data(symbol)
+            price = SINAScraper().get_current_data(symbol)
         except Exception as e:
             self.logger.exception(str(e))
         if price is None:
             try:
                 # price = MarketWatchScraper().get_current_data(symbol)
-                price = CNBCScraper().get_current_data(symbol)
+                price = YahooScraper().get_current_data(symbol)
             except Exception as e:
                 self.logger.exception(str(e))
         if price is not None:

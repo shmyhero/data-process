@@ -43,7 +43,7 @@ class MarketWatchScraper(WebScraper):
         return float(value.replace(',', ''))
 
 
-class CNBCScraper():
+class CNBCScraper(WebScraper):
 
     def get_current_data(self, symbol):
         url = 'https://www.cnbc.com/quotes/?symbol=%s' % symbol
@@ -52,8 +52,26 @@ class CNBCScraper():
         return float(value.replace(',', ''))
 
 
+class SINAScraper(WebScraper):
+
+    def get_current_data(self, symbol):
+        url = 'http://hq.sinajs.cn/?list=gb_%s' % symbol.replace('.', '$').lower()
+        content = HttpHelper.http_get(url)
+        value = string_fetch(content, ',', ',')
+        return float(value)
+
+
+class LaoHu8Scraper(WebScraper):
+
+    def get_current_data(self, symbol):
+        url = 'https://www.laohu8.com/hq/s/%s' % symbol
+        content = HttpHelper.http_get(url)
+        value = string_fetch(content, 'class=\"price\">', '</td>')
+        return float(value)
+
 
 if __name__ == '__main__':
     # print MarketWatchScraper().get_current_data('SVXY')
-    print YahooScraper().get_current_data('SVXY')
+    # print YahooScraper().get_current_data('SVXY')
     # print CNBCScraper().get_current_data('SVXY')
+    print LaoHu8Scraper().get_current_data('SVXY')
