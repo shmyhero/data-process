@@ -75,6 +75,12 @@ class Symbols(object):
         dic = list_to_hash(reversed_lst)
         return dic
 
+    @staticmethod
+    def get_all_tradeable_symbols():
+        symbols = Symbols.get_option_symbols()
+        symbols.extend(Symbols.non_option_symbols)
+        return sorted(symbols)
+
 if __name__ == '__main__':
     # Symbols.yahoo_symbol_to_quantopian_symbol('^GSPC')
     print Symbols.get_yahoo_mapping_dic()

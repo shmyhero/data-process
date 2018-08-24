@@ -1,4 +1,6 @@
+import numpy as np
 import pandas as pd
+import datetime
 from dataaccess.basedao import BaseDAO
 from common.symbols import Symbols
 from common.pathmgr import PathMgr
@@ -146,7 +148,33 @@ class YahooEquityDAO(BaseDAO):
         conn.close()
         return missing_symbols
 
+    def filter_liquidity_symbols(self, current_date=None, window=30, count=80):
+        if current_date is None:
+            current_date = TradeTime.get_latest_trade_date()
+        from_date = TradeTime.get_from_date_by_window(window, current_date)
+        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' group by symbol order by liquidity desc;"""
+        sql = sql_template.format(from_date, current_date)
+        rows = self.select(sql)
+        return map(lambda x:x[0], rows[:count])
 
+    def get_monthly_diff_price_by_symbol(self, symbol, cursor = None, window = 36):
+        query_template = """select lastDate, adjClosePrice from yahoo_equity_monthly_view where symbol = '{}' order by lastDate desc limit {}"""
+        query = query_template.format(symbol, window)
+        rows = self.select(query, cursor)
+        a = np.array(map(lambda x: x[1], reversed(rows)))
+        # ignore the last one because of the last price is current date rather than the end of month
+        return np.diff(np.log(a))[:-1]
+
+    def get_all_monthly_diff_price_by_symbols(self, symbols, window = 36):
+        query_template = """select lastDate, adjClosePrice from yahoo_equity_monthly_view where symbol in = ({}) order by lastDate desc limit {}"""
+        symbols_sql = ','.join(map(lambda x: '\'%s\'' % x, symbols))
+        query = query_template.format(symbols_sql, window)
+        rows = self.select(query)
+        #TODO: diff for dataframe
+
+        a = np.array(map(lambda x: x[1], reversed(rows)))
+        # ignore the last one because of the last price is current date rather than the end of month
+        return np.diff(np.log(a))[:-1]
 
 
 if __name__ == '__main__':
@@ -168,4 +196,6 @@ if __name__ == '__main__':
     # YahooEquityDAO().save_all(['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
     # YahooEquityDAO().save_all(['000001.SS'])
     # print YahooEquityDAO().get_equity_monthly_by_symbol('000001.SS', ['closePrice'])
-    YahooEquityDAO().save_all(['AIEQ'])
+    # YahooEquityDAO().save_all(['AIEQ'])
+    # print YahooEquityDAO().filter_liquidity_symbols(datetime.date(2015, 1, 1))
+    YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')
