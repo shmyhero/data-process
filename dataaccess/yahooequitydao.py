@@ -148,11 +148,11 @@ class YahooEquityDAO(BaseDAO):
         conn.close()
         return missing_symbols
 
-    def filter_liquidity_symbols(self, current_date=None, window=30, count=80):
+    def filter_liquidity_symbols(self, current_date=None, window=30, count=50):
         if current_date is None:
             current_date = TradeTime.get_latest_trade_date()
         from_date = TradeTime.get_from_date_by_window(window, current_date)
-        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' group by symbol order by liquidity desc;"""
+        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' and symbol <> 'IEF' and symbol <> 'BIL' group by symbol order by liquidity desc;"""
         sql = sql_template.format(from_date, current_date)
         rows = self.select(sql)
         return map(lambda x:x[0], rows[:count])
@@ -162,19 +162,24 @@ class YahooEquityDAO(BaseDAO):
         query = query_template.format(symbol, window)
         rows = self.select(query, cursor)
         a = np.array(map(lambda x: x[1], reversed(rows)))
-        # ignore the last one because of the last price is current date rather than the end of month
-        return np.diff(np.log(a))[:-1]
+        # ignore the last one because of the last price is current date rather than the end of month?
+        # return np.diff(np.log(a))[:-1]
+        return np.diff(np.log(a))
 
-    def get_all_monthly_diff_price_by_symbols(self, symbols, window = 36):
-        query_template = """select lastDate, adjClosePrice from yahoo_equity_monthly_view where symbol in = ({}) order by lastDate desc limit {}"""
+    def get_all_monthly_diff_price_by_symbols(self, symbols, window = 36, end_date = datetime.date(9999, 12, 12)):
+        query_template = """select symbol, lastDate, adjClosePrice from yahoo_equity_monthly_view where symbol in ({}) and lastDate < '{}' order by lastDate desc limit {}"""
         symbols_sql = ','.join(map(lambda x: '\'%s\'' % x, symbols))
-        query = query_template.format(symbols_sql, window)
+        query = query_template.format(symbols_sql, end_date, window*len(symbols))
+        # print query
         rows = self.select(query)
-        #TODO: diff for dataframe
-
-        a = np.array(map(lambda x: x[1], reversed(rows)))
-        # ignore the last one because of the last price is current date rather than the end of month
-        return np.diff(np.log(a))[:-1]
+        diffs = []
+        for symbol in symbols:
+            symbol_rows = filter(lambda x: x[0] == symbol, rows)
+            symbol_rows.sort(key=lambda x: x[1])
+            a = np.array(map(lambda x: x[2], symbol_rows))
+            diff = np.diff(a)
+            diffs.append(diff)
+        return diffs
 
 
 if __name__ == '__main__':
