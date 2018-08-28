@@ -152,10 +152,10 @@ class YahooEquityDAO(BaseDAO):
         if current_date is None:
             current_date = TradeTime.get_latest_trade_date()
         from_date = TradeTime.get_from_date_by_window(window, current_date)
-        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' and symbol <> 'IEF' and symbol <> 'BIL' group by symbol order by liquidity desc;"""
+        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' and symbol <> 'IEF' and symbol <> 'BIL' and symbol <> 'XIV' group by symbol order by liquidity desc;"""
         sql = sql_template.format(from_date, current_date)
         rows = self.select(sql)
-        return map(lambda x:x[0], rows[:count])
+        return map(lambda x: x[0], rows[:count])
 
     def get_monthly_diff_price_by_symbol(self, symbol, cursor = None, window = 36):
         query_template = """select lastDate, adjClosePrice from yahoo_equity_monthly_view where symbol = '{}' order by lastDate desc limit {}"""
@@ -182,6 +182,7 @@ class YahooEquityDAO(BaseDAO):
         return diffs
 
 
+
 if __name__ == '__main__':
     # YahooEquityDAO().save_all(['^GSPC'])
     # YahooEquityDAO().save_all(['^GSPC', '^DJI'])
@@ -202,5 +203,5 @@ if __name__ == '__main__':
     # YahooEquityDAO().save_all(['000001.SS'])
     # print YahooEquityDAO().get_equity_monthly_by_symbol('000001.SS', ['closePrice'])
     # YahooEquityDAO().save_all(['AIEQ'])
-    # print YahooEquityDAO().filter_liquidity_symbols(datetime.date(2015, 1, 1))
-    YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')
+    # print YahooEquityDAO().filter_liquidity_symbols(datetime.date(2018, 1, 1))
+    print YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')

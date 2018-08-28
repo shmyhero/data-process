@@ -1,5 +1,7 @@
 import datetime
 import pandas as pd
+from utils.stringhelper import byteify
+from common.symbols import Symbols
 from dataaccess.yahooequitydao import YahooEquityDAO
 
 
@@ -66,7 +68,7 @@ class ETFSelection(object):
     def get_low_corr_symbols(self, current_date=None, count=8):
         df = self.get_all_corr(current_date)
         corr_sum = df[df.columns].sum() - 1
-        # print type(corr_sum)
+        # print corr_sum
         records = map(lambda x,y: [x, y], corr_sum.index, corr_sum.tolist())
         records = filter(lambda x: x[1] > 0, records)
         records.sort(key=lambda x: x[1])
@@ -79,21 +81,27 @@ class ETFSelection(object):
         dates = filter(lambda x: x > start_date, dates)
         return dates
 
-    #:TODO: remove u before string, and conver the result to dict...
-    def get_monthly_symbols(self):
-        results = []
-        for date in self.get_monthly_end_date():
+    def get_monthly_symbols(self, start_date=datetime.date(2011, 1, 1)):
+        results = {}
+        for date in self.get_monthly_end_date(start_date):
             symbols = self.get_low_corr_symbols(date)
-            print [date, symbols]
-            results.append([date, symbols])
+            results[date] = map(byteify, symbols)
         return results
+
+    @staticmethod
+    def get_symbols_mapping():
+        symbols = Symbols.get_all_tradeable_symbols()
+        items = map(lambda x: '\'%s\':symbol(\'%s\')'%(x, x), symbols)
+        return '{%s}'%','.join(items)
 
 
 if __name__ == '__main__':
     # dic = ETFSelection().get_all_corr_dic()
     # print dic
     # df = ETFSelection().get_all_corr()
+    # print df
     # symbols = ETFSelection().get_low_corr_symbols(datetime.date(2015, 1, 1))
     # print symbols
     # print ETFSelection().get_monthly_end_date()
     print ETFSelection().get_monthly_symbols()
+    # print ETFSelection.get_symbols_mapping()

@@ -29,7 +29,7 @@ class Symbols(object):
        'T-Bond'                :['TLT','IEF','IEI','SHY'],
        'Precious Metals Miners':['SIL','GDX','GDXJ'],
        'Volatility'            :['VXX', 'VXZ', 'UVXY','SVXY'], #, 'XIV', 'ZIV'] # no options for XIV and ZIV
-       'Others'                :['DIA', 'EFA', 'EWJ', 'SSO', 'QLD', 'TQQQ', 'TLH', 'HYG', 'UBT', 'TMF', 'VWO', 'GSG'],
+       'Others'                :['DIA', 'EFA', 'EWJ', 'SSO', 'QLD', 'TQQQ', 'TLH', 'HYG', 'UBT', 'TMF', 'GSG'],
        'Stocks'                :['LMT', 'MO', 'CME', 'MA', 'V', 'AAPL']
         }
 
