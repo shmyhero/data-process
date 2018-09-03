@@ -5,6 +5,7 @@ from dataaccess.basedao import BaseDAO
 from common.symbols import Symbols
 from common.pathmgr import PathMgr
 from common.tradetime import TradeTime
+from common.optioncalculater import OptionCalculater
 
 
 class YahooEquityDAO(BaseDAO):
@@ -148,12 +149,13 @@ class YahooEquityDAO(BaseDAO):
         conn.close()
         return missing_symbols
 
-    def filter_liquidity_symbols(self, current_date=None, window=30, count=50):
+    def filter_liquidity_symbols(self, current_date=None, window=30, count=50, ignore_symbols = ['BIL', 'IEF', 'XIV']):
         if current_date is None:
             current_date = TradeTime.get_latest_trade_date()
         from_date = TradeTime.get_from_date_by_window(window, current_date)
-        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' and symbol <> 'IEF' and symbol <> 'BIL' and symbol <> 'XIV' group by symbol order by liquidity desc;"""
-        sql = sql_template.format(from_date, current_date)
+        ignore_symbols_sql = ','.join(map(lambda x: '\'%s\''%x, ignore_symbols))
+        sql_template = """SELECT symbol, avg(adjClosePrice * volume) as liquidity FROM tradehero.yahoo_equity where tradeDate > '{}' and tradeDate <='{}'  and symbol not like '^%' and symbol not like '%.SS' and symbol not in ({}) group by symbol order by liquidity desc;"""
+        sql = sql_template.format(from_date, current_date, ignore_symbols_sql)
         rows = self.select(sql)
         return map(lambda x: x[0], rows[:count])
 
@@ -181,6 +183,22 @@ class YahooEquityDAO(BaseDAO):
             diffs.append(diff)
         return diffs
 
+    def get_symbol_volatilities(self, symbols, window=120, end_date=datetime.date(9999, 12, 12)):
+        query_template = """select symbol, tradeDate, adjClosePrice from yahoo_equity where symbol in ({}) and tradeDate < '{}' and adjClosePrice is not null order by tradeDate desc limit {}"""
+        symbols_sql = ','.join(map(lambda x: '\'%s\'' % x, symbols))
+        query = query_template.format(symbols_sql, end_date, window * len(symbols))
+        # print query
+        rows = self.select(query)
+        volatitilies = []
+        for symbol in symbols:
+            # print symbol
+            symbol_rows = filter(lambda x: x[0] == symbol, rows)
+            symbol_rows.sort(key=lambda x: x[1])
+            price_list = map(lambda x: x[2], symbol_rows)
+            # print price_list
+            volatitily = OptionCalculater.get_history_volatility2(price_list)
+            volatitilies.append([symbol, volatitily])
+        return volatitilies
 
 
 if __name__ == '__main__':
@@ -204,4 +222,8 @@ if __name__ == '__main__':
     # print YahooEquityDAO().get_equity_monthly_by_symbol('000001.SS', ['closePrice'])
     # YahooEquityDAO().save_all(['AIEQ'])
     # print YahooEquityDAO().filter_liquidity_symbols(datetime.date(2018, 1, 1))
-    print YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')
+    # print YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')
+    symbols = YahooEquityDAO().filter_liquidity_symbols(current_date=datetime.date(2018, 1, 31))
+    print symbols
+    # symbols = ['XLF', 'GLD', 'XLE', 'XLU', 'V', 'AVGO', 'BRK-B', 'XLK', 'EWZ', 'XLI', 'GDX', 'SVXY', 'LQD', 'VOO', 'FXI', 'XLV', 'VWO', 'XOP', 'XLP', 'EWJ', 'IYR', 'STZ', 'MO', 'MA', 'JNK', 'ADBE', 'XLY', 'AGG', 'XBI', 'GDXJ', 'LMT', 'VNQ', 'SMH', 'MDY', 'KRE', 'XLB']
+    # print YahooEquityDAO().get_symbol_volatilities(symbols, end_date=datetime.date(2018, 1, 31))

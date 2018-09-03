@@ -9,6 +9,7 @@ class ETFSelection(object):
 
     def __init__(self):
         self.yahoo_dao = YahooEquityDAO()
+        self.ignore_symbols = ['BIL', 'IEF', 'XIV', 'VIX', 'GLD', 'SLV', 'TLT', 'ZIV']
 
     @staticmethod
     def get_combinations(lst):
@@ -24,6 +25,7 @@ class ETFSelection(object):
                     j += 1
         return combinations
 
+
     def get_correlation_coefficient(self, diff1, diff2):
         correlation_coefficient = pd.Series(diff1).corr(pd.Series(diff2))
         return correlation_coefficient
@@ -32,6 +34,13 @@ class ETFSelection(object):
         # b = [2, 4, 6 ,8, 10]
         # pd.Series(a).corr(pd.Series(b))
 
+    def get_low_volatility_symbols(self, current_date=None, window = 120, liquidity_filter_count = 50, vol_filter_count=30):
+        symbols = self.yahoo_dao.filter_liquidity_symbols(count=liquidity_filter_count, ignore_symbols=self.ignore_symbols)
+        symbol_volatilities = self.yahoo_dao.get_symbol_volatilities(symbols, window, current_date)
+        symbol_volatilities.sort(key=lambda x: x[1])
+        return map(lambda x: x[0], symbol_volatilities[:vol_filter_count])
+
+    # obsoleted
     def get_all_corr_dic(self):
         symbols = self.yahoo_dao.filter_liquidity_symbols(count=50)
         # conn = self.yahoo_dao.get_connection()
@@ -51,8 +60,11 @@ class ETFSelection(object):
             corr_dic[reverse_key] = corr
         return corr_dic
 
-    def get_all_corr(self, current_date=None):
-        symbols = self.yahoo_dao.filter_liquidity_symbols(current_date=current_date)
+    def get_all_corr(self, current_date=None, liquidity_filter_count=30, volatility_filter_count=None):
+        if volatility_filter_count is not None:
+            symbols = self.get_low_volatility_symbols(current_date=current_date, liquidity_filter_count=liquidity_filter_count, vol_filter_count=volatility_filter_count)
+        else:
+            symbols = self.yahoo_dao.filter_liquidity_symbols(current_date=current_date, count=liquidity_filter_count, ignore_symbols=self.ignore_symbols)
         diffs = self.yahoo_dao.get_all_monthly_diff_price_by_symbols(symbols, end_date=current_date)
         df = None
         for i in range(len(symbols)):
@@ -65,8 +77,8 @@ class ETFSelection(object):
         correlation_coefficient = df.corr()
         return correlation_coefficient
 
-    def get_low_corr_symbols(self, current_date=None, count=8):
-        df = self.get_all_corr(current_date)
+    def get_low_corr_symbols(self, current_date=None, count=8, liquidity_filter_count=30, volatility_filter_count=None):
+        df = self.get_all_corr(current_date,  liquidity_filter_count=liquidity_filter_count, volatility_filter_count=volatility_filter_count)
         corr_sum = df[df.columns].sum() - 1
         # print corr_sum
         records = map(lambda x,y: [x, y], corr_sum.index, corr_sum.tolist())
@@ -81,10 +93,10 @@ class ETFSelection(object):
         dates = filter(lambda x: x > start_date, dates)
         return dates
 
-    def get_monthly_symbols(self, start_date=datetime.date(2011, 1, 1)):
+    def get_monthly_symbols(self, start_date=datetime.date(2011, 1, 1), liquidity_filter_count=50, volatility_filter_count=None):
         results = {}
         for date in self.get_monthly_end_date(start_date):
-            symbols = self.get_low_corr_symbols(date)
+            symbols = self.get_low_corr_symbols(date, liquidity_filter_count=liquidity_filter_count, volatility_filter_count=volatility_filter_count)
             results[date] = map(byteify, symbols)
         return results
 
@@ -103,5 +115,8 @@ if __name__ == '__main__':
     # symbols = ETFSelection().get_low_corr_symbols(datetime.date(2015, 1, 1))
     # print symbols
     # print ETFSelection().get_monthly_end_date()
-    print ETFSelection().get_monthly_symbols()
+    # print ETFSelection().get_monthly_symbols(liquidity_filter_count=50, volatility_filter_count=None)
+    # print ETFSelection().get_monthly_symbols()
     # print ETFSelection.get_symbols_mapping()
+    # print ETFSelection().get_low_volatility_symbols()
+    print ETFSelection().get_monthly_symbols(liquidity_filter_count=50, volatility_filter_count=35)
