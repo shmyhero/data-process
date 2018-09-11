@@ -25,7 +25,6 @@ class ETFSelection(object):
                     j += 1
         return combinations
 
-
     def get_correlation_coefficient(self, diff1, diff2):
         correlation_coefficient = pd.Series(diff1).corr(pd.Series(diff2))
         return correlation_coefficient
@@ -98,6 +97,7 @@ class ETFSelection(object):
         for date in self.get_monthly_end_date(start_date):
             symbols = self.get_low_corr_symbols(date, liquidity_filter_count=liquidity_filter_count, volatility_filter_count=volatility_filter_count)
             results[date] = map(byteify, symbols)
+            # print date, results[date]
         return results
 
     @staticmethod

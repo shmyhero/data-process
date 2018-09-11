@@ -59,9 +59,10 @@ class YahooEquityDAO(BaseDAO):
         cursor = conn.cursor()
 
         for index, row in df.iterrows():
-            query = BaseDAO.mysql_format(query_template, symbol, row['Date'], row['Open'], row['High'],
-                                         row['Low'], row['Close'], row['Adj Close'], row['Volume'])
-            self.execute_query(query, cursor)
+            if TradeTime.is_trade_day(datetime.datetime.strptime(row['Date'], '%Y-%m-%d')):
+                query = BaseDAO.mysql_format(query_template, symbol, row['Date'], row['Open'], row['High'],
+                                            row['Low'], row['Close'], row['Adj Close'], row['Volume'])
+                self.execute_query(query, cursor)
         conn.commit()
         conn.close()
 
@@ -79,9 +80,10 @@ class YahooEquityDAO(BaseDAO):
         cursor = conn.cursor()
 
         for index, row in df.iterrows():
-            query = BaseDAO.mysql_format(query_template, symbol, row['Date'], row['Open'], row['High'], row['Low'], row['Close'], row['Adj Close'], row['Volume'], row['Adj Close'])
-            #print query
-            self.execute_query(query, cursor)
+            if TradeTime.is_trade_day(datetime.datetime.strptime(row['Date'], '%Y-%m-%d')):
+                query = BaseDAO.mysql_format(query_template, symbol, row['Date'], row['Open'], row['High'], row['Low'], row['Close'], row['Adj Close'], row['Volume'], row['Adj Close'])
+                #print query
+                self.execute_query(query, cursor)
         conn.commit()
         conn.close()
 
@@ -200,6 +202,13 @@ class YahooEquityDAO(BaseDAO):
             volatitilies.append([symbol, volatitily])
         return volatitilies
 
+    def get_lack_of_liquity_symbols(self, window=100):
+        symbols = self.filter_liquidity_symbols(datetime.date(2018, 1, 1), window=window)
+        tradable_symbols = Symbols.get_all_tradeable_symbols()
+        return filter(lambda x: x not in symbols, tradable_symbols)
+
+
+
 
 if __name__ == '__main__':
     # YahooEquityDAO().save_all(['^GSPC'])
@@ -223,7 +232,9 @@ if __name__ == '__main__':
     # YahooEquityDAO().save_all(['AIEQ'])
     # print YahooEquityDAO().filter_liquidity_symbols(datetime.date(2018, 1, 1))
     # print YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')
-    symbols = YahooEquityDAO().filter_liquidity_symbols(current_date=datetime.date(2018, 1, 31))
-    print symbols
+    # symbols = YahooEquityDAO().filter_liquidity_symbols(current_date=datetime.date(2018, 1, 31))
+    # print symbols
     # symbols = ['XLF', 'GLD', 'XLE', 'XLU', 'V', 'AVGO', 'BRK-B', 'XLK', 'EWZ', 'XLI', 'GDX', 'SVXY', 'LQD', 'VOO', 'FXI', 'XLV', 'VWO', 'XOP', 'XLP', 'EWJ', 'IYR', 'STZ', 'MO', 'MA', 'JNK', 'ADBE', 'XLY', 'AGG', 'XBI', 'GDXJ', 'LMT', 'VNQ', 'SMH', 'MDY', 'KRE', 'XLB']
     # print YahooEquityDAO().get_symbol_volatilities(symbols, end_date=datetime.date(2018, 1, 31))
+    YahooEquityDAO().save_all(['MSFT'])
+    # print YahooEquityDAO().get_lack_of_liquity_symbols(200)
