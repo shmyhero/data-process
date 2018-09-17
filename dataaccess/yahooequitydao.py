@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from dataaccess.basedao import BaseDAO
+from utils.maths import get_sharp_ratio
 from common.symbols import Symbols
 from common.pathmgr import PathMgr
 from common.tradetime import TradeTime
@@ -202,10 +203,43 @@ class YahooEquityDAO(BaseDAO):
             volatitilies.append([symbol, volatitily])
         return volatitilies
 
+    def get_symbol_sharp_ratio(self, symbols, window=120, end_date=datetime.date(9999, 12, 12)):
+        query_template = """select symbol, tradeDate, adjClosePrice from yahoo_equity where symbol in ({}) and tradeDate < '{}' and adjClosePrice is not null order by tradeDate desc limit {}"""
+        symbols_sql = ','.join(map(lambda x: '\'%s\'' % x, symbols))
+        query = query_template.format(symbols_sql, end_date, window * len(symbols))
+        # print query
+        rows = self.select(query)
+        sharp_ratios = []
+        for symbol in symbols:
+            # print symbol
+            symbol_rows = filter(lambda x: x[0] == symbol, rows)
+            symbol_rows.sort(key=lambda x: x[1])
+            price_list = map(lambda x: x[2], symbol_rows)
+            # print price_list
+            sharp_ratio = get_sharp_ratio(price_list)
+            sharp_ratios.append([symbol, sharp_ratio])
+        return sharp_ratios
+
     def get_lack_of_liquity_symbols(self, window=100):
-        symbols = self.filter_liquidity_symbols(datetime.date(2018, 1, 1), window=window)
+        from dateutil.relativedelta import relativedelta
+        result = []
+        today = datetime.date.today()
+        current = datetime.date(2011, 1, 1)
         tradable_symbols = Symbols.get_all_tradeable_symbols()
-        return filter(lambda x: x not in symbols, tradable_symbols)
+        set_symbols = set(['BIL', 'IEF', 'XIV', 'VIX', 'GLD', 'SLV', 'TLT', 'ZIV'])
+        while current <= today:
+            result.append(current)
+            current += relativedelta(months=1)
+        for date in result:
+            print date
+            symbols = self.filter_liquidity_symbols(date, window=window)
+            set_symbols = set_symbols.union(set(symbols))
+        # print 'set_symbols = %s'%set_symbols
+        return filter(lambda x: x not in set_symbols, tradable_symbols)
+
+        # symbols = self.filter_liquidity_symbols(datetime.date(2018, 1, 1), window=window)
+        # tradable_symbols = Symbols.get_all_tradeable_symbols()
+        # return filter(lambda x: x not in symbols, tradable_symbols)
 
 
 
@@ -236,5 +270,6 @@ if __name__ == '__main__':
     # print symbols
     # symbols = ['XLF', 'GLD', 'XLE', 'XLU', 'V', 'AVGO', 'BRK-B', 'XLK', 'EWZ', 'XLI', 'GDX', 'SVXY', 'LQD', 'VOO', 'FXI', 'XLV', 'VWO', 'XOP', 'XLP', 'EWJ', 'IYR', 'STZ', 'MO', 'MA', 'JNK', 'ADBE', 'XLY', 'AGG', 'XBI', 'GDXJ', 'LMT', 'VNQ', 'SMH', 'MDY', 'KRE', 'XLB']
     # print YahooEquityDAO().get_symbol_volatilities(symbols, end_date=datetime.date(2018, 1, 31))
-    YahooEquityDAO().save_all(['MSFT'])
-    # print YahooEquityDAO().get_lack_of_liquity_symbols(200)
+    # YahooEquityDAO().save_all(['MSFT'])
+    print YahooEquityDAO().get_lack_of_liquity_symbols(200)
+    # print YahooEquityDAO().get_symbol_sharp_ratio(symbols, end_date=datetime.date(2018, 1, 31))

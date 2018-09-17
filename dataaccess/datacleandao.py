@@ -1,4 +1,5 @@
 import datetime
+from common.tradetime import TradeTime
 from entities.vix import VIX
 from dataaccess.basedao import BaseDAO
 from dataaccess.vixdao import VIXDAO
@@ -74,6 +75,19 @@ class DataCleanDAO(BaseDAO):
             print insert_query
             self.execute_query(insert_query)
 
+    def clear_invalid_date_records(self):
+        query = """select distinct TradeDate from yahoo_equity"""
+        remove_invalid_query_template = """delete from yahoo_equity where TradeDate = '{}'"""
+        rows = self.select(query)
+        dates = map(lambda x: x[0], rows)
+        for date in dates:
+            if not TradeTime.is_trade_day(date):
+                query = remove_invalid_query_template.format(date)
+                print date
+                print query
+                self.execute_query(query)
+
+
 
 
 
@@ -84,6 +98,6 @@ if __name__ == '__main__':
     #DataCleanDAO().remove_invalid_records(datetime.date(2017, 9, 23))
     #DataCleanDAO().fix_option_date_error2()
     # DataCleanDAO().clean_equity_data()
-    DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 8, 3), 'SPY')
+    # DataCleanDAO().add_missing_data_to_realtime_from_min(datetime.date(2018, 8, 3), 'SPY')
     # DataCleanDAO().add_missing_date_for_option(datetime.date(2018, 5, 18), datetime.date(2018, 5, 17))
-    pass
+    DataCleanDAO().clear_invalid_date_records()

@@ -174,7 +174,9 @@ if __name__ == '__main__':
     # YahooScraper.ingest_all_historical_etf(symbols=['ADBE', 'AVGO', 'AMZN', 'NFLX', 'GOOG'])
     # YahooScraper.ingest_all_historical_etf(symbols=['000001.SS'])
     # YahooScraper.ingest_all_historical_etf(symbols=['AIEQ'])
-    print YahooScraper.get_data_by_symbol('SVXY')
+    # print YahooScraper.get_data_by_symbol('SVXY')
+    # YahooScraper.ingest_recently_historyical_etf(symbols=['SPY'])
+    YahooScraper.ingest_all_historical_etf(symbols=['MSFT'])
 
 
 
