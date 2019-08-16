@@ -87,7 +87,7 @@ class ETFSelection(object):
         df = self.get_all_corr(current_date, liquidity_filter_count=liquidity_filter_count, second_filter_count=second_filter_count, second_filter_by=second_filter_by)
         corr_sum = df[df.columns].sum() - 1
         # print corr_sum
-        records = map(lambda x,y: [x, y], corr_sum.index, corr_sum.tolist())
+        records = map(lambda x, y: [x, y], corr_sum.index, corr_sum.tolist())
         records = filter(lambda x: x[1] > 0, records)
         records.sort(key=lambda x: x[1])
         # corr_sum.sort_vaues(assending=False)

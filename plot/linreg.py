@@ -10,7 +10,7 @@ from dataaccess.yahooequitydao import YahooEquityDAO
 
 
 def plot_spy_vs_qqq(from_date):
-    spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('AAPL', from_date.strftime('%Y-%m-%d'))
+    spy_records = YahooEquityDAO().get_all_equity_price_by_symbol('SPY', from_date.strftime('%Y-%m-%d'))
     qqq_records = YahooEquityDAO().get_all_equity_price_by_symbol('AMZN', from_date.strftime('%Y-%m-%d'))
     DATE = map(lambda x: x[0], spy_records)
     X = map(lambda x: x[1], spy_records)
@@ -95,5 +95,5 @@ def plot_linreg(from_date):
 
 
 if __name__ == '__main__':
-    plot_spy_vs_qqq(datetime.date(2010, 1, 1))
-    # plot_linreg(datetime.date(2010, 1, 1))
+    # plot_spy_vs_qqq(datetime.date(2010, 1, 1))
+    plot_linreg(datetime.date(2010, 1, 1))

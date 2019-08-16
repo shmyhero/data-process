@@ -39,3 +39,7 @@ class ConfigMgr(dict):
     @staticmethod
     def get_output_config():
         return ConfigMgr.get_config()['output']
+
+    @staticmethod
+    def get_others_config():
+        return ConfigMgr.get_config()['others']

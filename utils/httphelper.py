@@ -1,5 +1,5 @@
 import urllib2
-
+from selenium import webdriver
 
 class HttpHelper:
 
@@ -24,4 +24,12 @@ class HttpHelper:
             except Exception:
                 pass
         raise Exception('Http request failed for %s times' % retry)
+
+    @staticmethod
+    def webdriver_http_get(url, chrome_driver_path):
+        driver = webdriver.Chrome(chrome_driver_path)
+        driver.get(url)
+        content = driver.page_source
+        driver.quit()
+        return content
 

@@ -264,6 +264,7 @@ if __name__ == '__main__':
     # YahooEquityDAO().save_all(['000001.SS'])
     # print YahooEquityDAO().get_equity_monthly_by_symbol('000001.SS', ['closePrice'])
     # YahooEquityDAO().save_all(['AIEQ'])
+    YahooEquityDAO().save_all(['SPY'])
     # print YahooEquityDAO().filter_liquidity_symbols(datetime.date(2018, 1, 1))
     # print YahooEquityDAO().get_monthly_diff_price_by_symbol('SPY')
     # symbols = YahooEquityDAO().filter_liquidity_symbols(current_date=datetime.date(2018, 1, 31))
@@ -271,5 +272,5 @@ if __name__ == '__main__':
     # symbols = ['XLF', 'GLD', 'XLE', 'XLU', 'V', 'AVGO', 'BRK-B', 'XLK', 'EWZ', 'XLI', 'GDX', 'SVXY', 'LQD', 'VOO', 'FXI', 'XLV', 'VWO', 'XOP', 'XLP', 'EWJ', 'IYR', 'STZ', 'MO', 'MA', 'JNK', 'ADBE', 'XLY', 'AGG', 'XBI', 'GDXJ', 'LMT', 'VNQ', 'SMH', 'MDY', 'KRE', 'XLB']
     # print YahooEquityDAO().get_symbol_volatilities(symbols, end_date=datetime.date(2018, 1, 31))
     # YahooEquityDAO().save_all(['MSFT'])
-    print YahooEquityDAO().get_lack_of_liquity_symbols(200)
+    # print YahooEquityDAO().get_lack_of_liquity_symbols(200)
     # print YahooEquityDAO().get_symbol_sharp_ratio(symbols, end_date=datetime.date(2018, 1, 31))

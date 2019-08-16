@@ -204,6 +204,18 @@ class OptionDAO(BaseDAO):
         query = query_template.format(delta, symbol, tradeTime)
         self.execute_query(query, cursor)
 
+    # need the equity price of 510050
+    # def generate_calenda_options(self, symbol, from_date, end_date=None):
+    #     unexpired_dates = self.get_all_unexpired_dates(symbol, from_date)
+    #     if end_date is not None:
+    #         unexpired_dates = filter(lambda x: x < end_date, unexpired_dates)
+    #     for i in range(len(unexpired_dates)-2):
+    #         current_contract_date = unexpired_dates[0]
+    #         next_contract_date = unexpired_dates[1]
+    #         underling_symbol_price = Equity
+
+
+
 
 if __name__ == '__main__':
     #exp_date = OptionDAO().get_following_expirationDate('SPY')
@@ -213,8 +225,11 @@ if __name__ == '__main__':
     #print OptionDAO().get_spike_prices_by('SPY', '2017-09-15')
     #print OptionDAO().get_option_by('SPY', '2017-09-15', 245, 'Call')
     # print OptionDAO().get_option_by_symbol('SPY170915C00245000')
-    OptionDAO().find_symbol('SPY',  datetime.date(2018, 6, 15), 271.33, current_date=datetime.date(2018, 5, 18), days_to_current_date=10)
-
-
+    # OptionDAO().find_symbol('SPY',  datetime.date(2018, 6, 15), 271.33, current_date=datetime.date(2018, 5, 18), days_to_current_date=10)
+    # print OptionDAO().get_following_expirationDate('510050', datetime.date(2018, 1, 1))
+    for date in OptionDAO().get_all_unexpired_dates('510050', datetime.date(2017, 1, 1)):
+        print date
+    # exp_date = OptionDAO().get_following_expirationDate('510050')
+    # print OptionDAO().find_symbol('510050', exp_date, 2.3)
 
 

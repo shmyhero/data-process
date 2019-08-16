@@ -83,7 +83,7 @@ def backup_daily_data():
 
 def process_for_yahoo_historical_data():
     logger.info('process for yahoo historical data...')
-    if datetime.date.today().weekday() == 6:
+    if datetime.date.today().weekday() == 6 :
         YahooScraper.ingest_all_historical_etf()
     else:
         YahooScraper.ingest_recently_historyical_etf()
@@ -147,10 +147,13 @@ def run():
                  process_for_ingesting_nyse_credit,
                  data_validation,
                  catch_up_missing_data,
-                 #backup_daily_data,
-                 #clean_obsoleted_data
+                 # backup_daily_data,
+                 # clean_obsoleted_data
                  ]
     return ProcessMan('data-process', processes).run_all()
+
+    # for process in processes:
+    #    process()
 
 
 def main():
@@ -163,7 +166,11 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-
-
+    # main()
+    # process_for_ingesting_nyse_credit()
+    # process_for_ingesting_yahoo_option_data()
+    process_for_yahoo_historical_data()
+    # add_missing_data()
+    # process_for_ingesting_yahoo_option_data()
+    # data_validation()
 

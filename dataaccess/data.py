@@ -44,6 +44,7 @@ class Data(object):
             results = None
             columns = ['date']
             for symbol in assets:
+                print symbol
                 columns.append(symbol)
                 rows = self.historical_data_provider.history(symbol, field, window)
                 if results is None:

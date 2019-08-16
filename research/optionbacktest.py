@@ -66,4 +66,5 @@ class OptionBackTest(object):
 
 
 if __name__ == '__main__':
-    print OptionBackTest([['SPY171020C00247000', 1, 'long']], datetime.date(2017, 8, 20)).get_values()
+    for date_value in OptionBackTest([['SPY171020C00247000', 1, 'long']], datetime.date(2017, 8, 20)).get_values():
+        print date_value

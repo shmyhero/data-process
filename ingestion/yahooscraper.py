@@ -9,6 +9,7 @@ from utils.logger import Logger
 from utils.httphelper import HttpHelper
 from common.symbols import Symbols
 from common.pathmgr import PathMgr
+from common.configmgr import ConfigMgr
 
 
 class YahooScraper(object):
@@ -23,8 +24,8 @@ class YahooScraper(object):
         cookie_regex = r'set-cookie: (.*?); '
         link = crumble_link.format(symbol)
         response = urllib2.urlopen(link)
-        # print response.info()
-        match = re.search(cookie_regex, str(response.info()))
+        print response
+        match = re.search(cookie_regex, str(response))
         cookie_str = match.group(1)
         text = response.read()
         #print text
@@ -33,10 +34,27 @@ class YahooScraper(object):
         return crumble_str, cookie_str
 
     @staticmethod
-    def get_crumble_and_cookie_with_cache(symbol):
+    def get_crumble_and_cookie2():
+        # url_template = 'https://finance.yahoo.com/quote/{0}/history?p={0}'
+        url = 'https://finance.yahoo.com/quote/SPY'
+        # content = HttpHelper.http_get(url, headers={'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'})
+        chrome_driver_path = ConfigMgr.get_others_config()['chromedriver']
+        content = HttpHelper.webdriver_http_get(url, chrome_driver_path)
+        # print(content)
+        crumb = string_fetch(content, 'CrumbStore\":{\"crumb\":\"', '\"}')
+        cookie_value = string_fetch(content, 'guid=', ';')
+        cookie = 'B=%s'%cookie_value
+        # print crumb, cookie
+        return crumb, cookie
+
+
+
+    @staticmethod
+    def get_crumble_and_cookie_with_cache():
         if YahooScraper.crumble_cookie is None:
-            YahooScraper.crumble_cookie = YahooScraper.get_crumble_and_cookie(symbol)
+            YahooScraper.crumble_cookie = YahooScraper.get_crumble_and_cookie2()
         return YahooScraper.crumble_cookie
+
 
 
     @staticmethod
@@ -47,7 +65,7 @@ class YahooScraper(object):
 
         attempts = 0
         while attempts < 5:
-            crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache(symbol)
+            crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache()
             link = quote_link.format(symbol, time_stamp_from, time_stamp_to, crumble_str)
             #print link
             #print crumble_str, cookie_str
@@ -65,11 +83,29 @@ class YahooScraper(object):
         return ""
 
     @staticmethod
-    def ingest_with_retry(symbol, url):
+    def download_quote2(symbol, date_from, date_to):
+        url_template = 'https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history&crumb={}'
+        time_stamp_from = calendar.timegm(datetime.datetime.strptime(date_from, "%Y-%m-%d").timetuple())
+        time_stamp_to = calendar.timegm(datetime.datetime.strptime(date_to, "%Y-%m-%d").timetuple())
+        crumble_str, cookie = YahooScraper.get_crumble_and_cookie_with_cache()
+        url = url_template.format(symbol, time_stamp_from, time_stamp_to, crumble_str)
         attempts = 0
         while attempts < 5:
             try:
-                crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache(symbol)
+                content = HttpHelper.http_get_with_time_out(url, {'Cookie':cookie})
+                return content
+            except urllib2.URLError:
+                print "{} failed at attempt # {}".format(symbol, attempts)
+                attempts += 1
+                time.sleep(2 * attempts)
+        return ""
+
+    @staticmethod
+    def ingest_with_retry(url):
+        attempts = 0
+        while attempts < 5:
+            try:
+                crumble_str, cookie_str = YahooScraper.get_crumble_and_cookie_with_cache()
                 r = urllib2.Request(url, headers={'Cookie': cookie_str})
                 response = urllib2.urlopen(r)
                 text = response.read()
@@ -90,7 +126,7 @@ class YahooScraper(object):
         for symbol in symbols:
             logger.info('ingest for %s...' % symbol)
             path = PathMgr.get_historical_etf_path(symbol)
-            content = YahooScraper.download_quote(symbol, date_from, date_to)
+            content = YahooScraper.download_quote2(symbol, date_from, date_to)
             write_to_file(path, content)
             time.sleep(1)
 
@@ -102,7 +138,7 @@ class YahooScraper(object):
     @staticmethod
     def get_option_expirations(symbol):
         url = "https://finance.yahoo.com/quote/{}/options?p={}".format(symbol, symbol)
-        content = YahooScraper.ingest_with_retry(symbol, url)
+        content = YahooScraper.ingest_with_retry(url)
         items = string_fetch(content, '\"expirationDates\":[', ']')
         values = items.split(',')
         #content = string_fetch(content, '\"underlyingSymbol\":\"^VIX\"},', '\"sortState\":1}}}')
@@ -116,7 +152,7 @@ class YahooScraper(object):
     @staticmethod
     def ingest_option(symbol, date_value):
         url = "https://finance.yahoo.com/quote/{}/options?p={}&date={}".format(symbol, symbol, date_value)
-        content = YahooScraper.ingest_with_retry(symbol, url)
+        content = YahooScraper.ingest_with_retry(url)
         return content
 
     @staticmethod
@@ -175,8 +211,10 @@ if __name__ == '__main__':
     # YahooScraper.ingest_all_historical_etf(symbols=['000001.SS'])
     # YahooScraper.ingest_all_historical_etf(symbols=['AIEQ'])
     # print YahooScraper.get_data_by_symbol('SVXY')
-    # YahooScraper.ingest_recently_historyical_etf(symbols=['SPY'])
-    YahooScraper.ingest_all_historical_etf(symbols=['MSFT'])
 
-
+    # YahooScraper.ingest_recently_historyical_etf(symbols=['AAPL'], days=100)
+    print(YahooScraper.get_crumble_and_cookie2())
+    # headers = {'Cookie': u'B=e5p5f0tela0u6&b=3&s=lh'}
+    # content = HttpHelper.http_get_with_time_out('https://query1.finance.yahoo.com/v7/finance/download/SPY?period1=1534262400&period2=1565798400&interval=1d&events=history&crumb=thQ7xxwmBV0', headers)
+    # print(content)
 
