@@ -5,7 +5,7 @@ from utils.listhelper import hash_to_list, list_to_hash
 class Symbols(object):
 
     dic = {
-       'Large Cap'             :['SPY','IVV','VOO','IWB'],
+       'Large Cap'             :['SPY','IVV','VOO','IWB', 'SPLV', 'USMV'],
        'Mid Cap'               :['MDY','IJH','VO','IWR'],
        'Small Cap'             :['IWM','IJR','VB'],
        'Global Equity'         :['VEU','ACWI','VXUS'],

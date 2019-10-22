@@ -40,6 +40,10 @@ class YahooScraper(object):
         # content = HttpHelper.http_get(url, headers={'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'})
         chrome_driver_path = ConfigMgr.get_others_config()['chromedriver']
         content = HttpHelper.webdriver_http_get(url, chrome_driver_path)
+
+        #seems phantomjs does not work...
+        # phantomjs_path = ConfigMgr.get_others_config()['phantomjs']
+        # content = HttpHelper.webdriver_http_get2(url, phantomjs_path)
         # print(content)
         crumb = string_fetch(content, 'CrumbStore\":{\"crumb\":\"', '\"}')
         cookie_value = string_fetch(content, 'guid=', ';')
